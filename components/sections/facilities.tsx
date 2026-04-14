@@ -63,9 +63,9 @@ export function FacilitiesSection() {
   const activeFacility = facilities[activeIndex]
 
   return (
-    <section id="facilities" ref={sectionRef} className="py-24 lg:py-32 bg-[var(--cream)] relative overflow-hidden">
+    <section id="facilities" ref={sectionRef} className="py-24 lg:py-32 wp-section wp-bg-cream wp-divider-soft">
       {/* Background */}
-      <div className="absolute inset-0 bg-dot-pattern opacity-40" />
+      <div className="absolute inset-0 bg-dot-pattern opacity-35" />
       <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-gradient-to-tl from-[var(--gold)]/5 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">

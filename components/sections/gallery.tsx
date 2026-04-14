@@ -76,9 +76,9 @@ export function GallerySection() {
     : galleryImages.filter(img => img.category === activeCategory)
 
   return (
-    <section id="gallery" ref={sectionRef} className="py-24 lg:py-32 bg-white relative overflow-hidden">
+    <section id="gallery" ref={sectionRef} className="py-24 lg:py-32 wp-section wp-bg-paper wp-divider-soft">
       {/* Background */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-30" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-24" />
       
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
         {/* Header */}

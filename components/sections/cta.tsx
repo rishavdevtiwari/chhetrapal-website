@@ -17,9 +17,9 @@ export function CTASection() {
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" })
 
   return (
-    <section id="admissions" ref={sectionRef} className="py-24 lg:py-32 bg-white relative overflow-hidden">
+    <section id="admissions" ref={sectionRef} className="py-24 lg:py-32 wp-section wp-bg-paper wp-divider-soft">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-30" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-25" />
       
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
         {/* Main CTA Card */}

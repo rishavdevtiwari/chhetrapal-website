@@ -43,21 +43,23 @@ function AnimatedCounter({ end, suffix = "" }: { end: number; suffix?: string })
 }
 
 const features = [
-  "Montessori & IB Curriculum Integration",
-  "State-of-the-Art STEM Laboratories", 
-  "Holistic Character Development",
-  "Global Exchange Programs",
+  "Student-centered classroom guidance",
+  "Well-equipped Science and Computer labs",
+  "Discipline with care and mentorship",
+  "Strong co-curricular participation",
 ]
 
 export function AboutSection() {
   return (
-    <section id="about" className="py-20 lg:py-28 bg-[var(--cream)]">
+    <section id="about" className="py-20 lg:py-28 wp-section wp-bg-cream wp-divider-soft">
+      <div className="absolute inset-0 bg-grid-pattern opacity-20" />
+      <div className="absolute top-0 right-0 h-64 w-64 rounded-full bg-[var(--gold)]/10 blur-3xl" />
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Content */}
           <div>
             <span className="inline-block px-4 py-1.5 rounded-full bg-[var(--gold)]/10 text-[var(--gold)] text-sm font-medium mb-6">
-              About Our Legacy
+              About Our School
             </span>
 
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--navy)] leading-tight mb-6">
@@ -67,15 +69,12 @@ export function AboutSection() {
 
             <div className="space-y-4 text-[var(--navy)]/70 leading-relaxed mb-8">
               <p>
-                Chhetrapal School stands as a beacon of academic prestige nestled in the 
-                serene valleys of Himachal Pradesh. For a century, we have cultivated 
-                young minds with a philosophy that every child possesses untapped 
-                potential waiting to be discovered.
+                Chhetrapal School has served families with a clear mission: quality education,
+                strong values, and consistent academic growth in a caring environment.
               </p>
               <p>
-                Our approach combines rigorous scientific inquiry with deep appreciation 
-                for arts and humanities, creating well-rounded individuals prepared for 
-                the challenges of tomorrow.
+                We focus on strong classroom foundations, practical learning, and respectful
+                school culture so every student can grow with confidence.
               </p>
             </div>
 
@@ -156,8 +155,8 @@ export function AboutSection() {
           {[
             { value: 100, suffix: "%", label: "University Placement" },
             { value: 15, suffix: ":1", label: "Student-Teacher Ratio" },
-            { value: 50, suffix: "+", label: "Extracurricular Activities" },
-            { value: 25, suffix: "+", label: "International Partnerships" },
+            { value: 40, suffix: "+", label: "Activities and Clubs" },
+            { value: 12, suffix: "+", label: "Lab and Learning Spaces" },
           ].map((stat) => (
             <div
               key={stat.label}

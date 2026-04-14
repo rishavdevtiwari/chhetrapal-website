@@ -63,9 +63,9 @@ export function CurriculumSection() {
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" })
 
   return (
-    <section id="academics" ref={sectionRef} className="py-24 lg:py-32 bg-white relative overflow-hidden">
+    <section id="academics" ref={sectionRef} className="py-24 lg:py-32 wp-section wp-bg-paper wp-divider-soft">
       {/* Background Elements */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-30" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-25" />
       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[var(--cream)] to-transparent" />
       
       {/* Decorative Circles */}

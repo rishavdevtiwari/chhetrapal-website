@@ -1,17 +1,18 @@
 import type { Metadata, Viewport } from 'next'
-import { Plus_Jakarta_Sans, Inter } from 'next/font/google'
+import { Cormorant_Garamond, Manrope } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const plusJakarta = Plus_Jakarta_Sans({ 
-  subsets: ["latin"],
-  variable: '--font-plus-jakarta',
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  variable: '--font-display',
   display: 'swap',
+  weight: ['500', '600', '700'],
 })
 
-const inter = Inter({ 
+const manrope = Manrope({
   subsets: ["latin"],
-  variable: '--font-inter',
+  variable: '--font-sans-modern',
   display: 'swap',
 })
 
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#003366',
+  themeColor: '#0f2942',
   width: 'device-width',
   initialScale: 1,
 }
@@ -50,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${plusJakarta.variable} ${inter.variable} bg-background`}>
+    <html lang="en" className={`${cormorant.variable} ${manrope.variable} bg-background`}>
       <body className="font-sans antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

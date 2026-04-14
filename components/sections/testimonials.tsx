@@ -59,9 +59,9 @@ export function TestimonialsSection() {
   const currentTestimonial = testimonials[currentIndex]
 
   return (
-    <section ref={sectionRef} className="py-24 lg:py-32 bg-gradient-to-b from-[var(--cream)] via-white to-[var(--cream)] relative overflow-hidden">
+    <section ref={sectionRef} className="py-24 lg:py-32 wp-section wp-bg-cream">
       {/* Background Elements */}
-      <div className="absolute inset-0 bg-dot-pattern opacity-30" />
+      <div className="absolute inset-0 bg-dot-pattern opacity-28" />
       
       {/* Decorative Quote Marks */}
       <div className="absolute top-20 left-10 text-[var(--gold)]/10 pointer-events-none">
