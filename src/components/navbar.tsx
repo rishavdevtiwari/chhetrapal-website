@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
-import { Phone, Mail, ChevronDown, Menu, X, BookOpen } from "lucide-react";
+import { Phone, Mail, ChevronDown, Menu, X } from "lucide-react";
 
 // Simple inline SVG social icons (lucide-react doesn't include brand icons)
 const FacebookIcon = () => (
@@ -24,26 +25,26 @@ const navLinks = [
   { label: "Home", href: "/" },
   {
     label: "About Us",
-    href: "#about",
+    href: "/about",
     children: [
-      { label: "Our History", href: "#history" },
-      { label: "Vision & Mission", href: "#mission" },
-      { label: "Principal's Message", href: "#principal" },
-      { label: "Management Team", href: "#management" },
+      { label: "Our History", href: "/about#history" },
+      { label: "Vision & Mission", href: "/about#mission" },
+      { label: "Principal's Message", href: "/about#principal" },
+      { label: "Management Team", href: "/about#management" },
     ],
   },
   {
     label: "Academics",
-    href: "#academics",
+    href: "/academics",
     children: [
-      { label: "Primary Level", href: "#primary" },
-      { label: "Lower Secondary", href: "#lower-secondary" },
-      { label: "Secondary Level", href: "#secondary" },
+      { label: "Primary Level", href: "/academics#primary" },
+      { label: "Lower Secondary", href: "/academics#lower-secondary" },
+      { label: "Secondary Level", href: "/academics#secondary" },
     ],
   },
-  { label: "Gallery", href: "#gallery" },
-  { label: "Notices", href: "#notices" },
-  { label: "Contact", href: "#contact" },
+  { label: "Gallery", href: "/gallery" },
+  { label: "Notices", href: "/notices" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export default function Navbar() {
@@ -74,7 +75,7 @@ export default function Navbar() {
               <TwitterIcon />
             </a>
             <span className="pl-2 border-l border-white/30">
-              <a href="#" className="hover:text-orange-300 font-medium">Online Admission</a>
+              <Link href="/admissions" className="hover:text-orange-300 font-medium">Online Admission</Link>
             </span>
           </div>
         </div>
@@ -84,8 +85,15 @@ export default function Navbar() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 md:py-4 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3 md:gap-4 group">
-            <div className="h-14 w-14 md:h-16 md:w-16 bg-[#1a3a6b] text-white rounded-md flex items-center justify-center shadow flex-shrink-0">
-              <BookOpen className="h-8 w-8 md:h-9 md:w-9" />
+            <div className="relative h-14 w-14 md:h-16 md:w-16 bg-white border border-gray-200 rounded-md overflow-hidden shadow flex-shrink-0">
+              <Image
+                src="/school-logo.jpeg"
+                alt="Chhetrapal Secondary School logo"
+                fill
+                className="object-cover"
+                sizes="64px"
+                priority
+              />
             </div>
             <div>
               <div className="text-[#1a3a6b] font-extrabold text-lg md:text-2xl leading-tight tracking-tight">
@@ -145,12 +153,12 @@ export default function Navbar() {
             ))}
             {/* Admission button */}
             <li className="ml-auto">
-              <a
-                href="#admissions"
+              <Link
+                href="/admissions"
                 className="flex items-center px-5 py-3.5 text-sm font-bold bg-[#e8841a] text-white hover:bg-orange-600 transition-colors"
               >
                 Admission Open ›
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BookOpen, MapPin, Phone, Mail, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import { MapPin, Phone, Mail, ChevronRight } from "lucide-react";
 
 // Inline brand SVG icons
 const FacebookIcon = () => (
@@ -27,8 +28,14 @@ export default function Footer() {
         {/* About School */}
         <div>
           <div className="flex items-center gap-2 mb-5">
-            <div className="h-10 w-10 bg-white text-[#1a3a6b] rounded flex items-center justify-center flex-shrink-0">
-              <BookOpen className="h-6 w-6" />
+            <div className="relative h-10 w-10 bg-white rounded overflow-hidden border border-white/20 flex-shrink-0">
+              <Image
+                src="/school-logo.jpeg"
+                alt="Chhetrapal Secondary School logo"
+                fill
+                className="object-cover"
+                sizes="40px"
+              />
             </div>
             <div>
               <div className="font-bold text-base leading-tight">Chhetrapal</div>
@@ -55,11 +62,20 @@ export default function Footer() {
         <div>
           <h3 className="text-white font-bold text-sm uppercase tracking-widest mb-5 border-b border-white/10 pb-3">Quick Links</h3>
           <ul className="text-sm text-gray-300 space-y-2.5">
-            {["Home","About Us","Vision & Mission","Faculty","Academics","Gallery","Notices","Contact Us"].map((item) => (
-              <li key={item}>
-                <Link href="#" className="flex items-center gap-2 hover:text-[#e8841a] transition-colors group">
+            {[
+              { label: "Home", href: "/" },
+              { label: "About Us", href: "/about" },
+              { label: "Vision & Mission", href: "/about#mission" },
+              { label: "Faculty", href: "/about#management" },
+              { label: "Academics", href: "/academics" },
+              { label: "Gallery", href: "/gallery" },
+              { label: "Notices", href: "/notices" },
+              { label: "Contact Us", href: "/contact" },
+            ].map((item) => (
+              <li key={item.label}>
+                <Link href={item.href} className="flex items-center gap-2 hover:text-[#e8841a] transition-colors group">
                   <ChevronRight className="h-3 w-3 text-[#e8841a] group-hover:translate-x-0.5 transition-transform" />
-                  {item}
+                  {item.label}
                 </Link>
               </li>
             ))}

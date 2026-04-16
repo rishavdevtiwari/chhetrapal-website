@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   FileText,
   ChevronRight,
@@ -6,6 +7,15 @@ import {
   Trophy,
   BookOpen,
   GraduationCap,
+  Library,
+  FlaskConical,
+  Computer,
+  Volleyball,
+  Palette,
+  UtensilsCrossed,
+  BadgeCheck,
+  Microscope,
+  Medal,
   Phone,
   Mail,
   MapPin,
@@ -48,19 +58,29 @@ const stats = [
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function Home() {
+  const galleryImages = [
+    { src: "/class-image-1.jpeg", alt: "Students in a classroom session" },
+    { src: "/class-image-2.jpeg", alt: "Classroom learning activity" },
+    { src: "/student-assembled.jpeg", alt: "Students assembled during school activity" },
+    { src: "/student-showcasing-project.jpeg", alt: "Student showcasing a school project" },
+    { src: "/teacher-teaching-students.jpeg", alt: "Teacher teaching students in class" },
+    { src: "/another-part-of-school.jpeg", alt: "Another part of the school campus" },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
 
       {/* ═══ HERO SLIDER ═══════════════════════════════════════════════════════ */}
-      <section className="relative w-full h-[70vh] min-h-[480px] max-h-[680px] bg-[#d0dae8] flex items-center justify-center overflow-hidden">
-        {/* Placeholder frame */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-          <div className="border-2 border-dashed border-[#1a3a6b]/30 rounded-md px-8 py-6 text-[#1a3a6b]/50 text-center">
-            <div className="text-5xl mb-2">🖼</div>
-            <div className="text-sm uppercase tracking-widest font-medium">Hero / Slider Image Placeholder</div>
-            <div className="text-xs mt-1 opacity-70">Replace with actual school building / campus photographs</div>
-          </div>
-        </div>
+      <section className="relative w-full h-[70vh] min-h-[480px] max-h-[680px] flex items-center justify-center overflow-hidden">
+        <Image
+          src="/main-entrance-with-school-board.jpeg"
+          alt="Main entrance of Chhetrapal Secondary School"
+          fill
+          className="object-cover"
+          priority
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-[#0f2744]/45" />
 
         {/* Overlay gradient at bottom */}
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-gray-50/60 to-transparent" />
@@ -70,29 +90,29 @@ export default function Home() {
           <div className="inline-block bg-[#e8841a] text-white text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-sm mb-5">
             Government Secondary School • Est. 2046 BS
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#0f2744] leading-tight drop-shadow-sm mb-3">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white leading-tight drop-shadow-sm mb-3">
             Chhetrapal Secondary School
           </h1>
-          <p className="text-xl md:text-2xl text-[#1a3a6b]/80 font-semibold mb-2">
+          <p className="text-xl md:text-2xl text-white/90 font-semibold mb-2">
             छेत्रपाल माध्यमिक विद्यालय
           </p>
-          <p className="text-gray-600 text-base md:text-lg mb-8 max-w-xl mx-auto">
+          <p className="text-white/85 text-base md:text-lg mb-8 max-w-xl mx-auto">
             Nuwakot, Bagmati Province, Nepal<br/>
-            <span className="text-sm">Affiliated to National Examination Board (NEB)</span>
+            <span className="text-sm text-white/75">Affiliated to National Examination Board (NEB)</span>
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="#admissions"
+            <Link
+              href="/admissions"
               className="bg-[#e8841a] hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-sm text-sm transition-colors shadow"
             >
               Online Admission ›
-            </a>
-            <a
-              href="#about"
+            </Link>
+            <Link
+              href="/about"
               className="bg-[#1a3a6b] hover:bg-[#0f2744] text-white font-semibold px-8 py-3 rounded-sm text-sm transition-colors shadow"
             >
               Learn More
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -126,8 +146,14 @@ export default function Home() {
               </div>
               <div className="p-5 md:p-6 flex flex-col md:flex-row gap-6">
                 {/* Photo placeholder */}
-                <div className="flex-shrink-0 w-full md:w-52 h-52 bg-gray-100 border border-gray-200 rounded flex items-center justify-center text-gray-400 text-xs text-center p-4">
-                  [ School Building Image ]
+                <div className="relative flex-shrink-0 w-full md:w-52 h-52 bg-gray-100 border border-gray-200 rounded overflow-hidden">
+                  <Image
+                    src="/entrance-image.jpeg"
+                    alt="School entrance"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 208px"
+                  />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-[#1a3a6b] mb-3">About Chhetrapal Secondary School</h3>
@@ -155,8 +181,14 @@ export default function Home() {
               </div>
               <div className="p-5 md:p-6 flex flex-col sm:flex-row gap-6">
                 <div className="flex-shrink-0 flex flex-col items-center gap-2">
-                  <div className="w-32 h-36 bg-gray-100 border border-gray-200 rounded flex items-center justify-center text-gray-400 text-xs text-center p-2">
-                    [ Principal Photo ]
+                  <div className="relative w-32 h-36 bg-gray-100 border border-gray-200 rounded overflow-hidden">
+                    <Image
+                      src="/teacher-teaching-students.jpeg"
+                      alt="Principal of Chhetrapal Secondary School"
+                      fill
+                      className="object-cover"
+                      sizes="128px"
+                    />
                   </div>
                   <div className="text-center">
                     <div className="font-bold text-[#1a3a6b] text-sm">Mr. Ram Bahadur Thapa</div>
@@ -210,17 +242,50 @@ export default function Home() {
               </div>
               <div className="p-5 grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {[
-                  { icon: "📚", label: "Library" },
-                  { icon: "🔬", label: "Science Lab" },
-                  { icon: "💻", label: "Computer Lab" },
-                  { icon: "⚽", label: "Sports Ground" },
-                  { icon: "🎨", label: "Art Room" },
-                  { icon: "🍽️", label: "Canteen" },
+                  { icon: Library, label: "Library" },
+                  { icon: FlaskConical, label: "Science Lab" },
+                  { icon: Computer, label: "Computer Lab" },
+                  { icon: Volleyball, label: "Sports Ground" },
+                  { icon: Palette, label: "Art Room" },
+                  { icon: UtensilsCrossed, label: "Canteen" },
                 ].map((f) => (
                   <div key={f.label} className="flex flex-col items-center justify-center py-5 border border-gray-100 rounded-sm bg-gray-50/70 hover:bg-blue-50/40 transition-colors text-center">
-                    <span className="text-3xl mb-2">{f.icon}</span>
+                    <f.icon className="h-8 w-8 mb-2 text-[#1a3a6b]" />
                     <span className="text-sm font-semibold text-[#1a3a6b]">{f.label}</span>
                   </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Highlights Section */}
+            <section className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
+              <div className="flex items-center gap-3 bg-[#1a3a6b] text-white px-5 py-3">
+                <BadgeCheck className="h-5 w-5 text-[#e8841a]" />
+                <h2 className="font-bold text-sm uppercase tracking-widest">School Highlights</h2>
+              </div>
+              <div className="p-5 grid sm:grid-cols-3 gap-4">
+                {[
+                  {
+                    icon: Microscope,
+                    title: "Practical Learning",
+                    text: "Hands-on projects and lab-based activities across grades.",
+                  },
+                  {
+                    icon: Medal,
+                    title: "Strong Results",
+                    text: "Consistent SEE performance and active academic support.",
+                  },
+                  {
+                    icon: Users,
+                    title: "Inclusive Culture",
+                    text: "Safe, student-friendly environment with co-curricular growth.",
+                  },
+                ].map((item) => (
+                  <article key={item.title} className="border border-gray-100 rounded-sm p-4 bg-gray-50/70 hover:bg-blue-50/40 transition-colors">
+                    <item.icon className="h-7 w-7 text-[#1a3a6b] mb-2" />
+                    <h3 className="text-sm font-bold text-[#1a3a6b]">{item.title}</h3>
+                    <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">{item.text}</p>
+                  </article>
                 ))}
               </div>
             </section>
@@ -328,9 +393,16 @@ export default function Home() {
                   <Mail className="h-4 w-4 text-[#1a3a6b] flex-shrink-0" />
                   <span className="break-all">info@chhetrapalschool.edu.np</span>
                 </div>
-                {/* Map placeholder */}
-                <div className="mt-3 w-full h-28 bg-gray-100 border border-gray-200 rounded flex items-center justify-center text-gray-400 text-xs text-center">
-                  [ Google Map Embed ]
+                <div className="mt-3 w-full h-36 border border-gray-200 rounded overflow-hidden">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3525.925360626243!2d85.2387678754744!3d27.904263726070322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eadfa5e05bbc35%3A0x3eb57e2564e36dd4!2sShree%20Kshetrapal%20Uchcha%20Madhyamik%20Bidyalaya!5e0!3m2!1sen!2snp!4v1776366200281!5m2!1sen!2snp"
+                    title="Shree Kshetrapal Uchcha Madhyamik Bidyalaya Location"
+                    className="w-full h-full"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
                 </div>
               </div>
             </div>
@@ -373,12 +445,22 @@ export default function Home() {
           <h2 className="section-title section-title-center text-center">Photo Gallery</h2>
           <p className="text-center text-gray-500 text-sm mb-8">Capturing memories from our school's academic & co-curricular activities.</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
+            {galleryImages.map((photo, i) => (
               <div
-                key={i}
-                className="aspect-square bg-gray-200 border border-gray-200 rounded-sm flex items-center justify-center text-gray-400 text-xs hover:border-[#1a3a6b]/40 hover:bg-gray-100 transition-all cursor-pointer"
+                key={photo.src}
+                className="relative aspect-square bg-gray-200 border border-gray-200 rounded-sm overflow-hidden hover:border-[#1a3a6b]/40 transition-all cursor-pointer group"
               >
-                [ Photo {i + 1} ]
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0f2744]/55 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute left-2 right-2 bottom-2 text-[11px] text-white font-medium leading-tight opacity-0 group-hover:opacity-100 transition-opacity">
+                  Photo {i + 1}
+                </div>
               </div>
             ))}
           </div>
