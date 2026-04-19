@@ -25,7 +25,7 @@ The website is built using **HTML, CSS, and JavaScript**, focusing on simplicity
 
 ---
 
-##  Tech Stack
+## Tech Stack
 
 ### 🔹 HTML
 - Provides the structure of the website  
@@ -42,14 +42,14 @@ The website is built using **HTML, CSS, and JavaScript**, focusing on simplicity
 
 ---
 
-
 ## Team of developer
-Kunjang
-Rishav
-Rijin
-Rubina
-Sharad
-Suchit
+Kunjang  
+Rishav  
+Rijin  
+Rubina  
+Sharad  
+Suchit  
+
 ---
 
 ## WordPress CMS (Local Setup)
@@ -106,3 +106,20 @@ Notes:
 - First startup can take 1-2 minutes while WordPress initializes.
 - You may see Windows file-lock warnings in terminal; WordPress still boots successfully.
 - This setup does not require Docker, MySQL, or XAMPP.
+
+---
+
+## Contributors
+
+This project automatically includes contributors from GitHub along with manually added team members.
+
+### 🔗 GitHub Contributors API
+https://api.github.com/repos/rishavdevtiwari/chhetrapal-website/contributors
+
+### 👥 How it works
+- All GitHub contributors are fetched dynamically with their profile images  
+- Additional team members (listed above) are shown with placeholder avatars if no image is provided  
+
+### 🧩 Placeholder Avatar Format
+If no image is available, avatars can be generated using:
+https://ui-avatars.com/api/?name=YourName
