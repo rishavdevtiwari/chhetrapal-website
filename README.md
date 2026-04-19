@@ -42,16 +42,6 @@ The website is built using **HTML, CSS, and JavaScript**, focusing on simplicity
 
 ---
 
-## Team of developer
-Kunjang  
-Rishav  
-Rijin  
-Rubina  
-Sharad  
-Suchit  
-
----
-
 ## WordPress CMS (Local Setup)
 
 This project includes a local WordPress CMS setup using WordPress Playground.
@@ -121,11 +111,11 @@ This project automatically includes contributors from GitHub along with manually
 
 ## Team Members
 
-| Name    | Avatar |
-|--------|--------|
-| Kunjang | ![K](https://ui-avatars.com/api/?name=Kunjang) |
-| Rishav  | ![R](https://ui-avatars.com/api/?name=Rishav) |
-| Rijin   | ![R](https://ui-avatars.com/api/?name=Rijin) |
-| Rubina  | ![R](https://ui-avatars.com/api/?name=Rubina) |
-| Sharad  | ![S](https://ui-avatars.com/api/?name=Sharad) |
-| Suchit  | ![S](https://ui-avatars.com/api/?name=Suchit) |
+<p align="center">
+  <img src="https://ui-avatars.com/api/?name=Kunjang&size=100" title="Kunjang" style="border-radius:50%;" />
+  <img src="https://ui-avatars.com/api/?name=Rishav&size=100" title="Rishav" style="border-radius:50%;" />
+  <img src="https://ui-avatars.com/api/?name=Rubina&size=100" title="Rubina" style="border-radius:50%;" />
+  <img src="https://ui-avatars.com/api/?name=Suchit&size=100" title="Suchit" style="border-radius:50%;" />
+</p>
+
+---
