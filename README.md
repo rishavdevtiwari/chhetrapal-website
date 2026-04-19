@@ -51,3 +51,58 @@ Rubina
 Sharad
 Suchit
 ---
+
+## WordPress CMS (Local Setup)
+
+This project includes a local WordPress CMS setup using WordPress Playground.
+
+1. Install dependencies:
+	npm install
+2. Start frontend + CMS together:
+	npm run dev:full
+3. Open browser at (same origin as frontend):
+	http://localhost:3000/wp-admin/
+	(or alias: http://localhost:3000/admin)
+4. Login using:
+	Username: schooladmin
+	Password: SchoolAdmin@12345!
+
+Notes:
+- WordPress still runs internally on port 9400, but it is proxied through Next.js so you can use one origin (`localhost:3000`) for both frontend and CMS.
+- If you want to run services separately, use `npm run dev` and `npm run wp:start`.
+
+## Frontend <-> WordPress Connection
+
+1. Copy env file:
+	copy .env.local.example .env.local
+2. Start Next.js frontend:
+	npm run dev
+3. The homepage now fetches CMS content through same-origin routes (`/wp-json/...`) so frontend and CMS stay connected.
+
+Content flow:
+- Add or edit posts in WordPress admin.
+- Frontend reads latest posts from /wp-json/wp/v2/posts.
+- If WordPress is unavailable, homepage falls back to local placeholder data.
+
+## WordPress Content Map
+
+- Notices -> `Notices`
+- Principal Message -> `Staff & Principal`
+- Programs -> `Programs`
+- Facilities -> `Facilities`
+- Downloads -> `Downloads`
+- Contact -> `Contacts`
+- Gallery -> `Gallery Items`
+
+## Admin Workflow
+
+1. Create a draft in the correct menu.
+2. Add title, body text, and featured image.
+3. Pick the right taxonomy term like role, level, or album.
+4. Use Preview to review the frontend.
+5. Publish when the content looks correct.
+
+Notes:
+- First startup can take 1-2 minutes while WordPress initializes.
+- You may see Windows file-lock warnings in terminal; WordPress still boots successfully.
+- This setup does not require Docker, MySQL, or XAMPP.
