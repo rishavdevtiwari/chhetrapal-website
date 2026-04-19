@@ -113,13 +113,19 @@ Notes:
 
 This project automatically includes contributors from GitHub along with manually added team members.
 
-### 🔗 GitHub Contributors API
-https://api.github.com/repos/rishavdevtiwari/chhetrapal-website/contributors
+## Contributors
 
-### 👥 How it works
-- All GitHub contributors are fetched dynamically with their profile images  
-- Additional team members (listed above) are shown with placeholder avatars if no image is provided  
+<a href="https://github.com/rishavdevtiwari/chhetrapal-website/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=rishavdevtiwari/chhetrapal-website" />
+</a>
 
-### 🧩 Placeholder Avatar Format
-If no image is available, avatars can be generated using:
-https://ui-avatars.com/api/?name=YourName
+## Team Members
+
+| Name    | Avatar |
+|--------|--------|
+| Kunjang | ![K](https://ui-avatars.com/api/?name=Kunjang) |
+| Rishav  | ![R](https://ui-avatars.com/api/?name=Rishav) |
+| Rijin   | ![R](https://ui-avatars.com/api/?name=Rijin) |
+| Rubina  | ![R](https://ui-avatars.com/api/?name=Rubina) |
+| Sharad  | ![S](https://ui-avatars.com/api/?name=Sharad) |
+| Suchit  | ![S](https://ui-avatars.com/api/?name=Suchit) |
