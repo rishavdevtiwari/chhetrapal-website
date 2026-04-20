@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:full": "concurrently -k -n NEXT,WP \"next dev\" \"npm run wp:start\"",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "wp:start": "wp-playground-cli server --port 9400 --php 8.2 --wp 6.7 --experimental-multi-worker 1 --mount-dir ./wordpress-plugin /wordpress/wp-content/plugins/chhetrapal-school-cms --blueprint ./wordpress/setup.blueprint.json"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",
@@ -25,6 +27,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@wp-playground/cli": "^3.1.20",
+    "concurrently": "^9.1.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
