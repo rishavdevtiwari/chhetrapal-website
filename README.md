@@ -173,5 +173,7 @@ npm run start
 
 - Kunjang
 - Rishav
+- Rijin
 - Rubina
 - Suchit
+- Sharad
