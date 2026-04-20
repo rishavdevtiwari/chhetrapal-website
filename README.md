@@ -1,121 +1,177 @@
-# Chhetrapal Government School Website
+# Chhetrapal Secondary School Website
 
-## Overview
-This project is a responsive website developed for **Chhetrapal Government School**. It provides essential information about the school, including academics, notices, events, and contact details for students, parents, and staff.
+Production-ready school website built with Next.js (App Router) and integrated with a local WordPress CMS powered by WordPress Playground.
 
-The website is built using **HTML, CSS, and JavaScript**, focusing on simplicity, accessibility, and user-friendly design.
+## What This Project Includes
 
----
+- Public-facing school website (home, about, academics, admissions, gallery, notices, contact)
+- CMS-managed content through WordPress admin
+- Same-origin WordPress proxy routes through Next.js
+- Responsive UI with reusable components
+- Fallback content when CMS is temporarily unavailable
 
-## Objectives
-- Provide school information online  
-- Share notices and announcements  
-- Display academic and administrative details  
-- Improve communication between school and community  
+## Actual Tech Stack
 
----
+### Frontend
 
-## Features
--  Home page with school introduction  
--  Notice/Announcement section  
--  Academic information (classes, faculty, routine)  
--  Gallery for school events and activities  
--  Contact page with school details  
--  Fully responsive design (mobile-friendly)  
+- Next.js 16 (App Router)
+- React 19
+- TypeScript 5
+- Tailwind CSS 4
+- Lucide React icons
+- shadcn-style component setup
 
----
+### CMS and Content
 
-## Tech Stack
+- WordPress (local) via @wp-playground/cli
+- Custom WordPress plugin:
+	- Custom post types (notices, staff, programs, facilities, downloads, gallery, contact)
+	- Taxonomies and metadata fields
+	- Custom REST endpoint for homepage payload
 
-### 🔹 HTML
-- Provides the structure of the website  
-- Includes pages like Home, About, Contact, Gallery  
+### Tooling
 
-### 🔹 CSS
-- Handles styling and layout  
-- Uses Flexbox/Grid for responsiveness  
-- Ensures clean and modern UI  
+- ESLint 9 with eslint-config-next
+- PostCSS with @tailwindcss/postcss
+- concurrently for running frontend + CMS together
 
-### 🔹 JavaScript
-- Adds interactivity  
-- Handles navigation menu, form validation, and dynamic behavior  
+## Repository Structure
 
----
+```text
+.
+|- src/
+|  |- app/                 # Next.js routes and page sections
+|  |- components/          # Shared UI components
+|  |- lib/wordpress.ts     # WordPress fetch + fallback handling
+|- wordpress/
+|  |- setup.blueprint.json # Playground bootstrapping and admin seed
+|- wordpress-plugin/
+|  |- chhetrapal-school-cms.php # Custom CMS logic
+|- next.config.ts          # Rewrite proxy for /wp-admin, /wp-json, and assets
+|- package.json            # Scripts and dependencies
+```
 
-## WordPress CMS (Local Setup)
+## Prerequisites
 
-This project includes a local WordPress CMS setup using WordPress Playground.
+- Node.js 20+
+- npm 10+
 
-1. Install dependencies:
-	npm install
-2. Start frontend + CMS together:
-	npm run dev:full
-3. Open browser at (same origin as frontend):
-	http://localhost:3000/wp-admin/
-	(or alias: http://localhost:3000/admin)
-4. Login using:
-	Username: schooladmin
-	Password: SchoolAdmin@12345!
+## Quick Start
 
-Notes:
-- WordPress still runs internally on port 9400, but it is proxied through Next.js so you can use one origin (`localhost:3000`) for both frontend and CMS.
-- If you want to run services separately, use `npm run dev` and `npm run wp:start`.
+1. Install dependencies.
 
-## Frontend <-> WordPress Connection
+```bash
+npm install
+```
 
-1. Copy env file:
-	copy .env.local.example .env.local
-2. Start Next.js frontend:
-	npm run dev
-3. The homepage now fetches CMS content through same-origin routes (`/wp-json/...`) so frontend and CMS stay connected.
+2. Start frontend and CMS together.
 
-Content flow:
-- Add or edit posts in WordPress admin.
-- Frontend reads latest posts from /wp-json/wp/v2/posts.
-- If WordPress is unavailable, homepage falls back to local placeholder data.
+```bash
+npm run dev:full
+```
 
-## WordPress Content Map
+3. Open the website.
 
-- Notices -> `Notices`
-- Principal Message -> `Staff & Principal`
-- Programs -> `Programs`
-- Facilities -> `Facilities`
-- Downloads -> `Downloads`
-- Contact -> `Contacts`
-- Gallery -> `Gallery Items`
+```text
+http://localhost:3000
+```
 
-## Admin Workflow
+4. Open WordPress admin (proxied through Next.js).
 
-1. Create a draft in the correct menu.
-2. Add title, body text, and featured image.
-3. Pick the right taxonomy term like role, level, or album.
-4. Use Preview to review the frontend.
-5. Publish when the content looks correct.
+```text
+http://localhost:3000/wp-admin/
+```
 
-Notes:
-- First startup can take 1-2 minutes while WordPress initializes.
-- You may see Windows file-lock warnings in terminal; WordPress still boots successfully.
-- This setup does not require Docker, MySQL, or XAMPP.
+5. Default local admin credentials.
 
----
+```text
+Username: schooladmin
+Password: SchoolAdmin@12345!
+```
 
-## Contributors
+## Available Scripts
 
-This project automatically includes contributors from GitHub along with manually added team members.
+- `npm run dev` - Start only Next.js frontend
+- `npm run wp:start` - Start only WordPress Playground server on port 9400
+- `npm run dev:full` - Start frontend + WordPress together
+- `npm run build` - Production build
+- `npm run start` - Run production server
+- `npm run lint` - Run ESLint
+
+## Frontend <-> WordPress Integration
+
+The integration works through two layers:
+
+1. Next.js rewrites in next.config.ts proxy WordPress paths to http://127.0.0.1:9400
+2. Frontend requests content from proxied routes, primarily:
+	 - `/wp-json/chhetrapal/v1/homepage`
+	 - `/wp-json/wp/v2/...` fallback APIs
+
+This keeps CMS and frontend on one browser origin (localhost:3000) while WordPress runs internally on port 9400.
+
+## Environment Variables (Optional)
+
+The frontend supports optional overrides for WordPress endpoints:
+
+- `WORDPRESS_INTERNAL_ORIGIN`
+- `NEXT_PUBLIC_WORDPRESS_ORIGIN`
+- `NEXT_PUBLIC_WORDPRESS_API_BASE`
+- `NEXT_PUBLIC_WORDPRESS_HOMEPAGE_API`
+
+If not set, defaults in src/lib/wordpress.ts are used.
+
+## Content Model (WordPress)
+
+Custom content is managed in the plugin under the following sections:
+
+- Notices
+- Staff and Principal
+- Programs
+- Facilities
+- Downloads
+- Contacts
+- Gallery Items
+
+These are aggregated into a homepage payload consumed by the Next.js frontend.
+
+## Publishing Workflow for School Staff
+
+1. Log in to WordPress admin.
+2. Create or edit content in the relevant content type.
+3. Add title, body, taxonomy terms, and featured image.
+4. Preview and publish.
+5. Refresh frontend pages to verify updates.
+
+## Build and Production Run
+
+```bash
+npm run build
+npm run start
+```
+
+## Troubleshooting
+
+- First CMS startup can take 1-2 minutes.
+- If CMS is down, the frontend uses fallback content from src/lib/wordpress.ts.
+- If /wp-admin or /wp-json does not load, ensure wp:start is running and port 9400 is free.
+- On Windows, transient file-lock warnings may appear during Playground startup; retry if needed.
+
+## Contributing
+
+1. Create a feature branch.
+2. Keep changes scoped and tested locally.
+3. Run lint and build before opening a PR.
+4. Include screenshots for UI changes.
 
 ## Contributors
 
 <a href="https://github.com/rishavdevtiwari/chhetrapal-website/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=rishavdevtiwari/chhetrapal-website" />
+	<img src="https://contrib.rocks/image?repo=rishavdevtiwari/chhetrapal-website" alt="Contributors" />
 </a>
 
 ## Team Members
 
-<p align="center">
-  <img src="https://ui-avatars.com/api/?name=Kunjang&size=100" title="Kunjang" style="border-radius:50%;" />
-  <img src="https://ui-avatars.com/api/?name=Rishav&size=100" title="Rishav" style="border-radius:50%;" />
-  <img src="https://ui-avatars.com/api/?name=Rubina&size=100" title="Rubina" style="border-radius:50%;" />
-  <img src="https://ui-avatars.com/api/?name=Suchit&size=100" title="Suchit" style="border-radius:50%;" />
-</p>
-
----
+- Kunjang
+- Rishav
+- Rubina
+- Suchit

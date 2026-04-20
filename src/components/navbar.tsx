@@ -115,9 +115,6 @@ export default function Navbar() {
               <div className="text-sm font-bold text-[#1a3a6b]">CDC / NEB Nepal</div>
               <div className="text-xs text-gray-500">Reg. No: XXXXXXX</div>
             </div>
-            <div className="h-14 w-14 bg-amber-50 border border-amber-200 rounded-full flex items-center justify-center text-amber-700 font-bold text-xs text-center leading-tight">
-              Govt.<br/>School
-            </div>
           </div>
         </div>
       </div>
