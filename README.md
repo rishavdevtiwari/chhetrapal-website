@@ -12,7 +12,7 @@ Production-ready school website built with Next.js (App Router) and integrated w
 
 ## Actual Tech Stack
 
-### Frontend
+## Frontend
 
 - Next.js 16 (App Router)
 - React 19
@@ -29,7 +29,7 @@ Production-ready school website built with Next.js (App Router) and integrated w
 	- Taxonomies and metadata fields
 	- Custom REST endpoint for homepage payload
 
-### Tooling
+###### Tooling
 
 - ESLint 9 with eslint-config-next
 - PostCSS with @tailwindcss/postcss
