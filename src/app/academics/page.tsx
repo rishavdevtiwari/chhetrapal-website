@@ -1,4 +1,5 @@
 import { BookOpen, FlaskConical, Monitor, PenSquare, FileText } from "lucide-react";
+import { getHomepageCmsData } from "@/lib/wordpress";
 
 const programs = [
   {
@@ -27,22 +28,51 @@ const programs = [
   },
 ];
 
-export default function AcademicsPage() {
+const iconByIndex = [BookOpen, FlaskConical, Monitor, PenSquare] as const;
+
+function toAnchorId(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export const dynamic = "force-dynamic";
+
+export default async function AcademicsPage() {
+  const cmsData = await getHomepageCmsData();
+  const cmsPrograms = cmsData?.programs ?? [];
+  const displayPrograms = cmsPrograms.length
+    ? cmsPrograms.map((program, index) => ({
+        id: toAnchorId(program.label),
+        title: `${program.label}${program.desc ? ` (${program.desc})` : ""}`,
+        desc: program.sub || program.desc,
+        sub: program.sub,
+        icon: iconByIndex[index] ?? PenSquare,
+      }))
+    : programs.map((program, index) => ({
+        id: program.id,
+        title: program.title,
+        desc: program.desc,
+        sub: "",
+        icon: iconByIndex[index] ?? PenSquare,
+      }));
+
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="page-shell">
       <section className="bg-[#1a3a6b] text-white py-14 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="page-container">
           <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">Academics</p>
           <h1 className="text-4xl md:text-5xl font-extrabold mt-2">Academic Programs and Learning Framework</h1>
           <p className="max-w-3xl text-white/80 mt-4 text-sm md:text-base">
-            Full UI placeholder for curriculum, schedule, and student academic queries. Replace titles and details anytime.
+            Programs are connected with CMS content so curriculum labels and descriptions can be maintained by admin staff.
           </p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+      <div className="page-container page-section space-y-8">
         <section className="grid md:grid-cols-2 gap-5">
-          {programs.map((program) => (
+          {displayPrograms.map((program) => (
             <article key={program.id} id={program.id} className="bg-white border border-gray-200 rounded-sm shadow-sm p-5">
               <div className="flex items-start gap-4">
                 <div className="h-12 w-12 bg-[#1a3a6b] text-white rounded flex items-center justify-center">
@@ -51,6 +81,7 @@ export default function AcademicsPage() {
                 <div>
                   <h2 className="text-[#1a3a6b] text-lg leading-tight">{program.title}</h2>
                   <p className="text-sm text-gray-600 mt-2 leading-relaxed">{program.desc}</p>
+                  {program.sub ? <p className="text-xs text-gray-500 mt-1">{program.sub}</p> : null}
                 </div>
               </div>
             </article>

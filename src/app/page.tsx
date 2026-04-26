@@ -143,7 +143,7 @@ export default async function Home() {
   const principalMessage = cleanText(principal.message);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="page-shell">
       <section className="relative flex h-[70vh] min-h-[480px] max-h-[680px] w-full items-center justify-center overflow-hidden">
         <Image
           src="/main-entrance-with-school-board.jpeg"
@@ -193,7 +193,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+      <div className="page-container page-section">
         <div className="flex flex-col gap-8 lg:flex-row">
           <div className="min-w-0 flex-1 space-y-10">
             <section id="about" className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
@@ -229,7 +229,7 @@ export default async function Home() {
             <section id="principal" className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
               <div className="flex items-center gap-3 bg-[#1a3a6b] px-5 py-3 text-white">
                 <Users className="h-5 w-5 text-[#e8841a]" />
-                <h2 className="text-sm font-bold uppercase tracking-widest">Principal's Message</h2>
+                <h2 className="text-sm font-bold uppercase tracking-widest">Principal&apos;s Message</h2>
               </div>
               <div className="flex flex-col gap-6 p-5 sm:flex-row md:p-6">
                 <div className="flex flex-shrink-0 flex-col items-center gap-2">
@@ -321,7 +321,9 @@ export default async function Home() {
           <aside className="w-full flex-shrink-0 space-y-6 lg:w-72">
             <div className="overflow-hidden rounded-sm bg-[#e8841a] text-white shadow-sm">
               <div className="px-5 py-4 text-center">
-                <div className="mb-1 text-2xl">🎓</div>
+                <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                  <GraduationCap className="h-5 w-5" />
+                </div>
                 <h3 className="text-lg font-extrabold leading-tight">Admissions Open!</h3>
                 <p className="mt-1 text-sm text-orange-100">Academic Year 2026/2027</p>
               </div>
@@ -346,7 +348,7 @@ export default async function Home() {
                   <Newspaper className="h-4 w-4 text-[#e8841a]" />
                   <h3 className="text-sm font-bold uppercase tracking-wider">Notices</h3>
                 </div>
-                <a href="#" className="text-xs text-orange-300 hover:underline">View All</a>
+                <Link href="/notices" className="text-xs text-orange-300 hover:underline">View All</Link>
               </div>
               <div className="divide-y divide-gray-100">
                 {notices.map((notice, index) => {
@@ -459,10 +461,10 @@ export default async function Home() {
         </div>
       </div>
 
-      <section id="gallery" className="border-b border-t border-gray-200 bg-[#f0f4f8] py-10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <section id="gallery" className="border-b border-t border-gray-200 bg-[#f0f4f8] page-section">
+        <div className="page-container">
           <h2 className="section-title section-title-center text-center">Photo Gallery</h2>
-          <p className="mb-8 text-center text-sm text-gray-500">Capturing memories from our school's academic and co-curricular activities.</p>
+          <p className="mb-8 text-center text-sm text-gray-500">Capturing memories from our school&apos;s academic and co-curricular activities.</p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {galleryImages.map((photo, index) => (
               <div key={`${photo.title}-${index}`} className="group relative aspect-square cursor-pointer overflow-hidden rounded-sm border border-gray-200 bg-gray-200 transition-all hover:border-[#1a3a6b]/40">

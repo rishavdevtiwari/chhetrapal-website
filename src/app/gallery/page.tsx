@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { getHomepageCmsData } from "@/lib/wordpress";
 
 const galleryItems = [
   { src: "/class-image-1.jpeg", title: "Classroom Session" },
@@ -11,20 +12,35 @@ const galleryItems = [
   { src: "/another-part-of-school.jpeg", title: "Campus View" },
 ];
 
-export default function GalleryPage() {
+export const dynamic = "force-dynamic";
+
+export default async function GalleryPage() {
+  const cmsData = await getHomepageCmsData();
+  const cmsGallery = cmsData?.gallery?.filter((item) => Boolean(item.src)) ?? [];
+  const items = cmsGallery.length
+    ? cmsGallery.map((item) => ({
+        src: item.src,
+        title: item.title,
+        alt: item.alt || item.title,
+      }))
+    : galleryItems.map((item) => ({
+        ...item,
+        alt: item.title,
+      }));
+
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="page-shell">
       <section className="bg-[#1a3a6b] text-white py-14 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="page-container">
           <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">Gallery</p>
           <h1 className="text-4xl md:text-5xl font-extrabold mt-2">School Photo Gallery</h1>
           <p className="max-w-3xl text-white/80 mt-4 text-sm md:text-base">
-            Placeholder gallery layout with filters and lightbox-style cards (UI only). Replace/add photos anytime.
+            Photos are pulled from the CMS gallery section. Publish or update featured images to refresh this page.
           </p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-6">
+      <div className="page-container page-section space-y-6">
         <section className="bg-white border border-gray-200 rounded-sm shadow-sm p-4 flex flex-wrap gap-2">
           {[
             "All",
@@ -45,10 +61,10 @@ export default function GalleryPage() {
         </section>
 
         <section className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {galleryItems.map((item) => (
+          {items.map((item) => (
             <article key={item.src} className="group bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
               <div className="relative aspect-[4/3] overflow-hidden">
-                <Image src={item.src} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 1024px) 50vw, 25vw" />
+                <Image src={item.src} alt={item.alt} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 1024px) 50vw, 25vw" />
                 <div className="absolute inset-0 bg-[#0f2744]/0 group-hover:bg-[#0f2744]/25 transition-colors" />
               </div>
               <div className="p-3">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Mail, ChevronRight } from "lucide-react";
+import { getHomepageCmsData } from "@/lib/wordpress";
 
 // Inline brand SVG icons
 const FacebookIcon = () => (
@@ -19,7 +20,10 @@ const XIcon = () => (
   </svg>
 );
 
-export default function Footer() {
+export default async function Footer() {
+  const cmsData = await getHomepageCmsData();
+  const contact = cmsData?.contact;
+
   return (
     <footer className="bg-[#0f2744] text-white">
       {/* Main Footer */}
@@ -110,15 +114,15 @@ export default function Footer() {
           <ul className="text-sm text-gray-300 space-y-4">
             <li className="flex items-start gap-3">
               <MapPin className="h-4 w-4 text-[#e8841a] mt-0.5 flex-shrink-0" />
-              <span>Chhetrapal, Nuwakot<br />Bagmati Province, Nepal</span>
+              <span className="whitespace-pre-line">{contact?.address || "Chhetrapal, Nuwakot\nBagmati Province, Nepal"}</span>
             </li>
             <li className="flex items-center gap-3">
               <Phone className="h-4 w-4 text-[#e8841a] flex-shrink-0" />
-              <span>+977-10-XXXXXXXX</span>
+              <span>{contact?.phone || "+977-10-XXXXXXXX"}</span>
             </li>
             <li className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-[#e8841a] flex-shrink-0" />
-              <span>info@chhetrapalschool.edu.np</span>
+              <span>{contact?.email || "info@chhetrapalschool.edu.np"}</span>
             </li>
           </ul>
           <div className="mt-6 p-3 bg-white/5 border border-white/10 rounded text-xs text-gray-400 leading-relaxed">

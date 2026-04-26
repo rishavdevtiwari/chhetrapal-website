@@ -126,6 +126,15 @@ final class Chhetrapal_School_CMS {
         register_post_meta(self::CPT_CONTACT, 'chhetrapal_map_url', $meta_args + [
             'sanitize_callback' => 'esc_url_raw',
         ]);
+        register_post_meta(self::CPT_CONTACT, 'chhetrapal_facebook_url', $meta_args + [
+            'sanitize_callback' => 'esc_url_raw',
+        ]);
+        register_post_meta(self::CPT_CONTACT, 'chhetrapal_youtube_url', $meta_args + [
+            'sanitize_callback' => 'esc_url_raw',
+        ]);
+        register_post_meta(self::CPT_CONTACT, 'chhetrapal_twitter_url', $meta_args + [
+            'sanitize_callback' => 'esc_url_raw',
+        ]);
         register_post_meta(self::CPT_STAFF, 'chhetrapal_designation', $meta_args);
         register_post_meta(self::CPT_PROGRAM, 'chhetrapal_subtitle', $meta_args);
         register_post_meta(self::CPT_FACILITY, 'chhetrapal_subtitle', $meta_args);
@@ -230,6 +239,9 @@ final class Chhetrapal_School_CMS {
         $email = get_post_meta($post->ID, 'chhetrapal_email', true);
         $address = get_post_meta($post->ID, 'chhetrapal_address', true);
         $map_url = get_post_meta($post->ID, 'chhetrapal_map_url', true);
+        $facebook_url = get_post_meta($post->ID, 'chhetrapal_facebook_url', true);
+        $youtube_url = get_post_meta($post->ID, 'chhetrapal_youtube_url', true);
+        $twitter_url = get_post_meta($post->ID, 'chhetrapal_twitter_url', true);
 
         echo '<p><label for="chhetrapal_phone"><strong>Phone</strong></label><br />';
         echo '<input type="text" id="chhetrapal_phone" name="chhetrapal_phone" value="' . esc_attr($phone) . '" class="widefat" /></p>';
@@ -239,6 +251,12 @@ final class Chhetrapal_School_CMS {
         echo '<textarea id="chhetrapal_address" name="chhetrapal_address" class="widefat" rows="3">' . esc_textarea($address) . '</textarea></p>';
         echo '<p><label for="chhetrapal_map_url"><strong>Google Maps embed URL</strong></label><br />';
         echo '<input type="url" id="chhetrapal_map_url" name="chhetrapal_map_url" value="' . esc_attr($map_url) . '" class="widefat" placeholder="https://www.google.com/maps/embed?..." /></p>';
+        echo '<p><label for="chhetrapal_facebook_url"><strong>Facebook URL</strong></label><br />';
+        echo '<input type="url" id="chhetrapal_facebook_url" name="chhetrapal_facebook_url" value="' . esc_attr($facebook_url) . '" class="widefat" placeholder="https://facebook.com/..." /></p>';
+        echo '<p><label for="chhetrapal_youtube_url"><strong>YouTube URL</strong></label><br />';
+        echo '<input type="url" id="chhetrapal_youtube_url" name="chhetrapal_youtube_url" value="' . esc_attr($youtube_url) . '" class="widefat" placeholder="https://youtube.com/..." /></p>';
+        echo '<p><label for="chhetrapal_twitter_url"><strong>Twitter / X URL</strong></label><br />';
+        echo '<input type="url" id="chhetrapal_twitter_url" name="chhetrapal_twitter_url" value="' . esc_attr($twitter_url) . '" class="widefat" placeholder="https://x.com/..." /></p>';
     }
 
     public function save_meta_boxes(int $post_id): void {
@@ -275,10 +293,16 @@ final class Chhetrapal_School_CMS {
             $email = isset($_POST['chhetrapal_email']) ? sanitize_email(wp_unslash($_POST['chhetrapal_email'])) : '';
             $address = isset($_POST['chhetrapal_address']) ? sanitize_textarea_field(wp_unslash($_POST['chhetrapal_address'])) : '';
             $map_url = isset($_POST['chhetrapal_map_url']) ? esc_url_raw(wp_unslash($_POST['chhetrapal_map_url'])) : '';
+            $facebook_url = isset($_POST['chhetrapal_facebook_url']) ? esc_url_raw(wp_unslash($_POST['chhetrapal_facebook_url'])) : '';
+            $youtube_url = isset($_POST['chhetrapal_youtube_url']) ? esc_url_raw(wp_unslash($_POST['chhetrapal_youtube_url'])) : '';
+            $twitter_url = isset($_POST['chhetrapal_twitter_url']) ? esc_url_raw(wp_unslash($_POST['chhetrapal_twitter_url'])) : '';
             update_post_meta($post_id, 'chhetrapal_phone', $phone);
             update_post_meta($post_id, 'chhetrapal_email', $email);
             update_post_meta($post_id, 'chhetrapal_address', $address);
             update_post_meta($post_id, 'chhetrapal_map_url', $map_url);
+            update_post_meta($post_id, 'chhetrapal_facebook_url', $facebook_url);
+            update_post_meta($post_id, 'chhetrapal_youtube_url', $youtube_url);
+            update_post_meta($post_id, 'chhetrapal_twitter_url', $twitter_url);
         }
     }
 
@@ -431,6 +455,9 @@ final class Chhetrapal_School_CMS {
                 'phone' => '+977-10-XXXXXXXX',
                 'email' => 'info@chhetrapalschool.edu.np',
                 'mapUrl' => '',
+                'facebookUrl' => '#',
+                'youtubeUrl' => '#',
+                'twitterUrl' => '#',
                 'link' => '',
             ];
         }
@@ -440,6 +467,9 @@ final class Chhetrapal_School_CMS {
             'phone' => get_post_meta($post->ID, 'chhetrapal_phone', true),
             'email' => get_post_meta($post->ID, 'chhetrapal_email', true),
             'mapUrl' => get_post_meta($post->ID, 'chhetrapal_map_url', true),
+            'facebookUrl' => get_post_meta($post->ID, 'chhetrapal_facebook_url', true),
+            'youtubeUrl' => get_post_meta($post->ID, 'chhetrapal_youtube_url', true),
+            'twitterUrl' => get_post_meta($post->ID, 'chhetrapal_twitter_url', true),
             'link' => get_permalink($post),
         ];
     }
@@ -753,6 +783,9 @@ final class Chhetrapal_School_CMS {
             update_post_meta($post_id, 'chhetrapal_email', 'info@chhetrapalschool.edu.np');
             update_post_meta($post_id, 'chhetrapal_address', 'Chhetrapal, Nuwakot\nBagmati Province, Nepal');
             update_post_meta($post_id, 'chhetrapal_map_url', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3525.925360626243!2d85.2387678754744!3d27.904263726070322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eadfa5e05bbc35%3A0x3eb57e2564e36dd4!2sShree%20Kshetrapal%20Uchcha%20Madhyamik%20Bidyalaya!5e0!3m2!1sen!2snp!4v1776366200281!5m2!1sen!2snp');
+            update_post_meta($post_id, 'chhetrapal_facebook_url', '#');
+            update_post_meta($post_id, 'chhetrapal_youtube_url', '#');
+            update_post_meta($post_id, 'chhetrapal_twitter_url', '#');
         }
     }
 }

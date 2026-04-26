@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, Target, Eye, Users, Award, ChevronRight } from "lucide-react";
+import { getHomepageCmsData } from "@/lib/wordpress";
 
 const team = [
   { name: "Mr. Ram Bahadur Thapa", role: "Principal" },
@@ -9,22 +10,28 @@ const team = [
   { name: "Ms. Gita Bhandari", role: "Administrative Head" },
 ];
 
-export default function AboutPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AboutPage() {
+  const cmsData = await getHomepageCmsData();
+  const hero = cmsData?.hero;
+  const principal = cmsData?.principal;
+
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="page-shell">
       <section className="relative h-[46vh] min-h-[320px] overflow-hidden">
         <Image src="/another-part-of-school.jpeg" alt="School campus" fill className="object-cover" sizes="100vw" priority />
         <div className="absolute inset-0 bg-[#0f2744]/55" />
-        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col justify-center">
+        <div className="page-container relative z-10 h-full flex flex-col justify-center">
           <p className="text-white/80 text-sm uppercase tracking-[0.22em]">About Us</p>
-          <h1 className="text-white text-4xl md:text-5xl font-extrabold mt-2">About Chhetrapal Secondary School</h1>
+          <h1 className="text-white text-4xl md:text-5xl font-extrabold mt-2">About {hero?.title || "Chhetrapal Secondary School"}</h1>
           <p className="text-white/85 max-w-2xl mt-3 text-sm md:text-base">
-            Dummy structure for school profile, history, leadership, and mission. You can replace any text later.
+            {hero?.description || "School profile, history, leadership, and mission overview."}
           </p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+      <div className="page-container page-section space-y-8">
         <section id="history" className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
           <div className="bg-[#1a3a6b] px-5 py-3 flex items-center gap-3 text-white">
             <BookOpen className="h-5 w-5 text-[#e8841a]" />
@@ -85,15 +92,15 @@ export default function AboutPage() {
         <section id="principal" className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
           <div className="bg-[#1a3a6b] px-5 py-3 flex items-center gap-3 text-white">
             <Users className="h-5 w-5 text-[#e8841a]" />
-            <h2 className="text-sm uppercase tracking-widest">Principal's Message</h2>
+            <h2 className="text-sm uppercase tracking-widest">Principal&apos;s Message</h2>
           </div>
           <div className="p-5 md:p-6 grid md:grid-cols-[160px_1fr] gap-6 items-start">
             <div className="relative w-40 h-44 rounded-sm overflow-hidden border border-gray-200 mx-auto md:mx-0">
-              <Image src="/teacher-teaching-students.jpeg" alt="Principal placeholder" fill className="object-cover" sizes="160px" />
+              <Image src={principal?.photoUrl || "/teacher-teaching-students.jpeg"} alt={principal?.name || "Principal"} fill className="object-cover" sizes="160px" />
             </div>
             <div className="text-sm text-gray-600 leading-relaxed space-y-3">
               <p className="italic border-l-4 border-[#e8841a] pl-4">
-                "This is a placeholder principal message. Replace with your official message and signature block whenever ready."
+                {`"${principal?.message?.replace(/<[^>]+>/g, " ").trim() || "This is a placeholder principal message. Replace with your official message and signature block whenever ready."}"`}
               </p>
               <p>
                 We are committed to building a future-ready generation through discipline, value-based education, and modern teaching

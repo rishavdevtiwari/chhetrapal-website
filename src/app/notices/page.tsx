@@ -1,4 +1,5 @@
 import { Download, Search, Bell } from "lucide-react";
+import { getHomepageCmsData } from "@/lib/wordpress";
 
 const notices = [
   { title: "Admission Notice for AY 2083", date: "2083-01-10", type: "Notice" },
@@ -8,20 +9,50 @@ const notices = [
   { title: "SEE Preparation Class Timetable", date: "2083-01-25", type: "Routine" },
 ];
 
-export default function NoticesPage() {
+export const dynamic = "force-dynamic";
+
+function formatNoticeDate(month: string, day: string): string {
+  return `${month} ${day}`;
+}
+
+export default async function NoticesPage() {
+  const cmsData = await getHomepageCmsData();
+  const noticeItems = cmsData?.notices?.length
+    ? cmsData.notices.map((notice) => ({
+        title: notice.title,
+        date: formatNoticeDate(notice.date.month, notice.date.day),
+        type: notice.tag,
+        link: notice.link || "#",
+      }))
+    : notices.map((notice) => ({
+        ...notice,
+        link: "#",
+      }));
+  const downloadItems = cmsData?.downloads?.length
+    ? cmsData.downloads.map((download) => ({
+        title: download.title,
+        href: download.fileUrl || "#",
+      }))
+    : [
+        { title: "School Prospectus", href: "#" },
+        { title: "Annual Calendar", href: "#" },
+        { title: "Admission Form", href: "#" },
+        { title: "Scholarship Guidelines", href: "#" },
+      ];
+
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="page-shell">
       <section className="bg-[#1a3a6b] text-white py-14 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="page-container">
           <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">Notices</p>
           <h1 className="text-4xl md:text-5xl font-extrabold mt-2">Notices and Circulars</h1>
           <p className="max-w-3xl text-white/80 mt-4 text-sm md:text-base">
-            Dummy notice board, search filters, and download actions for UI preview only.
+            Latest notices are synced from CMS. Publish new notices there to update this board.
           </p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid lg:grid-cols-[1.55fr_1fr] gap-6">
+      <div className="page-container page-section grid lg:grid-cols-[1.55fr_1fr] gap-6">
         <section className="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
           <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
@@ -37,7 +68,7 @@ export default function NoticesPage() {
           </div>
 
           <div className="divide-y divide-gray-100">
-            {notices.map((notice) => (
+            {noticeItems.map((notice) => (
               <article key={notice.title} className="px-5 py-4 flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-[#1a3a6b] text-base leading-tight">{notice.title}</h2>
@@ -46,9 +77,9 @@ export default function NoticesPage() {
                     {notice.type}
                   </span>
                 </div>
-                <button type="button" className="h-9 px-3 border border-gray-300 rounded-sm text-sm text-[#1a3a6b] hover:bg-blue-50 inline-flex items-center gap-2">
-                  <Download className="h-4 w-4" /> PDF
-                </button>
+                <a href={notice.link} className="h-9 px-3 border border-gray-300 rounded-sm text-sm text-[#1a3a6b] hover:bg-blue-50 inline-flex items-center gap-2">
+                  <Download className="h-4 w-4" /> View
+                </a>
               </article>
             ))}
           </div>
@@ -78,16 +109,11 @@ export default function NoticesPage() {
           <section className="bg-white border border-gray-200 rounded-sm shadow-sm p-4">
             <h2 className="section-title">Download Corner</h2>
             <ul className="space-y-2 text-sm">
-              {[
-                "School Prospectus",
-                "Annual Calendar",
-                "Admission Form",
-                "Scholarship Guidelines",
-              ].map((item) => (
-                <li key={item}>
-                  <button type="button" className="w-full text-left border border-gray-200 rounded-sm px-3 py-2 hover:bg-gray-50 text-gray-600">
-                    {item}
-                  </button>
+              {downloadItems.map((item) => (
+                <li key={item.title}>
+                  <a href={item.href} className="block w-full text-left border border-gray-200 rounded-sm px-3 py-2 hover:bg-gray-50 text-gray-600">
+                    {item.title}
+                  </a>
                 </li>
               ))}
             </ul>

@@ -117,6 +117,7 @@ The frontend supports optional overrides for WordPress endpoints:
 - `NEXT_PUBLIC_WORDPRESS_ORIGIN`
 - `NEXT_PUBLIC_WORDPRESS_API_BASE`
 - `NEXT_PUBLIC_WORDPRESS_HOMEPAGE_API`
+- `SHOW_CMS_STATUS_BADGE` (set `true` or `1` to show CMS connectivity status in the UI for admin-facing mode)
 
 If not set, defaults in src/lib/wordpress.ts are used.
 
@@ -132,6 +133,12 @@ Custom content is managed in the plugin under the following sections:
 - Contacts
 - Gallery Items
 
+Contact entries now also support header social link fields:
+
+- Facebook URL
+- YouTube URL
+- Twitter / X URL
+
 These are aggregated into a homepage payload consumed by the Next.js frontend.
 
 ## Publishing Workflow for School Staff
@@ -141,6 +148,16 @@ These are aggregated into a homepage payload consumed by the Next.js frontend.
 3. Add title, body, taxonomy terms, and featured image.
 4. Preview and publish.
 5. Refresh frontend pages to verify updates.
+
+## Content Team Guide Page
+
+For editors, open:
+
+```text
+http://localhost:3000/cms-guide
+```
+
+This page maps each WordPress content type to the exact website sections it controls.
 
 ## Build and Production Run
 

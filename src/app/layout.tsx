@@ -3,6 +3,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import {
+  getHomepageCmsDataWithStatus,
+  shouldShowCmsStatusBadge,
+} from "@/lib/wordpress";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -17,15 +21,23 @@ export const metadata: Metadata = {
   keywords: "Chhetrapal Secondary School, Nepal school, Nuwakot school, SEE exam, NEB affiliated, government school",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const cmsResponse = await getHomepageCmsDataWithStatus();
+  const contact = cmsResponse?.data.contact;
+  const cmsStatus = cmsResponse?.sourceStatus;
+  const showCmsBadge = shouldShowCmsStatusBadge();
+
   return (
     <html lang="en" className={`${inter.variable}`}>
       <body className="min-h-screen flex flex-col antialiased">
-        <Navbar />
-        {/* Offset for the fixed header — approx header height */}
-        <div style={{ paddingTop: "var(--header-offset, 180px)" }} />
+        <Navbar contact={contact} />
+        {showCmsBadge ? (
+          <div className="border-b border-gray-200 bg-slate-100 px-4 py-1.5 text-center text-xs font-semibold tracking-wide text-slate-700">
+            CMS Status: {cmsStatus === "cms" ? "Connected" : cmsStatus === "wp-fallback" ? "Fallback Content Active" : "Offline Local Fallback"}
+          </div>
+        ) : null}
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

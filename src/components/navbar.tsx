@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Phone, Mail, ChevronDown, Menu, X } from "lucide-react";
+import type { CmsContact } from "@/lib/wordpress";
 
 // Simple inline SVG social icons (lucide-react doesn't include brand icons)
 const FacebookIcon = () => (
@@ -47,31 +48,41 @@ const navLinks = [
   { label: "Contact", href: "/contact" },
 ];
 
-export default function Navbar() {
+type NavbarProps = {
+  contact?: CmsContact | null;
+};
+
+export default function Navbar({ contact }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
+  const topPhone = contact?.phone || "+977-10-XX-XXXXXX";
+  const topEmail = contact?.email || "info@chhetrapalschool.edu.np";
+  const facebookUrl = contact?.facebookUrl || "#";
+  const youtubeUrl = contact?.youtubeUrl || "#";
+  const twitterUrl = contact?.twitterUrl || "#";
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 shadow-md">
+    <header className="sticky top-0 left-0 right-0 z-50 shadow-md">
       {/* ── Top Utility Bar ── */}
       <div className="bg-[#1a3a6b] text-white text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
-              <Phone className="h-3 w-3" /> +977-10-XX-XXXXXX
+              <Phone className="h-3 w-3" /> {topPhone}
             </span>
             <span className="hidden sm:flex items-center gap-1.5">
-              <Mail className="h-3 w-3" /> info@chhetrapalschool.edu.np
+              <Mail className="h-3 w-3" /> {topEmail}
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <a href="#" aria-label="Facebook" className="hover:text-orange-300 transition-colors">
+            <a href={facebookUrl} aria-label="Facebook" className="hover:text-orange-300 transition-colors" target="_blank" rel="noreferrer">
               <FacebookIcon />
             </a>
-            <a href="#" aria-label="Youtube" className="hover:text-orange-300 transition-colors">
+            <a href={youtubeUrl} aria-label="Youtube" className="hover:text-orange-300 transition-colors" target="_blank" rel="noreferrer">
               <YoutubeIcon />
             </a>
-            <a href="#" aria-label="Twitter / X" className="hover:text-orange-300 transition-colors">
+            <a href={twitterUrl} aria-label="Twitter / X" className="hover:text-orange-300 transition-colors" target="_blank" rel="noreferrer">
               <TwitterIcon />
             </a>
             <span className="pl-2 border-l border-white/30">
@@ -179,19 +190,28 @@ export default function Navbar() {
           <nav className="flex flex-col divide-y divide-gray-100">
             {navLinks.map((link) => (
               <div key={link.label}>
-                <button
-                  className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-semibold text-[#1a3a6b] hover:bg-blue-50"
-                  onClick={() =>
-                    setOpenDropdown(openDropdown === link.label ? null : link.label)
-                  }
-                >
-                  <Link href={link.href}>{link.label}</Link>
-                  {link.children && (
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${openDropdown === link.label ? "rotate-180" : ""}`}
-                    />
-                  )}
-                </button>
+                <div className="flex items-center justify-between px-5 py-3.5 hover:bg-blue-50">
+                  <Link
+                    href={link.href}
+                    className="flex-1 text-left text-sm font-semibold text-[#1a3a6b]"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                  {link.children ? (
+                    <button
+                      className="rounded p-1 text-[#1a3a6b]"
+                      onClick={() =>
+                        setOpenDropdown(openDropdown === link.label ? null : link.label)
+                      }
+                      aria-label={`Toggle ${link.label} submenu`}
+                    >
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${openDropdown === link.label ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                  ) : null}
+                </div>
                 {link.children && openDropdown === link.label && (
                   <div className="bg-blue-50/50 pl-6 flex flex-col divide-y divide-blue-100">
                     {link.children.map((child) => (

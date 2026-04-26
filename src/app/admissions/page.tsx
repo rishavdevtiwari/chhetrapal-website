@@ -1,4 +1,5 @@
 import { CheckCircle2, FileText, UserPlus2, BadgeHelp } from "lucide-react";
+import { getHomepageCmsData } from "@/lib/wordpress";
 
 const steps = [
   { title: "Fill Application Form", desc: "Submit student details and guardian information." },
@@ -7,20 +8,33 @@ const steps = [
   { title: "Admission Confirmation", desc: "Receive admission confirmation and class schedule." },
 ];
 
-export default function AdmissionsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdmissionsPage() {
+  const cmsData = await getHomepageCmsData();
+  const programChips = cmsData?.programs?.length
+    ? cmsData.programs.map((program) => `${program.label}${program.desc ? ` (${program.desc})` : ""}`)
+    : ["Class 1 - 5 (Primary)", "Class 6 - 8 (Lower Sec.)", "Class 9 - 10 (SEE)", "Class 11 - 12 (+2)"];
+  const downloadForms = cmsData?.downloads?.length
+    ? cmsData.downloads.map((download) => ({
+        title: download.title,
+        href: download.fileUrl || "#",
+      }))
+    : [{ title: "Download Blank Form", href: "#" }];
+
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="page-shell">
       <section className="bg-[#1a3a6b] text-white py-14 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="page-container">
           <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">Admissions</p>
           <h1 className="text-4xl md:text-5xl font-extrabold mt-2">Online Admission UI</h1>
           <p className="max-w-3xl text-white/80 mt-4 text-sm md:text-base">
-            Complete admission page with process cards, checklist, and full dummy form. Backend integration can be added later.
+            Admission-related classes and downloadable forms are connected with CMS for non-technical updates.
           </p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+      <div className="page-container page-section space-y-8">
         <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           {steps.map((step, idx) => (
             <article key={step.title} className="bg-white border border-gray-200 rounded-sm shadow-sm p-4">
@@ -148,11 +162,25 @@ export default function AdmissionsPage() {
               <button type="button" className="h-10 px-5 bg-[#e8841a] text-white rounded-sm font-semibold text-sm hover:bg-orange-600 transition-colors">
                 Submit Application
               </button>
-              <button type="button" className="h-10 px-5 border border-gray-300 text-[#1a3a6b] rounded-sm font-semibold text-sm hover:bg-blue-50 transition-colors inline-flex items-center gap-2">
-                <FileText className="h-4 w-4" /> Download Blank Form
-              </button>
+              <a
+                href={downloadForms[0]?.href || "#"}
+                className="h-10 px-5 border border-gray-300 text-[#1a3a6b] rounded-sm font-semibold text-sm hover:bg-blue-50 transition-colors inline-flex items-center gap-2"
+              >
+                <FileText className="h-4 w-4" /> {downloadForms[0]?.title || "Download Blank Form"}
+              </a>
             </div>
           </form>
+        </section>
+
+        <section className="bg-white border border-gray-200 rounded-sm shadow-sm p-5">
+          <h2 className="section-title">Available Classes</h2>
+          <div className="flex flex-wrap gap-2">
+            {programChips.map((program) => (
+              <span key={program} className="rounded-sm bg-blue-50 px-3 py-1.5 text-xs font-semibold text-[#1a3a6b] border border-blue-100">
+                {program}
+              </span>
+            ))}
+          </div>
         </section>
 
         <section className="bg-white border border-gray-200 rounded-sm shadow-sm p-5">

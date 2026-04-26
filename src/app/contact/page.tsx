@@ -1,39 +1,52 @@
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { getHomepageCmsData } from "@/lib/wordpress";
 
-export default function ContactPage() {
+const fallbackMapUrl =
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3525.925360626243!2d85.2387678754744!3d27.904263726070322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eadfa5e05bbc35%3A0x3eb57e2564e36dd4!2sShree%20Kshetrapal%20Uchcha%20Madhyamik%20Bidyalaya!5e0!3m2!1sen!2snp!4v1776366200281!5m2!1sen!2snp";
+
+export const dynamic = "force-dynamic";
+
+export default async function ContactPage() {
+  const cmsData = await getHomepageCmsData();
+  const contact = cmsData?.contact;
+  const address = contact?.address || "Chhetrapal, Nuwakot, Bagmati Province, Nepal";
+  const phone = contact?.phone || "+977-10-XXXXXXXX";
+  const email = contact?.email || "info@chhetrapalschool.edu.np";
+  const mapUrl = contact?.mapUrl || fallbackMapUrl;
+
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="page-shell">
       <section className="bg-[#1a3a6b] text-white py-14 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="page-container">
           <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">Contact</p>
           <h1 className="text-4xl md:text-5xl font-extrabold mt-2">Contact and Visit Us</h1>
           <p className="max-w-3xl text-white/80 mt-4 text-sm md:text-base">
-            Complete contact UI with map block and enquiry form placeholders. Integration can be added later.
+            Contact details and map embed are managed from CMS so office updates do not require code changes.
           </p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid lg:grid-cols-[1fr_1.25fr] gap-6">
+      <div className="page-container page-section grid lg:grid-cols-[1fr_1.25fr] gap-6">
         <aside className="space-y-4">
           <article className="bg-white border border-gray-200 rounded-sm shadow-sm p-4 flex items-start gap-3">
             <MapPin className="h-5 w-5 text-[#e8841a] mt-0.5" />
             <div>
               <h2 className="text-sm text-[#1a3a6b] uppercase tracking-wide">Address</h2>
-              <p className="text-sm text-gray-600 mt-1">Chhetrapal, Nuwakot, Bagmati Province, Nepal</p>
+              <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">{address}</p>
             </div>
           </article>
           <article className="bg-white border border-gray-200 rounded-sm shadow-sm p-4 flex items-start gap-3">
             <Phone className="h-5 w-5 text-[#e8841a] mt-0.5" />
             <div>
               <h2 className="text-sm text-[#1a3a6b] uppercase tracking-wide">Phone</h2>
-              <p className="text-sm text-gray-600 mt-1">+977-10-XXXXXXXX</p>
+              <p className="text-sm text-gray-600 mt-1">{phone}</p>
             </div>
           </article>
           <article className="bg-white border border-gray-200 rounded-sm shadow-sm p-4 flex items-start gap-3">
             <Mail className="h-5 w-5 text-[#e8841a] mt-0.5" />
             <div>
               <h2 className="text-sm text-[#1a3a6b] uppercase tracking-wide">Email</h2>
-              <p className="text-sm text-gray-600 mt-1">info@chhetrapalschool.edu.np</p>
+              <p className="text-sm text-gray-600 mt-1">{email}</p>
             </div>
           </article>
           <article className="bg-white border border-gray-200 rounded-sm shadow-sm p-4 flex items-start gap-3">
@@ -46,7 +59,7 @@ export default function ContactPage() {
 
           <div className="aspect-[4/3] rounded-sm overflow-hidden border border-gray-200 shadow-sm">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3525.925360626243!2d85.2387678754744!3d27.904263726070322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eadfa5e05bbc35%3A0x3eb57e2564e36dd4!2sShree%20Kshetrapal%20Uchcha%20Madhyamik%20Bidyalaya!5e0!3m2!1sen!2snp!4v1776366200281!5m2!1sen!2snp"
+              src={mapUrl}
               title="Shree Kshetrapal Uchcha Madhyamik Bidyalaya Location"
               className="w-full h-full"
               style={{ border: 0 }}
