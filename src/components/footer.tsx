@@ -23,6 +23,9 @@ const XIcon = () => (
 export default async function Footer() {
   const cmsData = await getHomepageCmsData();
   const contact = cmsData?.contact;
+  const facebookUrl = contact?.facebookUrl || "#";
+  const youtubeUrl = contact?.youtubeUrl || "#";
+  const twitterUrl = contact?.twitterUrl || "#";
 
   return (
     <footer className="bg-[#0f2744] text-white">
@@ -50,13 +53,13 @@ export default async function Footer() {
             छेत्रपाल माध्यमिक विद्यालय — Nuwakot, Nepal. Powered by belief in quality education for every child, we strive to prepare future leaders of Nepal.
           </p>
           <div className="flex items-center gap-3 mt-4">
-            <a href="#" aria-label="Facebook" className="h-8 w-8 rounded bg-white/10 flex items-center justify-center hover:bg-[#e8841a] transition-colors">
+            <a href={facebookUrl} aria-label="Facebook" className="h-8 w-8 rounded bg-white/10 flex items-center justify-center hover:bg-[#e8841a] transition-colors" target="_blank" rel="noreferrer">
               <FacebookIcon />
             </a>
-            <a href="#" aria-label="Youtube" className="h-8 w-8 rounded bg-white/10 flex items-center justify-center hover:bg-[#e8841a] transition-colors">
+            <a href={youtubeUrl} aria-label="Youtube" className="h-8 w-8 rounded bg-white/10 flex items-center justify-center hover:bg-[#e8841a] transition-colors" target="_blank" rel="noreferrer">
               <YoutubeIcon />
             </a>
-            <a href="#" aria-label="X / Twitter" className="h-8 w-8 rounded bg-white/10 flex items-center justify-center hover:bg-[#e8841a] transition-colors">
+            <a href={twitterUrl} aria-label="X / Twitter" className="h-8 w-8 rounded bg-white/10 flex items-center justify-center hover:bg-[#e8841a] transition-colors" target="_blank" rel="noreferrer">
               <XIcon />
             </a>
           </div>
