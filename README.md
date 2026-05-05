@@ -1,6 +1,6 @@
 # Chhetrapal Secondary School Website
 
-Production-ready school website built with Next.js (App Router) and integrated with a local WordPress CMS powered by WordPress Playground.
+Production-ready school website built with Next.js (App Router) and integrated with WordPress CMS content. The repo includes a local WordPress Playground setup for development, plus a production deployment path for cPanel or any other host that can run WordPress.
 
 ## What This Project Includes
 
@@ -23,11 +23,12 @@ Production-ready school website built with Next.js (App Router) and integrated w
 
 ### CMS and Content
 
-- WordPress (local) via @wp-playground/cli
+- WordPress for development via @wp-playground/cli
 - Custom WordPress plugin:
 	- Custom post types (notices, staff, programs, facilities, downloads, gallery, contact)
 	- Taxonomies and metadata fields
 	- Custom REST endpoint for homepage payload
+	- Alumni profiles for the homepage spotlight
 
 ###### Tooling
 
@@ -107,7 +108,7 @@ The integration works through two layers:
 	 - `/wp-json/chhetrapal/v1/homepage`
 	 - `/wp-json/wp/v2/...` fallback APIs
 
-This keeps CMS and frontend on one browser origin (localhost:3000) while WordPress runs internally on port 9400.
+This keeps CMS and frontend on one browser origin (localhost:3000) while WordPress runs internally on port 9400 in local development. In production, set `WORDPRESS_INTERNAL_ORIGIN` and `NEXT_PUBLIC_WORDPRESS_ORIGIN` to your live WordPress URL.
 
 ## Environment Variables (Optional)
 
@@ -117,6 +118,7 @@ The frontend supports optional overrides for WordPress endpoints:
 - `NEXT_PUBLIC_WORDPRESS_ORIGIN`
 - `NEXT_PUBLIC_WORDPRESS_API_BASE`
 - `NEXT_PUBLIC_WORDPRESS_HOMEPAGE_API`
+- `CHHETRAPAL_FRONTEND_URL` (used by the WordPress plugin to redirect the public WordPress front-end to your live Next.js site)
 - `SHOW_CMS_STATUS_BADGE` (set `true` or `1` to show CMS connectivity status in the UI for admin-facing mode)
 
 If not set, defaults in src/lib/wordpress.ts are used.
@@ -132,6 +134,7 @@ Custom content is managed in the plugin under the following sections:
 - Downloads
 - Contacts
 - Gallery Items
+- Alumni
 
 Contact entries now also support header social link fields:
 
@@ -157,7 +160,40 @@ For editors, open:
 http://localhost:3000/cms-guide
 ```
 
-This page maps each WordPress content type to the exact website sections it controls.
+This page maps each WordPress content type to the exact website sections it controls, including the alumni spotlight.
+
+## Production Hosting Guide
+
+The current development setup is not the same as production. WordPress Playground is for local use only, so for live hosting you should move the CMS to a real WordPress install with a real database.
+
+### Recommended production layout
+
+1. Host WordPress on cPanel, managed WordPress, or a separate PHP host.
+2. Host the Next.js frontend on a Node-capable platform such as Vercel, a VPS, or a cPanel plan that explicitly supports Node apps.
+3. Point the frontend to the real WordPress URL with `WORDPRESS_INTERNAL_ORIGIN` and `NEXT_PUBLIC_WORDPRESS_ORIGIN`.
+4. Set `CHHETRAPAL_FRONTEND_URL` on the WordPress side so `/wp-admin` and the CMS frontend redirect to the live site.
+5. Upload the plugin from `wordpress-plugin/chhetrapal-school-cms.php` into `wp-content/plugins` and activate it.
+
+### cPanel WordPress setup
+
+1. Create a MySQL database and user in cPanel.
+2. Install WordPress in the target domain or subdomain.
+3. Import or recreate content and media in the new database.
+4. Install the custom plugin and confirm the new content types appear in the admin menu.
+5. Set permalinks to a pretty URL structure.
+6. Add the live frontend URL as `CHHETRAPAL_FRONTEND_URL` so the WordPress frontend redirects correctly.
+
+### What runs where
+
+- WordPress admin and CMS data live on the WordPress host and database.
+- Next.js renders the public site and fetches the CMS data from WordPress over HTTP.
+- The Playground blueprint under `wordpress/setup.blueprint.json` is only for local development and demo resets.
+
+### Operational notes
+
+- If your cPanel plan does not support Node.js apps, do not try to deploy the Next.js app there as-is.
+- If you must use one server only, use a VPS or a cPanel plan with Node support and confirm that SSR builds are supported.
+- Keep the WordPress URL and frontend URL aligned in the env vars so links, admin redirects, and API requests stay synchronized.
 
 ## Build and Production Run
 
@@ -169,8 +205,8 @@ npm run start
 ## Troubleshooting
 
 - First CMS startup can take 1-2 minutes.
-- If CMS is down, the frontend uses fallback content from src/lib/wordpress.ts.
-- If /wp-admin or /wp-json does not load, ensure wp:start is running and port 9400 is free.
+- If CMS is down, the frontend uses fallback content from `src/lib/wordpress.ts`.
+- If `/wp-admin` or `/wp-json` does not load in local development, ensure `wp:start` is running and port 9400 is free.
 - On Windows, transient file-lock warnings may appear during Playground startup; retry if needed.
 
 ## Contributing

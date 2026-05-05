@@ -45,6 +45,15 @@ export type CmsGalleryItem = {
   link?: string;
 };
 
+export type CmsAlumni = {
+  name: string;
+  year: string;
+  achievement: string;
+  bio: string;
+  photoUrl: string;
+  link?: string;
+};
+
 export type CmsContact = {
   address: string;
   phone: string;
@@ -71,6 +80,7 @@ export type HomepageCmsData = {
   facilities: CmsCard[];
   downloads: CmsDownload[];
   gallery: CmsGalleryItem[];
+  alumni: CmsAlumni[];
   contact: CmsContact;
   stats: Array<{ value: string; label: string }>;
 };
@@ -177,6 +187,15 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
         title: sanitizeText(photo.title),
         link: normalizeCmsUrl(photo.link, wpOrigin),
       })),
+    alumni: payload.alumni.map((person) => ({
+      ...person,
+      name: sanitizeText(person.name),
+      year: sanitizeText(person.year),
+      achievement: sanitizeText(person.achievement),
+      bio: sanitizeText(person.bio),
+      photoUrl: normalizeCmsUrl(person.photoUrl, wpOrigin),
+      link: normalizeCmsUrl(person.link, wpOrigin),
+    })),
     contact: {
       ...payload.contact,
       address: sanitizeText(payload.contact.address),
@@ -291,6 +310,7 @@ export async function getHomepageCmsDataWithStatus(): Promise<HomepageCmsRespons
         facilities: [],
         downloads: [],
         gallery: [],
+        alumni: [],
         contact: {
           address: "Chhetrapal, Nuwakot, Bagmati Province, Nepal",
           phone: "+977-10-XXXXXXXX",
@@ -330,6 +350,7 @@ export async function getHomepageCmsDataWithStatus(): Promise<HomepageCmsRespons
           facilities: [],
           downloads: [],
           gallery: [],
+          alumni: [],
           contact: {
             address: "Chhetrapal, Nuwakot, Bagmati Province, Nepal",
             phone: "+977-10-XXXXXXXX",

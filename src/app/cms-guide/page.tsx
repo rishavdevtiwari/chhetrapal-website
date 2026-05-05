@@ -39,6 +39,12 @@ const mappingRows = [
     tips: "Featured image is used as gallery photo. Title becomes caption.",
   },
   {
+    cpt: "Alumni",
+    wordpress: "WordPress -> Alumni",
+    section: "Homepage Alumni Spotlight, About page alumni block",
+    tips: "Use title for the name, excerpt for the achievement, and featured image for the photo.",
+  },
+  {
     cpt: "Contacts",
     wordpress: "WordPress -> Contacts",
     section: "Header top bar phone/email/social, Contact page, Footer contact block",

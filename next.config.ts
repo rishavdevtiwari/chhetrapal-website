@@ -4,7 +4,10 @@ const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
 
   async rewrites() {
-    const wordpressBase = "http://127.0.0.1:9400";
+    const wordpressBase =
+      process.env.WORDPRESS_INTERNAL_ORIGIN ||
+      process.env.NEXT_PUBLIC_WORDPRESS_ORIGIN ||
+      "http://127.0.0.1:9400";
 
     return [
       {

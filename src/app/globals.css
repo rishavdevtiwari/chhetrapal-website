@@ -149,11 +149,6 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px dashed #e2e8f0;
-}
-.notice-item:last-child {
-  border-bottom: none;
 }
 .notice-badge {
   flex-shrink: 0;

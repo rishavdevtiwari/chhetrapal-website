@@ -57,6 +57,21 @@ export default async function AboutPage() {
           </div>
         </section>
 
+        <section id="alumni" className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
+          <div className="bg-[#1a3a6b] px-5 py-3 flex items-center gap-3 text-white">
+            <Users className="h-5 w-5 text-[#e8841a]" />
+            <h2 className="text-sm uppercase tracking-widest">Notable Alumni</h2>
+          </div>
+          <div className="p-5 text-sm text-gray-600 leading-relaxed space-y-3">
+            <p>
+              Add alumni stories, career highlights, and community impact here once you start publishing alumni profiles in WordPress.
+            </p>
+            <p>
+              The homepage now includes an alumni spotlight section, so this page can be expanded later with a full alumni timeline or reunion archive.
+            </p>
+          </div>
+        </section>
+
         <section id="mission" className="grid md:grid-cols-2 gap-6">
           <article className="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
             <div className="bg-[#1a3a6b] px-5 py-3 flex items-center gap-3 text-white">

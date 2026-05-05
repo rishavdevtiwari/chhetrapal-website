@@ -23,6 +23,7 @@ final class Chhetrapal_School_CMS {
     private const CPT_DOWNLOAD = 'chhetrapal_download';
     private const CPT_GALLERY = 'chhetrapal_gallery';
     private const CPT_CONTACT = 'chhetrapal_contact';
+    private const CPT_ALUMNI = 'chhetrapal_alumni';
 
     private const TAX_NOTICE_TYPE = 'chhetrapal_notice_type';
     private const TAX_STAFF_ROLE = 'chhetrapal_staff_role';
@@ -94,6 +95,7 @@ final class Chhetrapal_School_CMS {
         $this->register_post_type(self::CPT_DOWNLOAD, 'Downloads', 'Download', 'dashicons-download');
         $this->register_post_type(self::CPT_GALLERY, 'Gallery Items', 'Gallery Item', 'dashicons-format-gallery');
         $this->register_post_type(self::CPT_CONTACT, 'Contacts', 'Contact Card', 'dashicons-email-alt');
+        $this->register_post_type(self::CPT_ALUMNI, 'Alumni', 'Alumni Profile', 'dashicons-awards');
 
         $this->register_taxonomy(self::TAX_NOTICE_TYPE, [self::CPT_NOTICE], 'Notice Types');
         $this->register_taxonomy(self::TAX_STAFF_ROLE, [self::CPT_STAFF], 'Staff Roles');
@@ -138,6 +140,7 @@ final class Chhetrapal_School_CMS {
         register_post_meta(self::CPT_STAFF, 'chhetrapal_designation', $meta_args);
         register_post_meta(self::CPT_PROGRAM, 'chhetrapal_subtitle', $meta_args);
         register_post_meta(self::CPT_FACILITY, 'chhetrapal_subtitle', $meta_args);
+        register_post_meta(self::CPT_ALUMNI, 'chhetrapal_alumni_year', $meta_args);
     }
 
     public function register_meta_boxes(): void {
@@ -328,6 +331,7 @@ final class Chhetrapal_School_CMS {
             'facilities' => $this->build_facilities(),
             'downloads' => $this->build_downloads(),
             'gallery' => $this->build_gallery_items(),
+            'alumni' => $this->build_alumni_items(),
             'contact' => $this->build_contact_card(),
             'stats' => [
                 ['value' => '1,200+', 'label' => 'Students'],
@@ -445,6 +449,19 @@ final class Chhetrapal_School_CMS {
                 'link' => get_permalink($post),
             ];
         }, 6);
+    }
+
+    private function build_alumni_items(): array {
+        return $this->build_collection(self::CPT_ALUMNI, function (WP_Post $post): array {
+            return [
+                'name' => get_the_title($post),
+                'year' => get_post_meta($post->ID, 'chhetrapal_alumni_year', true) ?: 'Alumni',
+                'achievement' => get_the_excerpt($post) ?: wp_trim_words(wp_strip_all_tags($post->post_content), 14),
+                'bio' => apply_filters('the_content', $post->post_content),
+                'photoUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
+                'link' => get_permalink($post),
+            ];
+        }, 3);
     }
 
     private function build_contact_card(): array {
