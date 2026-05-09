@@ -11,6 +11,7 @@ export type CmsNotice = {
   summary?: string;
   tag: "Notice" | "Event" | "Result";
   link?: string;
+  imageUrl?: string;
 };
 
 export type CmsPrincipal = {
@@ -54,6 +55,15 @@ export type CmsAlumni = {
   link?: string;
 };
 
+export type CmsScholarship = {
+  studentName: string;
+  scholarshipTitle: string;
+  year: string;
+  details: string;
+  photoUrl?: string;
+  link?: string;
+};
+
 export type CmsContact = {
   address: string;
   phone: string;
@@ -81,6 +91,7 @@ export type HomepageCmsData = {
   downloads: CmsDownload[];
   gallery: CmsGalleryItem[];
   alumni: CmsAlumni[];
+  scholarships: CmsScholarship[];
   contact: CmsContact;
   stats: Array<{ value: string; label: string }>;
 };
@@ -89,6 +100,7 @@ const DEFAULT_WP_API_BASE = "/wp-json/wp/v2";
 const DEFAULT_HOMEBASE = "/wp-json/chhetrapal/v1/homepage";
 const DEFAULT_WP_ORIGIN = "http://127.0.0.1:9400";
 const DEFAULT_TIMEOUT_MS = 5000;
+const DEFAULT_INTERNAL_TOKEN = "chhetrapal-dev-internal-token";
 
 function toAbsoluteUrl(url: string, origin: string): string {
   if (/^https?:\/\//i.test(url)) {
@@ -106,8 +118,38 @@ function getWordPressOrigin(): string {
   );
 }
 
+function isSafeCmsUrl(url: string): boolean {
+  const trimmedUrl = url.trim();
+
+  if (!trimmedUrl) {
+    return false;
+  }
+
+  if (trimmedUrl.startsWith("/")) {
+    return true;
+  }
+
+  if (/^https?:\/\//i.test(trimmedUrl)) {
+    return true;
+  }
+
+  return false;
+}
+
+function rewriteCmsMediaPath(pathname: string): string {
+  if (pathname.startsWith("/wp-content/")) {
+    return `/_media/${pathname.replace(/^\/wp-content\//, "")}`;
+  }
+
+  return pathname;
+}
+
 function normalizeCmsUrl(url: string | undefined, wpOrigin: string): string {
   if (!url) {
+    return "";
+  }
+
+  if (!isSafeCmsUrl(url)) {
     return "";
   }
 
@@ -124,7 +166,7 @@ function normalizeCmsUrl(url: string | undefined, wpOrigin: string): string {
     const normalizedWpOrigin = new URL(wpOrigin);
 
     if (parsed.host === normalizedWpOrigin.host) {
-      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+      return `${rewriteCmsMediaPath(parsed.pathname)}${parsed.search}${parsed.hash}`;
     }
   } catch {
     return url;
@@ -145,6 +187,7 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
       title: sanitizeText(notice.title),
       summary: notice.summary ? sanitizeText(notice.summary) : undefined,
       link: normalizeCmsUrl(notice.link, wpOrigin),
+      imageUrl: normalizeCmsUrl(notice.imageUrl, wpOrigin),
     })),
     principal: {
       ...payload.principal,
@@ -196,6 +239,15 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
       photoUrl: normalizeCmsUrl(person.photoUrl, wpOrigin),
       link: normalizeCmsUrl(person.link, wpOrigin),
     })),
+    scholarships: (payload.scholarships ?? []).map((winner) => ({
+      ...winner,
+      studentName: sanitizeText(winner.studentName),
+      scholarshipTitle: sanitizeText(winner.scholarshipTitle),
+      year: sanitizeText(winner.year),
+      details: sanitizeText(winner.details),
+      photoUrl: normalizeCmsUrl(winner.photoUrl, wpOrigin),
+      link: normalizeCmsUrl(winner.link, wpOrigin),
+    })),
     contact: {
       ...payload.contact,
       address: sanitizeText(payload.contact.address),
@@ -214,7 +266,7 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
   };
 }
 
-async function fetchJson<T>(url: string, timeoutMs = 4000): Promise<T> {
+async function fetchJson<T>(url: string, timeoutMs = 4000, headers?: HeadersInit): Promise<T> {
   let attemptError: unknown;
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -225,6 +277,7 @@ async function fetchJson<T>(url: string, timeoutMs = 4000): Promise<T> {
       const response = await fetch(url, {
         cache: "no-store",
         signal: controller.signal,
+        headers,
       });
 
       if (!response.ok) {
@@ -265,9 +318,12 @@ export async function getHomepageCmsDataWithStatus(): Promise<HomepageCmsRespons
   const wpOrigin = getWordPressOrigin();
   const base = toAbsoluteUrl(process.env.NEXT_PUBLIC_WORDPRESS_API_BASE || DEFAULT_WP_API_BASE, wpOrigin);
   const homepageUrl = toAbsoluteUrl(process.env.NEXT_PUBLIC_WORDPRESS_HOMEPAGE_API || DEFAULT_HOMEBASE, wpOrigin);
+  const internalToken = process.env.CHHETRAPAL_INTERNAL_TOKEN || DEFAULT_INTERNAL_TOKEN;
 
   try {
-    const payload = await fetchJson<HomepageCmsData>(homepageUrl, DEFAULT_TIMEOUT_MS);
+    const payload = await fetchJson<HomepageCmsData>(homepageUrl, DEFAULT_TIMEOUT_MS, {
+      "X-Chhetrapal-Internal-Token": internalToken,
+    });
     return {
       data: normalizeHomepageData(payload, wpOrigin),
       sourceStatus: "cms",
@@ -282,50 +338,51 @@ export async function getHomepageCmsDataWithStatus(): Promise<HomepageCmsRespons
       return {
         sourceStatus: "wp-fallback",
         data: {
-        hero: {
-          eyebrow: "Chhetrapal Government School",
-          title: "Chhetrapal Secondary School",
-          subtitle: "CMS fallback mode",
-          description: "WordPress is temporarily unavailable, so the local fallback content is being shown.",
-        },
-        notices: posts.map((post, index) => {
-          const date = new Date(post.date);
-          return {
-            date: {
-              day: String(date.getDate()).padStart(2, "0"),
-              month: date.toLocaleString("en-US", { month: "short" }),
-            },
-            title: post.title.rendered.replace(/<[^>]+>/g, ""),
-            tag: index === 1 ? "Event" : index === 2 ? "Result" : "Notice",
-          };
-        }),
-        principal: {
-          name: "Principal",
-          title: "Principal",
-          message: "Please publish the principal message from WordPress.",
-          photoUrl: "",
-          designation: "Principal",
-        },
-        programs: [],
-        facilities: [],
-        downloads: [],
-        gallery: [],
-        alumni: [],
-        contact: {
-          address: "Chhetrapal, Nuwakot, Bagmati Province, Nepal",
-          phone: "+977-10-XXXXXXXX",
-          email: "info@chhetrapalschool.edu.np",
-          mapUrl: "",
-          facebookUrl: "#",
-          youtubeUrl: "#",
-          twitterUrl: "#",
-        },
-        stats: [
-          { value: "1,200+", label: "Students" },
-          { value: "55+", label: "Expert Staff" },
-          { value: "98%", label: "Pass Rate" },
-          { value: "35+", label: "Years Legacy" },
-        ],
+          hero: {
+            eyebrow: "Chhetrapal Government School",
+            title: "Chhetrapal Secondary School",
+            subtitle: "Content fallback mode",
+            description: "The live content source is temporarily unavailable, so fallback content is being shown.",
+          },
+          notices: posts.map((post, index) => {
+            const date = new Date(post.date);
+            return {
+              date: {
+                day: String(date.getDate()).padStart(2, "0"),
+                month: date.toLocaleString("en-US", { month: "short" }),
+              },
+              title: post.title.rendered.replace(/<[^>]+>/g, ""),
+              tag: index === 1 ? "Event" : index === 2 ? "Result" : "Notice",
+            };
+          }),
+          principal: {
+            name: "Principal",
+            title: "Principal",
+            message: "Please publish the principal message in the editor.",
+            photoUrl: "",
+            designation: "Principal",
+          },
+          programs: [],
+          facilities: [],
+          downloads: [],
+          gallery: [],
+          alumni: [],
+          scholarships: [],
+          contact: {
+            address: "Chhetrapal, Nuwakot, Bagmati Province, Nepal",
+            phone: "+977-10-XXXXXXXX",
+            email: "info@chhetrapalschool.edu.np",
+            mapUrl: "",
+            facebookUrl: "#",
+            youtubeUrl: "#",
+            twitterUrl: "#",
+          },
+          stats: [
+            { value: "1,200+", label: "Students" },
+            { value: "55+", label: "Expert Staff" },
+            { value: "98%", label: "Pass Rate" },
+            { value: "35+", label: "Years Legacy" },
+          ],
         },
       };
     } catch {
@@ -336,13 +393,13 @@ export async function getHomepageCmsDataWithStatus(): Promise<HomepageCmsRespons
             eyebrow: "Chhetrapal Government School",
             title: "Chhetrapal Secondary School",
             subtitle: "Offline fallback mode",
-            description: "Both CMS endpoint and WordPress fallback are unavailable, so bundled local fallback content is shown.",
+            description: "Both remote content sources are unavailable, so bundled local fallback content is shown.",
           },
           notices: [],
           principal: {
             name: "Principal",
             title: "Principal",
-            message: "Please publish the principal message from WordPress.",
+            message: "Please publish the principal message in the editor.",
             photoUrl: "",
             designation: "Principal",
           },
@@ -351,6 +408,7 @@ export async function getHomepageCmsDataWithStatus(): Promise<HomepageCmsRespons
           downloads: [],
           gallery: [],
           alumni: [],
+          scholarships: [],
           contact: {
             address: "Chhetrapal, Nuwakot, Bagmati Province, Nepal",
             phone: "+977-10-XXXXXXXX",

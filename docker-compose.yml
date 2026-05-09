@@ -1,0 +1,129 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: chhetrapal-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - chhetrapal-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # WordPress Backend
+  wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile.wordpress
+    container_name: chhetrapal-wordpress
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DEBUG: 'false'
+    ports:
+      - "8080:80"
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./wordpress-plugin/:/var/www/html/wp-content/plugins/chhetrapal-school-cms/
+    networks:
+      - chhetrapal-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/wp-admin/admin-ajax.php?action=heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Next.js Frontend
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: chhetrapal-nextjs
+    depends_on:
+      - wordpress
+    environment:
+      NODE_ENV: development
+      WORDPRESS_INTERNAL_ORIGIN: http://wordpress:80
+      NEXT_PUBLIC_WORDPRESS_ORIGIN: http://localhost:8080
+      NEXT_PUBLIC_WORDPRESS_API_BASE: /wp-json/wp/v2
+      NEXT_PUBLIC_WORDPRESS_HOMEPAGE_API: /wp-json/chhetrapal/v1/homepage
+      CHHETRAPAL_FRONTEND_URL: http://localhost:3000
+      CHHETRAPAL_INTERNAL_TOKEN: change-this-token
+      SHOW_CMS_STATUS_BADGE: 0
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - chhetrapal-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mysql_data:
+    driver: local
+  wordpress_data:
+    driver: local
+
+networks:
+  chhetrapal-network:
+    driver: bridge
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: chhetrapal
+      WORDPRESS_DB_USER: chhetrapal
+      WORDPRESS_DB_PASSWORD: chhetrapal123
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'http://localhost:8080');
+        define('WP_SITEURL', 'http://localhost:8080');
+        define('FS_METHOD', 'direct');
+      CHHETRAPAL_FRONTEND_URL: http://localhost:3000
+      CHHETRAPAL_INTERNAL_TOKEN: ${CHHETRAPAL_INTERNAL_TOKEN:-chhetrapal-dev-internal-token}
+    ports:
+      - "8080:80"
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./wordpress-plugin:/var/www/html/wp-content/plugins/chhetrapal-school-cms:ro
+      - ./wordpress/mu-plugins/chhetrapal-bootstrap.php:/var/www/html/wp-content/mu-plugins/chhetrapal-bootstrap.php:ro
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: chhetrapal
+      MYSQL_USER: chhetrapal
+      MYSQL_PASSWORD: chhetrapal123
+      MYSQL_ROOT_PASSWORD: root12345
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  wordpress_data:

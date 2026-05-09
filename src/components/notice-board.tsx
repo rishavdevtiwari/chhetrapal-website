@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Bell, Download, Search } from "lucide-react";
 
 type NoticeItem = {
@@ -9,6 +10,7 @@ type NoticeItem = {
   date: string;
   type: string;
   link: string;
+  imageUrl?: string;
 };
 
 type DownloadItem = {
@@ -87,9 +89,17 @@ export default function NoticeBoard({ notices, downloads }: NoticeBoardProps) {
                   const badge = formatNoticeBadge(notice.date);
 
                   return (
-                    <div className="flex h-12 w-12 flex-shrink-0 flex-col items-center justify-center rounded-sm bg-[#1a3a6b] text-white shadow-sm">
-                      <span className="text-[1rem] font-extrabold leading-none">{badge.day}</span>
-                      <span className="text-[0.55rem] uppercase tracking-widest leading-none">{badge.month}</span>
+                    <div className="flex w-12 flex-shrink-0 flex-col gap-2">
+                      {notice.imageUrl ? (
+                        <div className="relative h-12 w-12 overflow-hidden rounded-sm border border-gray-200 bg-gray-100 shadow-sm">
+                          <Image src={notice.imageUrl} alt={notice.title} fill className="object-cover" sizes="48px" />
+                        </div>
+                      ) : (
+                        <div className="flex h-12 w-12 flex-col items-center justify-center rounded-sm bg-[#1a3a6b] text-white shadow-sm">
+                          <span className="text-[1rem] font-extrabold leading-none">{badge.day}</span>
+                          <span className="text-[0.55rem] uppercase tracking-widest leading-none">{badge.month}</span>
+                        </div>
+                      )}
                     </div>
                   );
                 })()}

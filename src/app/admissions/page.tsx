@@ -1,4 +1,4 @@
-import { CheckCircle2, FileText, UserPlus2, BadgeHelp } from "lucide-react";
+import { CheckCircle2, UserPlus2, BadgeHelp } from "lucide-react";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import AdmissionsApplicationForm from "@/components/admissions-application-form";
 
@@ -30,7 +30,7 @@ export default async function AdmissionsPage() {
           <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">Admissions</p>
           <h1 className="text-4xl md:text-5xl font-extrabold mt-2">Online Admission UI</h1>
           <p className="max-w-3xl text-white/80 mt-4 text-sm md:text-base">
-            Admission-related classes and downloadable forms are connected with CMS for non-technical updates.
+            Admission-related classes and downloadable forms are updated centrally for non-technical edits.
           </p>
         </div>
       </section>

@@ -1,0 +1,46 @@
+# WordPress with PHP 8.2 and custom plugin
+FROM wordpress:6.7-php8.2-apache
+
+# Install additional PHP extensions and tools
+RUN docker-php-ext-install -j$(nproc) \
+    mysqli \
+    pdo \
+    pdo_mysql \
+    intl \
+    gd \
+    zip \
+    curl && \
+    docker-php-ext-enable mysqli
+
+# Install WP-CLI for database operations
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x wp-cli.phar && \
+    mv wp-cli.phar /usr/local/bin/wp
+
+# Enable Apache modules
+RUN a2enmod rewrite && \
+    a2enmod ssl && \
+    a2enmod headers
+
+# Copy WordPress configuration
+COPY wordpress/wp-config.php /var/www/html/wp-config.php 2>/dev/null || true
+
+# Copy custom plugin
+COPY wordpress-plugin/ /var/www/html/wp-content/plugins/chhetrapal-school-cms/
+
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html
+
+# Configure Apache for WordPress
+ENV WORDPRESS_DB_HOST=mysql
+ENV WORDPRESS_DB_NAME=wordpress
+ENV WORDPRESS_DB_USER=wordpress
+ENV WORDPRESS_DB_PASSWORD=wordpress
+
+EXPOSE 80 443
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost/wp-admin/admin-ajax.php?action=heartbeat || exit 1
+
+CMD ["apache2-foreground"]

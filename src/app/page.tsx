@@ -351,7 +351,7 @@ export default async function Home() {
                   </p>
                   <h3 className="mt-1 text-lg font-bold text-[#1a3a6b]">{alumni[0]?.name || "School Alumna"}</h3>
                   <p className="mt-1 text-sm font-medium text-gray-600">{alumni[0]?.achievement || "Notable contribution to the community"}</p>
-                  <p className="mt-3 text-sm leading-relaxed text-gray-600">{alumni[0]?.bio || "This section can be connected to WordPress alumni profiles later."}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-gray-600">{alumni[0]?.bio || "This section can be connected to alumni profiles later."}</p>
                   <a href={alumni[0]?.link || "#"} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#e8841a] hover:underline">
                     Read Profile <ChevronRight className="h-4 w-4" />
                   </a>
@@ -417,6 +417,7 @@ export default async function Home() {
                 {notices.map((notice, index) => {
                   const noticeHref = (notice as { link?: string }).link || "#";
                   const noticeSummary = "summary" in notice ? notice.summary : undefined;
+                  const noticeImage = "imageUrl" in notice ? notice.imageUrl : undefined;
 
                   return (
                     <div key={`${notice.title}-${index}`} className="notice-item px-4 py-4 sm:px-5">
@@ -425,6 +426,11 @@ export default async function Home() {
                         <span className="text-[0.6rem] uppercase">{notice.date.month}</span>
                       </div>
                       <div>
+                        {noticeImage ? (
+                          <div className="relative mb-2 aspect-[16/9] w-full max-w-[220px] overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
+                            <Image src={noticeImage} alt={notice.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 220px" />
+                          </div>
+                        ) : null}
                         <Link href={noticeHref} className="block text-sm font-medium leading-snug text-gray-800 hover:text-[#1a3a6b]">
                           {notice.title}
                         </Link>
@@ -437,7 +443,7 @@ export default async function Home() {
                           {notice.tag}
                         </span>
                         <a href={noticeHref} className="ml-2 inline-flex items-center gap-0.5 text-[0.65rem] font-semibold text-[#e8841a] hover:underline">
-                          <Download className="h-2.5 w-2.5" /> Download
+                          <Download className="h-2.5 w-2.5" /> Open notice
                         </a>
                       </div>
                     </div>

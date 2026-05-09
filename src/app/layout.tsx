@@ -3,10 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import {
-  getHomepageCmsDataWithStatus,
-  shouldShowCmsStatusBadge,
-} from "@/lib/wordpress";
+import ScholarshipPopup from "@/components/scholarship-popup";
+import { getHomepageCmsData } from "@/lib/wordpress";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -24,20 +22,15 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const cmsResponse = await getHomepageCmsDataWithStatus();
-  const contact = cmsResponse?.data.contact;
-  const cmsStatus = cmsResponse?.sourceStatus;
-  const showCmsBadge = shouldShowCmsStatusBadge();
+  const cmsData = await getHomepageCmsData();
+  const contact = cmsData?.contact;
+  const scholarships = cmsData?.scholarships ?? [];
 
   return (
     <html lang="en" className={`${inter.variable}`}>
       <body className="min-h-screen flex flex-col antialiased">
         <Navbar contact={contact} />
-        {showCmsBadge ? (
-          <div className="border-b border-gray-200 bg-slate-100 px-4 py-1.5 text-center text-xs font-semibold tracking-wide text-slate-700">
-            CMS Status: {cmsStatus === "cms" ? "Connected" : cmsStatus === "wp-fallback" ? "Fallback Content Active" : "Offline Local Fallback"}
-          </div>
-        ) : null}
+        <ScholarshipPopup scholarships={scholarships} />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

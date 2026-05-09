@@ -72,6 +72,8 @@ export default async function Footer() {
             {[
               { label: "Home", href: "/" },
               { label: "About Us", href: "/about" },
+              { label: "Alumni", href: "/alumni" },
+              { label: "Scholarships", href: "/scholarships" },
               { label: "Vision & Mission", href: "/about#mission" },
               { label: "Faculty", href: "/about#management" },
               { label: "Academics", href: "/academics" },
@@ -94,15 +96,21 @@ export default async function Footer() {
           <h3 className="text-white font-bold text-sm uppercase tracking-widest mb-5 border-b border-white/10 pb-3">Important Links</h3>
           <ul className="text-sm text-gray-300 space-y-2.5">
             {[
-              { label: "Ministry of Education – Nepal", href: "#" },
-              { label: "National Examination Board", href: "#" },
-              { label: "Curriculum Development Centre", href: "#" },
-              { label: "District Education Office", href: "#" },
-              { label: "NEB Online Admission", href: "#" },
-              { label: "Scholarships Portal", href: "#" },
+              { label: "Ministry of Education – Nepal", href: "https://moe.gov.np/" },
+              { label: "National Examination Board", href: "https://neb.gov.np/" },
+              { label: "Curriculum Development Centre", href: "https://moecdc.gov.np/" },
+              { label: "District Education Office", href: "https://cehrd.gov.np/" },
+              { label: "NEB Online Admission", href: "https://neb.gov.np/admission" },
+              { label: "Scholarships Portal", href: "https://scholarships.gov.np/" },
             ].map((link) => (
               <li key={link.label}>
-                <a href={link.href} className="flex items-center gap-2 hover:text-[#e8841a] transition-colors group" target="_blank" rel="noreferrer">
+                <a
+                  href={link.href}
+                  className="flex items-center gap-2 hover:text-[#e8841a] transition-colors group"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${link.label} (opens in a new tab)`}
+                >
                   <ChevronRight className="h-3 w-3 text-[#e8841a]" />
                   {link.label}
                 </a>
@@ -141,6 +149,8 @@ export default async function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-2 text-xs text-gray-400">
           <p>© {new Date().getFullYear()} Chhetrapal Secondary School (छेत्रपाल माध्यमिक विद्यालय). All Rights Reserved.</p>
           <div className="flex items-center gap-4">
+            <span className="text-gray-300">Powered by Softwarica College</span>
+            <span>|</span>
             <Link href="#" className="hover:text-white">Privacy Policy</Link>
             <span>|</span>
             <Link href="#" className="hover:text-white">Sitemap</Link>

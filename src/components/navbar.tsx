@@ -43,6 +43,8 @@ const navLinks = [
       { label: "Secondary Level", href: "/academics#secondary" },
     ],
   },
+  { label: "Alumni", href: "/alumni" },
+  { label: "Scholarships", href: "/scholarships" },
   { label: "Gallery", href: "/gallery" },
   { label: "Notices", href: "/notices" },
   { label: "Contact", href: "/contact" },

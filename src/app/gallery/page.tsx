@@ -35,7 +35,7 @@ export default async function GalleryPage() {
           <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">Gallery</p>
           <h1 className="text-4xl md:text-5xl font-extrabold mt-2">School Photo Gallery</h1>
           <p className="max-w-3xl text-white/80 mt-4 text-sm md:text-base">
-            Photos are pulled from the CMS gallery section. Publish or update featured images to refresh this page.
+            Photos are pulled from the gallery section. Publish or update featured images to refresh this page.
           </p>
         </div>
       </section>

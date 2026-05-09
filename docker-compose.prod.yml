@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  # MySQL Database with persistent backup
+  mysql:
+    image: mysql:8.0
+    container_name: chhetrapal-mysql-prod
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-wordpress}
+      MYSQL_USER: ${MYSQL_USER:-wordpress}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+      - ./backups:/backups
+    networks:
+      - chhetrapal-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # WordPress Backend
+  wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile.wordpress
+    container_name: chhetrapal-wordpress-prod
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress}
+      WORDPRESS_DB_USER: ${MYSQL_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DEBUG: 'false'
+      WORDPRESS_CONFIG_EXTRA: "define('WP_MEMORY_LIMIT', '256M');"
+    volumes:
+      - wordpress_data_prod:/var/www/html
+      - ./wordpress-plugin/:/var/www/html/wp-content/plugins/chhetrapal-school-cms/
+    networks:
+      - chhetrapal-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/wp-admin/admin-ajax.php?action=heartbeat"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Next.js Frontend
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        - NODE_ENV=production
+    container_name: chhetrapal-nextjs-prod
+    depends_on:
+      - wordpress
+    environment:
+      NODE_ENV: production
+      WORDPRESS_INTERNAL_ORIGIN: http://wordpress:80
+      NEXT_PUBLIC_WORDPRESS_ORIGIN: ${NEXT_PUBLIC_WORDPRESS_ORIGIN}
+      NEXT_PUBLIC_WORDPRESS_API_BASE: /wp-json/wp/v2
+      NEXT_PUBLIC_WORDPRESS_HOMEPAGE_API: /wp-json/chhetrapal/v1/homepage
+      CHHETRAPAL_FRONTEND_URL: ${CHHETRAPAL_FRONTEND_URL}
+      CHHETRAPAL_INTERNAL_TOKEN: ${CHHETRAPAL_INTERNAL_TOKEN}
+      SHOW_CMS_STATUS_BADGE: 0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - chhetrapal-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: chhetrapal-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./backup_certbot:/etc/letsencrypt:ro
+    depends_on:
+      - nextjs
+      - wordpress
+    networks:
+      - chhetrapal-network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  mysql_data_prod:
+    driver: local
+  wordpress_data_prod:
+    driver: local
+
+networks:
+  chhetrapal-network:
+    driver: bridge

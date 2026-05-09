@@ -22,7 +22,7 @@ export default async function ContactPage() {
           <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">Contact</p>
           <h1 className="text-4xl md:text-5xl font-extrabold mt-2">Contact and Visit Us</h1>
           <p className="max-w-3xl text-white/80 mt-4 text-sm md:text-base">
-            Contact details and map embed are managed from CMS so office updates do not require code changes.
+            Contact details and map embed are updated centrally so office updates do not require code changes.
           </p>
         </div>
       </section>

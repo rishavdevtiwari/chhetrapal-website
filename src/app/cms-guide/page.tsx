@@ -1,52 +1,54 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 
+const wordpressOrigin = process.env.NEXT_PUBLIC_WORDPRESS_ORIGIN || process.env.WORDPRESS_INTERNAL_ORIGIN || "http://localhost:8080";
+
 const mappingRows = [
   {
     cpt: "Notices",
-    wordpress: "WordPress -> Notices",
+    wordpress: "Content Manager -> Notices",
     section: "Homepage Notices, Notices Page",
     tips: "Use Notice Type (Notice/Event/Result), add excerpt and publish date.",
   },
   {
     cpt: "Staff & Principal",
-    wordpress: "WordPress -> Staff & Principal",
+    wordpress: "Content Manager -> Staff & Principal",
     section: "Homepage Principal block, About page principal info",
     tips: "Set role taxonomy to Principal and add featured image.",
   },
   {
     cpt: "Programs",
-    wordpress: "WordPress -> Programs",
+    wordpress: "Content Manager -> Programs",
     section: "Homepage Academic Programs, Academics page cards, Admissions class chips",
     tips: "Title = program name, excerpt = class range, subtitle meta = short summary.",
   },
   {
     cpt: "Facilities",
-    wordpress: "WordPress -> Facilities",
+    wordpress: "Content Manager -> Facilities",
     section: "Homepage Facilities",
     tips: "Keep concise title and short excerpt for clean card layout.",
   },
   {
     cpt: "Downloads",
-    wordpress: "WordPress -> Downloads",
+    wordpress: "Content Manager -> Downloads",
     section: "Homepage Downloads, Notices Download Corner, Admissions form download",
     tips: "Fill File URL and Button Label meta fields.",
   },
   {
     cpt: "Gallery Items",
-    wordpress: "WordPress -> Gallery Items",
+    wordpress: "Content Manager -> Gallery Items",
     section: "Homepage Gallery, Gallery page grid",
     tips: "Featured image is used as gallery photo. Title becomes caption.",
   },
   {
     cpt: "Alumni",
-    wordpress: "WordPress -> Alumni",
+    wordpress: "Content Manager -> Alumni",
     section: "Homepage Alumni Spotlight, About page alumni block",
     tips: "Use title for the name, excerpt for the achievement, and featured image for the photo.",
   },
   {
     cpt: "Contacts",
-    wordpress: "WordPress -> Contacts",
+    wordpress: "Content Manager -> Contacts",
     section: "Header top bar phone/email/social, Contact page, Footer contact block",
     tips: "Maintain phone/email/address/map + Facebook/YouTube/Twitter URLs.",
   },
@@ -57,17 +59,17 @@ export default function CmsGuidePage() {
     <div className="page-shell">
       <section className="bg-[#1a3a6b] py-14 text-white md:py-20">
         <div className="page-container">
-          <p className="text-xs uppercase tracking-[0.2em] text-orange-200">CMS Editor Guide</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-orange-200">Content Editor Guide</p>
           <h1 className="mt-2 text-4xl font-extrabold md:text-5xl">Content Team Publishing Map</h1>
           <p className="mt-4 max-w-3xl text-sm text-white/85 md:text-base">
-            This page tells your content team exactly where to edit content in WordPress and where each update appears on the live site.
+            This page tells your content team exactly where to edit content and where each update appears on the live site.
           </p>
         </div>
       </section>
 
       <div className="page-container page-section space-y-8">
         <section className="panel p-5">
-          <h2 className="section-title">WordPress to Website Mapping</h2>
+          <h2 className="section-title">Content Manager to Website Mapping</h2>
           <div className="overflow-x-auto">
             <table className="min-w-[860px] w-full text-sm">
               <thead>
@@ -115,10 +117,10 @@ export default function CmsGuidePage() {
           <article className="panel p-5">
             <h2 className="section-title">Quick Access</h2>
             <div className="space-y-3 text-sm">
-              <Link className="flex items-center justify-between rounded-sm border border-gray-200 px-3 py-2 text-[#1a3a6b] hover:bg-blue-50" href="/wp-admin/">
-                Open WordPress Admin
+              <a className="flex items-center justify-between rounded-sm border border-gray-200 px-3 py-2 text-[#1a3a6b] hover:bg-blue-50" href={`${wordpressOrigin}/wp-admin/`}>
+                Open Editor Dashboard
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </a>
               <Link className="flex items-center justify-between rounded-sm border border-gray-200 px-3 py-2 text-[#1a3a6b] hover:bg-blue-50" href="/notices">
                 Check Notices Page
                 <ArrowRight className="h-4 w-4" />

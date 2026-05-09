@@ -65,7 +65,7 @@ export default async function AcademicsPage() {
           <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">Academics</p>
           <h1 className="text-4xl md:text-5xl font-extrabold mt-2">Academic Programs and Learning Framework</h1>
           <p className="max-w-3xl text-white/80 mt-4 text-sm md:text-base">
-            Programs are connected with CMS content so curriculum labels and descriptions can be maintained by admin staff.
+            Programs are updated centrally so curriculum labels and descriptions can be maintained by admin staff.
           </p>
         </div>
       </section>

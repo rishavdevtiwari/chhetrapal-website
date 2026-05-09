@@ -64,7 +64,7 @@ export default async function AboutPage() {
           </div>
           <div className="p-5 text-sm text-gray-600 leading-relaxed space-y-3">
             <p>
-              Add alumni stories, career highlights, and community impact here once you start publishing alumni profiles in WordPress.
+              Add alumni stories, career highlights, and community impact here once you start publishing alumni profiles in the content manager.
             </p>
             <p>
               The homepage now includes an alumni spotlight section, so this page can be expanded later with a full alumni timeline or reunion archive.

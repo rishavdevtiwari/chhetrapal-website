@@ -16,6 +16,8 @@ if (!is_admin()) {
 }
 
 final class Chhetrapal_School_CMS {
+    private const DEFAULT_INTERNAL_TOKEN = 'chhetrapal-dev-internal-token';
+    private const SEED_LOCK_OPTION = 'chhetrapal_seed_completed';
     private const CPT_NOTICE = 'chhetrapal_notice';
     private const CPT_STAFF = 'chhetrapal_staff';
     private const CPT_PROGRAM = 'chhetrapal_program';
@@ -24,6 +26,7 @@ final class Chhetrapal_School_CMS {
     private const CPT_GALLERY = 'chhetrapal_gallery';
     private const CPT_CONTACT = 'chhetrapal_contact';
     private const CPT_ALUMNI = 'chhetrapal_alumni';
+    private const CPT_SCHOLARSHIP = 'chhetrapal_scholarship';
 
     private const TAX_NOTICE_TYPE = 'chhetrapal_notice_type';
     private const TAX_STAFF_ROLE = 'chhetrapal_staff_role';
@@ -36,6 +39,7 @@ final class Chhetrapal_School_CMS {
         $instance = new self();
         add_action('init', [$instance, 'register_content_types']);
         add_action('init', [$instance, 'register_meta']);
+        add_action('after_setup_theme', [$instance, 'register_thumbnail_support']);
         add_action('template_redirect', [$instance, 'redirect_wordpress_frontend']);
         add_action('add_meta_boxes', [$instance, 'register_meta_boxes']);
         add_action('save_post', [$instance, 'save_meta_boxes']);
@@ -96,6 +100,7 @@ final class Chhetrapal_School_CMS {
         $this->register_post_type(self::CPT_GALLERY, 'Gallery Items', 'Gallery Item', 'dashicons-format-gallery');
         $this->register_post_type(self::CPT_CONTACT, 'Contacts', 'Contact Card', 'dashicons-email-alt');
         $this->register_post_type(self::CPT_ALUMNI, 'Alumni', 'Alumni Profile', 'dashicons-awards');
+        $this->register_post_type(self::CPT_SCHOLARSHIP, 'Scholarships', 'Scholarship Winner', 'dashicons-welcome-learn-more');
 
         $this->register_taxonomy(self::TAX_NOTICE_TYPE, [self::CPT_NOTICE], 'Notice Types');
         $this->register_taxonomy(self::TAX_STAFF_ROLE, [self::CPT_STAFF], 'Staff Roles');
@@ -103,6 +108,19 @@ final class Chhetrapal_School_CMS {
         $this->register_taxonomy(self::TAX_FACILITY_GROUP, [self::CPT_FACILITY], 'Facility Groups');
         $this->register_taxonomy(self::TAX_DOWNLOAD_TYPE, [self::CPT_DOWNLOAD], 'Download Types');
         $this->register_taxonomy(self::TAX_GALLERY_ALBUM, [self::CPT_GALLERY], 'Gallery Albums');
+    }
+
+    public function register_thumbnail_support(): void {
+        add_theme_support('post-thumbnails', [
+            self::CPT_NOTICE,
+            self::CPT_STAFF,
+            self::CPT_PROGRAM,
+            self::CPT_FACILITY,
+            self::CPT_DOWNLOAD,
+            self::CPT_GALLERY,
+            self::CPT_ALUMNI,
+            self::CPT_SCHOLARSHIP,
+        ]);
     }
 
     public function register_meta(): void {
@@ -141,6 +159,7 @@ final class Chhetrapal_School_CMS {
         register_post_meta(self::CPT_PROGRAM, 'chhetrapal_subtitle', $meta_args);
         register_post_meta(self::CPT_FACILITY, 'chhetrapal_subtitle', $meta_args);
         register_post_meta(self::CPT_ALUMNI, 'chhetrapal_alumni_year', $meta_args);
+        register_post_meta(self::CPT_SCHOLARSHIP, 'chhetrapal_scholarship_year', $meta_args);
     }
 
     public function register_meta_boxes(): void {
@@ -169,6 +188,15 @@ final class Chhetrapal_School_CMS {
             'dashboard',
             'normal',
             'high'
+        );
+
+        add_meta_box(
+            'chhetrapal-scholarship-details',
+            'Scholarship Details',
+            [$this, 'render_scholarship_meta_box'],
+            self::CPT_SCHOLARSHIP,
+            'normal',
+            'default'
         );
     }
 
@@ -203,6 +231,7 @@ final class Chhetrapal_School_CMS {
         echo '<li><strong>Downloads</strong> for forms, calendars, and documents.</li>';
         echo '<li><strong>Contacts</strong> for phone, email, address, and map embed.</li>';
         echo '<li><strong>Gallery Items</strong> for albums and image-based updates.</li>';
+        echo '<li><strong>Scholarships</strong> for student scholarship achievers and award details.</li>';
         echo '</ul>';
         echo '<p>Workflow: create a draft, set a featured image, add the correct taxonomy, preview, then publish.</p>';
         echo '</div>';
@@ -262,6 +291,15 @@ final class Chhetrapal_School_CMS {
         echo '<input type="url" id="chhetrapal_twitter_url" name="chhetrapal_twitter_url" value="' . esc_attr($twitter_url) . '" class="widefat" placeholder="https://x.com/..." /></p>';
     }
 
+    public function render_scholarship_meta_box(WP_Post $post): void {
+        wp_nonce_field('chhetrapal_save_scholarship_meta', 'chhetrapal_scholarship_nonce');
+        $year = get_post_meta($post->ID, 'chhetrapal_scholarship_year', true);
+
+        echo '<p><label for="chhetrapal_scholarship_year"><strong>Scholarship Year</strong></label><br />';
+        echo '<input type="text" id="chhetrapal_scholarship_year" name="chhetrapal_scholarship_year" value="' . esc_attr($year) . '" class="widefat" placeholder="2026" /></p>';
+        echo '<p class="description">Use the post title as student name and the excerpt as scholarship title.</p>';
+    }
+
     public function save_meta_boxes(int $post_id): void {
         if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
             return;
@@ -307,14 +345,40 @@ final class Chhetrapal_School_CMS {
             update_post_meta($post_id, 'chhetrapal_youtube_url', $youtube_url);
             update_post_meta($post_id, 'chhetrapal_twitter_url', $twitter_url);
         }
+
+        if ($post_type === self::CPT_SCHOLARSHIP) {
+            if (!isset($_POST['chhetrapal_scholarship_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['chhetrapal_scholarship_nonce'])), 'chhetrapal_save_scholarship_meta')) {
+                return;
+            }
+            if (!current_user_can('edit_post', $post_id)) {
+                return;
+            }
+            $year = isset($_POST['chhetrapal_scholarship_year']) ? sanitize_text_field(wp_unslash($_POST['chhetrapal_scholarship_year'])) : '';
+            update_post_meta($post_id, 'chhetrapal_scholarship_year', $year);
+        }
     }
 
     public function register_rest_routes(): void {
         register_rest_route('chhetrapal/v1', '/homepage', [
             'methods' => WP_REST_Server::READABLE,
             'callback' => [$this, 'build_homepage_payload'],
-            'permission_callback' => '__return_true',
+            'permission_callback' => [$this, 'can_access_homepage_payload'],
         ]);
+    }
+
+    public function can_access_homepage_payload(WP_REST_Request $request): bool {
+        if (current_user_can('edit_posts')) {
+            return true;
+        }
+
+        $expected_token = getenv('CHHETRAPAL_INTERNAL_TOKEN');
+        if ($expected_token === false || $expected_token === '') {
+            $expected_token = self::DEFAULT_INTERNAL_TOKEN;
+        }
+
+        $provided_token = (string) $request->get_header('x-chhetrapal-internal-token');
+
+        return $provided_token !== '' && hash_equals($expected_token, $provided_token);
     }
 
     public function build_homepage_payload(WP_REST_Request $request): WP_REST_Response {
@@ -323,7 +387,7 @@ final class Chhetrapal_School_CMS {
                 'eyebrow' => get_bloginfo('name'),
                 'title' => get_bloginfo('name'),
                 'subtitle' => get_bloginfo('description'),
-                'description' => 'A CMS-managed school website for notices, staff, facilities, downloads, and contact updates.',
+                'description' => 'A school website with centrally managed notices, staff, facilities, downloads, and contact updates.',
             ],
             'notices' => $this->build_notice_items(),
             'principal' => $this->build_principal(),
@@ -332,6 +396,7 @@ final class Chhetrapal_School_CMS {
             'downloads' => $this->build_downloads(),
             'gallery' => $this->build_gallery_items(),
             'alumni' => $this->build_alumni_items(),
+            'scholarships' => $this->build_scholarship_items(),
             'contact' => $this->build_contact_card(),
             'stats' => [
                 ['value' => '1,200+', 'label' => 'Students'],
@@ -369,7 +434,8 @@ final class Chhetrapal_School_CMS {
                 'title' => get_the_title($post),
                 'summary' => $summary,
                 'tag' => $this->detect_notice_tag($post->ID),
-                'link' => get_permalink($post),
+                'link' => '/notices',
+                'imageUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
             ];
         }
 
@@ -385,10 +451,10 @@ final class Chhetrapal_School_CMS {
             return [
                 'name' => 'Principal',
                 'title' => 'Principal',
-                'message' => 'Please add the principal message in WordPress admin.',
+                'message' => 'Please add the principal message in the editor.',
                 'photoUrl' => '',
                 'designation' => 'Principal',
-                'link' => '',
+                'link' => '/about#principal',
             ];
         }
 
@@ -398,7 +464,7 @@ final class Chhetrapal_School_CMS {
             'message' => apply_filters('the_content', $post->post_content),
             'photoUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
             'designation' => get_post_meta($post->ID, 'chhetrapal_designation', true) ?: 'Principal',
-            'link' => get_permalink($post),
+            'link' => '/about#principal',
         ];
     }
 
@@ -409,7 +475,7 @@ final class Chhetrapal_School_CMS {
                 'desc' => get_the_excerpt($post) ?: 'Program',
                 'sub' => get_post_meta($post->ID, 'chhetrapal_subtitle', true) ?: wp_trim_words(wp_strip_all_tags($post->post_content), 12),
                 'imageUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
-                'link' => get_permalink($post),
+                'link' => '/academics',
             ];
         }, 4);
     }
@@ -421,7 +487,7 @@ final class Chhetrapal_School_CMS {
                 'desc' => get_the_excerpt($post) ?: 'Facility',
                 'sub' => get_post_meta($post->ID, 'chhetrapal_subtitle', true) ?: '',
                 'imageUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
-                'link' => get_permalink($post),
+                'link' => '/about#management',
             ];
         }, 6);
     }
@@ -434,7 +500,7 @@ final class Chhetrapal_School_CMS {
                 'title' => get_the_title($post),
                 'desc' => get_the_excerpt($post) ?: 'Download document',
                 'buttonLabel' => $label ?: 'Download',
-                'fileUrl' => $file_url ?: get_permalink($post),
+                'fileUrl' => $file_url ?: '/notices',
                 'imageUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
             ];
         }, 4);
@@ -446,7 +512,7 @@ final class Chhetrapal_School_CMS {
                 'src' => get_the_post_thumbnail_url($post, 'full') ?: '',
                 'alt' => get_the_title($post),
                 'title' => get_the_title($post),
-                'link' => get_permalink($post),
+                'link' => '/gallery',
             ];
         }, 6);
     }
@@ -459,9 +525,22 @@ final class Chhetrapal_School_CMS {
                 'achievement' => get_the_excerpt($post) ?: wp_trim_words(wp_strip_all_tags($post->post_content), 14),
                 'bio' => apply_filters('the_content', $post->post_content),
                 'photoUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
-                'link' => get_permalink($post),
+                'link' => '/alumni',
             ];
         }, 3);
+    }
+
+    private function build_scholarship_items(): array {
+        return $this->build_collection(self::CPT_SCHOLARSHIP, function (WP_Post $post): array {
+            return [
+                'studentName' => get_the_title($post),
+                'scholarshipTitle' => get_the_excerpt($post) ?: 'Scholarship Award',
+                'year' => get_post_meta($post->ID, 'chhetrapal_scholarship_year', true) ?: date_i18n('Y'),
+                'details' => apply_filters('the_content', $post->post_content),
+                'photoUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
+                'link' => '/scholarships',
+            ];
+        }, 10);
     }
 
     private function build_contact_card(): array {
@@ -475,7 +554,7 @@ final class Chhetrapal_School_CMS {
                 'facebookUrl' => '#',
                 'youtubeUrl' => '#',
                 'twitterUrl' => '#',
-                'link' => '',
+                'link' => '/contact',
             ];
         }
 
@@ -487,7 +566,7 @@ final class Chhetrapal_School_CMS {
             'facebookUrl' => get_post_meta($post->ID, 'chhetrapal_facebook_url', true),
             'youtubeUrl' => get_post_meta($post->ID, 'chhetrapal_youtube_url', true),
             'twitterUrl' => get_post_meta($post->ID, 'chhetrapal_twitter_url', true),
-            'link' => get_permalink($post),
+            'link' => '/contact',
         ];
     }
 
@@ -591,6 +670,10 @@ final class Chhetrapal_School_CMS {
     }
 
     private static function seed_content(): void {
+        if (get_option(self::SEED_LOCK_OPTION)) {
+            return;
+        }
+
         self::seed_taxonomy_terms();
         self::seed_notices();
         self::seed_principal();
@@ -598,7 +681,9 @@ final class Chhetrapal_School_CMS {
         self::seed_facilities();
         self::seed_downloads();
         self::seed_gallery();
+        self::seed_scholarships();
         self::seed_contact();
+        update_option(self::SEED_LOCK_OPTION, 1, false);
     }
 
     private static function seed_taxonomy_terms(): void {
@@ -803,6 +888,48 @@ final class Chhetrapal_School_CMS {
             update_post_meta($post_id, 'chhetrapal_facebook_url', '#');
             update_post_meta($post_id, 'chhetrapal_youtube_url', '#');
             update_post_meta($post_id, 'chhetrapal_twitter_url', '#');
+        }
+    }
+
+    private static function seed_scholarships(): void {
+        if (get_posts(['post_type' => self::CPT_SCHOLARSHIP, 'numberposts' => 1, 'post_status' => 'any'])) {
+            return;
+        }
+
+        $items = [
+            [
+                'name' => 'Sujan Bhandari',
+                'title' => 'District Merit Scholarship',
+                'year' => '2025',
+                'details' => 'Awarded for outstanding SEE results and consistent academic excellence.',
+            ],
+            [
+                'name' => 'Nisha Gurung',
+                'title' => 'Girls in STEM Scholarship',
+                'year' => '2025',
+                'details' => 'Recognized for exceptional performance in science and mathematics.',
+            ],
+            [
+                'name' => 'Prabin Tamang',
+                'title' => 'Community Leadership Grant',
+                'year' => '2024',
+                'details' => 'Honored for community service and leadership in youth programs.',
+            ],
+        ];
+
+        foreach ($items as $index => $item) {
+            $post_id = wp_insert_post([
+                'post_type' => self::CPT_SCHOLARSHIP,
+                'post_status' => 'publish',
+                'post_title' => $item['name'],
+                'post_content' => $item['details'],
+                'post_excerpt' => $item['title'],
+                'menu_order' => $index,
+            ]);
+
+            if ($post_id) {
+                update_post_meta($post_id, 'chhetrapal_scholarship_year', $item['year']);
+            }
         }
     }
 }

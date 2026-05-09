@@ -23,6 +23,7 @@ export default async function NoticesPage() {
         date: formatNoticeDate(notice.date.month, notice.date.day),
         type: notice.tag,
         link: notice.link || "#",
+        imageUrl: notice.imageUrl,
       }))
     : notices.map((notice) => ({
         ...notice,
@@ -47,7 +48,7 @@ export default async function NoticesPage() {
           <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">Notices</p>
           <h1 className="text-4xl md:text-5xl font-extrabold mt-2">Notices and Circulars</h1>
           <p className="max-w-3xl text-white/80 mt-4 text-sm md:text-base">
-            Latest notices are synced from CMS. Publish new notices there to update this board.
+            Latest notices are updated centrally. Publish new notices to update this board.
           </p>
         </div>
       </section>
