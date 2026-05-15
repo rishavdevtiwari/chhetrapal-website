@@ -525,9 +525,9 @@ npm run start
 
 ## Team Members
 
-- Kunjang
-- Rishav
-- Rijin
-- Rubina
-- Suchit
-- Sharad
+- Sharad Bhandari
+- Kunjang Sherpa
+- Suchit Ratna Bajracharya
+- Rishav Dev Tiwari
+- Rijin Maharjan
+- Rubina Panta~
