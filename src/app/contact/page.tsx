@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 export default async function ContactPage() {
   const cmsData = await getHomepageCmsData();
   const contact = cmsData?.contact;
-  const address = contact?.address || "Chhetrapal, Nuwakot, Bagmati Province, Nepal";
-  const phone = contact?.phone || "+977-10-XXXXXXXX";
+  const address = contact?.address || "Likhu Rural Municipality Ward no. 4, Chaughada Nuwakot, Bagmati Province, Nepal";
+  const phone = contact?.phone || "9851181243";
   const email = contact?.email || "info@chhetrapalschool.edu.np";
   const mapUrl = contact?.mapUrl || fallbackMapUrl;
 

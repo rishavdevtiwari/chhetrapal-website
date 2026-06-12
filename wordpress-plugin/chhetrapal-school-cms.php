@@ -547,8 +547,8 @@ final class Chhetrapal_School_CMS {
         $post = $this->first_post(self::CPT_CONTACT);
         if (!$post) {
             return [
-                'address' => 'Chhetrapal, Nuwakot, Bagmati Province, Nepal',
-                'phone' => '+977-10-XXXXXXXX',
+                'address' => 'Likhu Rural Municipality Ward no. 4, Chaughada Nuwakot, Bagmati Province, Nepal',
+                'phone' => '9851181243',
                 'email' => 'info@chhetrapalschool.edu.np',
                 'mapUrl' => '',
                 'facebookUrl' => '#',
@@ -876,14 +876,14 @@ final class Chhetrapal_School_CMS {
             'post_type' => self::CPT_CONTACT,
             'post_status' => 'publish',
             'post_title' => 'School Contact Information',
-            'post_content' => 'Chhetrapal, Nuwakot, Bagmati Province, Nepal',
+            'post_content' => 'Likhu Rural Municipality Ward no. 4, Chaughada Nuwakot, Bagmati Province, Nepal',
             'post_excerpt' => 'Contact information for the school office.',
             'menu_order' => 0,
         ]);
         if ($post_id) {
-            update_post_meta($post_id, 'chhetrapal_phone', '+977-10-XXXXXXXX');
+            update_post_meta($post_id, 'chhetrapal_phone', '9851181243');
             update_post_meta($post_id, 'chhetrapal_email', 'info@chhetrapalschool.edu.np');
-            update_post_meta($post_id, 'chhetrapal_address', 'Chhetrapal, Nuwakot\nBagmati Province, Nepal');
+            update_post_meta($post_id, 'chhetrapal_address', 'Likhu Rural Municipality Ward no. 4\nChaughada Nuwakot, Bagmati Province, Nepal');
             update_post_meta($post_id, 'chhetrapal_map_url', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3525.925360626243!2d85.2387678754744!3d27.904263726070322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eadfa5e05bbc35%3A0x3eb57e2564e36dd4!2sShree%20Kshetrapal%20Uchcha%20Madhyamik%20Bidyalaya!5e0!3m2!1sen!2snp!4v1776366200281!5m2!1sen!2snp');
             update_post_meta($post_id, 'chhetrapal_facebook_url', '#');
             update_post_meta($post_id, 'chhetrapal_youtube_url', '#');

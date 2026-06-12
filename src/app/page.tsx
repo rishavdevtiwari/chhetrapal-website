@@ -111,8 +111,8 @@ const fallbackAlumni = [
 ] as const;
 
 const fallbackContact = {
-  address: "Chhetrapal, Nuwakot\nBagmati Province, Nepal",
-  phone: "+977-10-XXXXXXXX",
+  address: "Likhu Rural Municipality Ward no. 4\nChaughada Nuwakot, Bagmati Province, Nepal",
+  phone: "9851181243",
   email: "info@chhetrapalschool.edu.np",
   mapUrl:
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3525.925360626243!2d85.2387678754744!3d27.904263726070322!2m3!1f0!2f0!3f0!2m3!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eadfa5e05bbc35%3A0x3eb57e2564e36dd4!2sShree%20Kshetrapal%20Uchcha%20Madhyamik%20Bidyalaya!5e0!3m2!1sen!2snp!4v1776366200281!5m2!1sen!2snp",

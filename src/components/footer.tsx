@@ -125,11 +125,11 @@ export default async function Footer() {
           <ul className="text-sm text-gray-300 space-y-4">
             <li className="flex items-start gap-3">
               <MapPin className="h-4 w-4 text-[#e8841a] mt-0.5 flex-shrink-0" />
-              <span className="whitespace-pre-line">{contact?.address || "Chhetrapal, Nuwakot\nBagmati Province, Nepal"}</span>
+              <span className="whitespace-pre-line">{contact?.address || "Likhu Rural Municipality Ward no. 4\nChaughada Nuwakot, Bagmati Province, Nepal"}</span>
             </li>
             <li className="flex items-center gap-3">
               <Phone className="h-4 w-4 text-[#e8841a] flex-shrink-0" />
-              <span>{contact?.phone || "+977-10-XXXXXXXX"}</span>
+              <span>{contact?.phone || "9851181243"}</span>
             </li>
             <li className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-[#e8841a] flex-shrink-0" />

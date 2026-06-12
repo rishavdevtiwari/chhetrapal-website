@@ -58,7 +58,7 @@ export default function Navbar({ contact }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  const topPhone = contact?.phone || "+977-10-XX-XXXXXX";
+  const topPhone = contact?.phone || "9851181243";
   const topEmail = contact?.email || "info@chhetrapalschool.edu.np";
   const facebookUrl = contact?.facebookUrl || "#";
   const youtubeUrl = contact?.youtubeUrl || "#";
@@ -126,7 +126,7 @@ export default function Navbar({ contact }: NavbarProps) {
             <div className="text-right">
               <div className="text-xs text-gray-400 uppercase tracking-widest">Affiliated To</div>
               <div className="text-sm font-bold text-[#1a3a6b]">CDC / NEB Nepal</div>
-              <div className="text-xs text-gray-500">Reg. No: XXXXXXX</div>
+              <div className="text-xs text-gray-500">Reg. No: 28018</div>
             </div>
           </div>
         </div>

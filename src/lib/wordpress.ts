@@ -369,8 +369,8 @@ export async function getHomepageCmsDataWithStatus(): Promise<HomepageCmsRespons
           alumni: [],
           scholarships: [],
           contact: {
-            address: "Chhetrapal, Nuwakot, Bagmati Province, Nepal",
-            phone: "+977-10-XXXXXXXX",
+            address: "Likhu Rural Municipality Ward no. 4, Chaughada Nuwakot, Bagmati Province, Nepal",
+            phone: "9851181243",
             email: "info@chhetrapalschool.edu.np",
             mapUrl: "",
             facebookUrl: "#",
@@ -410,8 +410,8 @@ export async function getHomepageCmsDataWithStatus(): Promise<HomepageCmsRespons
           alumni: [],
           scholarships: [],
           contact: {
-            address: "Chhetrapal, Nuwakot, Bagmati Province, Nepal",
-            phone: "+977-10-XXXXXXXX",
+            address: "Likhu Rural Municipality Ward no. 4, Chaughada Nuwakot, Bagmati Province, Nepal",
+            phone: "9851181243",
             email: "info@chhetrapalschool.edu.np",
             mapUrl: "",
             facebookUrl: "#",
