@@ -179,6 +179,21 @@ function sanitizeText(value: string): string {
   return value.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
 }
 
+/** Replace known old placeholder values from the WP database with correct school details. */
+function correctPlaceholder(value: string, field: "phone" | "address"): string {
+  if (field === "phone") {
+    if (/^\+?977[-\s]*10[-\s]*X+$/i.test(value) || /X{4,}/.test(value)) {
+      return "9851181243";
+    }
+  }
+  if (field === "address") {
+    if (/Chhetrapal,?\s*Nuwakot/i.test(value)) {
+      return "Likhu Rural Municipality Ward no. 4, Chaughada Nuwakot, Bagmati Province, Nepal";
+    }
+  }
+  return value;
+}
+
 function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): HomepageCmsData {
   return {
     ...payload,
@@ -250,8 +265,8 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
     })),
     contact: {
       ...payload.contact,
-      address: sanitizeText(payload.contact.address),
-      phone: sanitizeText(payload.contact.phone),
+      address: correctPlaceholder(sanitizeText(payload.contact.address), "address"),
+      phone: correctPlaceholder(sanitizeText(payload.contact.phone), "phone"),
       email: sanitizeText(payload.contact.email),
       mapUrl: normalizeCmsUrl(payload.contact.mapUrl, wpOrigin),
       facebookUrl: normalizeCmsUrl(payload.contact.facebookUrl, wpOrigin),
