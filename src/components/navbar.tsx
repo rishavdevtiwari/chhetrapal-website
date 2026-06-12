@@ -116,7 +116,7 @@ export default function Navbar({ contact }: NavbarProps) {
                 छेत्रपाल माध्यमिक विद्यालय
               </div>
               <div className="text-gray-400 text-xs hidden md:block tracking-widest uppercase mt-0.5">
-                Nuwakot, Bagmati Province, Nepal
+                Likhu Rural Municipality-4, Chaughada, Nuwakot
               </div>
             </div>
           </Link>
@@ -245,7 +245,7 @@ export default function Navbar({ contact }: NavbarProps) {
             ✹ SEE Exam Routine Published — Check Notice Board &nbsp;&nbsp;&nbsp;
             ✹ Annual Prize Distribution Ceremony on Baisakh 22, 2083 &nbsp;&nbsp;&nbsp;
             ✹ Parent-Teacher Meeting: Chaitra 5, 2083 &nbsp;&nbsp;&nbsp;
-            ✹ Government Secondary School Under Nuwakot District Education Office &nbsp;&nbsp;&nbsp;
+            ✹ Government Secondary School — Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot &nbsp;&nbsp;&nbsp;
           </div>
         </div>
       </div>

@@ -31,7 +31,7 @@ const fallbackHero = {
   eyebrow: "Government Secondary School • Est. 2046 BS",
   title: "Chhetrapal Secondary School",
   subtitle: "छेत्रपाल माध्यमिक विद्यालय",
-  description: "Nuwakot, Bagmati Province, Nepal\nAffiliated to National Examination Board (NEB)",
+  description: "Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot, Bagmati Province, Nepal\nAffiliated to National Examination Board (NEB) | Reg. No: 28018",
 };
 
 const fallbackNotices = [

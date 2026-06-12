@@ -50,7 +50,7 @@ export default async function Footer() {
             </div>
           </div>
           <p className="text-gray-300 text-sm leading-relaxed mb-4">
-            छेत्रपाल माध्यमिक विद्यालय — Nuwakot, Nepal. Powered by belief in quality education for every child, we strive to prepare future leaders of Nepal.
+            छेत्रपाल माध्यमिक विद्यालय — Likhu Rural Municipality-4, Chaughada, Nuwakot. Powered by belief in quality education for every child, we strive to prepare future leaders of Nepal.
           </p>
           <div className="flex items-center gap-3 mt-4">
             <a href={facebookUrl} aria-label="Facebook" className="h-8 w-8 rounded bg-white/10 flex items-center justify-center hover:bg-[#e8841a] transition-colors" target="_blank" rel="noreferrer">
