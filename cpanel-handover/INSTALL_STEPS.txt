@@ -1,0 +1,41 @@
+INSTALL STEPS (cPanel WordPress)
+
+1. Login to WordPress Admin
+- URL: https://<your-domain>/wp-admin
+- Use administrator account.
+
+2. Install plugin from zip
+- Go to Plugins > Add New > Upload Plugin
+- Upload: chhetrapal-school-cms.zip
+- Click Install Now, then Activate.
+
+3. Verify plugin is active
+- Plugins > Installed Plugins
+- Confirm "Chhetrapal School CMS" is Active.
+
+4. Permalinks refresh
+- Go to Settings > Permalinks
+- Click Save Changes once (no need to change selection).
+
+5. Verify API endpoints
+Open in browser:
+- https://<your-domain>/wp-json/chhetrapal/v1/homepage
+- https://<your-domain>/wp-json/wp/v2/chhetrapal_notice
+You should get JSON responses.
+
+6. Media and CORS notes
+- Ensure WordPress media URLs are publicly accessible.
+- If frontend runs on a separate domain, allow CORS at server/plugin level as needed.
+
+7. Security and token alignment
+- The frontend uses an internal token for protected routes if configured.
+- Share final WordPress origin with frontend team.
+
+8. Handover confirmation checklist
+- [ ] Plugin installed
+- [ ] Plugin activated
+- [ ] Permalinks refreshed
+- [ ] API endpoints return JSON
+- [ ] Sample content visible in WordPress admin
+
+Done.
