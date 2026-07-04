@@ -9,6 +9,7 @@ export type CmsNotice = {
   date: { day: string; month: string };
   title: string;
   summary?: string;
+  content?: string;
   tag: "Notice" | "Event" | "Result";
   link?: string;
   imageUrl?: string;
@@ -64,6 +65,23 @@ export type CmsScholarship = {
   link?: string;
 };
 
+export type CmsRoutineItem = {
+  day: string;
+  p1: string;
+  p2: string;
+  p3: string;
+  p4: string;
+  p5: string;
+};
+
+export type CmsAdmissionOpening = {
+  status: "open" | "closed";
+  classes: string;
+  noticeUrl: string;
+  title: string;
+  content: string;
+};
+
 export type CmsContact = {
   address: string;
   phone: string;
@@ -73,6 +91,10 @@ export type CmsContact = {
   youtubeUrl?: string;
   twitterUrl?: string;
   link?: string;
+  privacyPolicy?: string;
+  emergencyAlert?: string;
+  feeStructure?: string;
+  scholarshipRules?: string;
 };
 
 export type CmsSourceStatus = "cms" | "wp-fallback" | "local-fallback";
@@ -94,6 +116,9 @@ export type HomepageCmsData = {
   scholarships: CmsScholarship[];
   contact: CmsContact;
   stats: Array<{ value: string; label: string }>;
+  routine?: CmsRoutineItem[];
+  admissions?: CmsAdmissionOpening;
+  marqueeNotices?: string[];
 };
 
 const DEFAULT_WP_API_BASE = "/wp-json/wp/v2";
@@ -149,30 +174,60 @@ function normalizeCmsUrl(url: string | undefined, wpOrigin: string): string {
     return "";
   }
 
-  if (!isSafeCmsUrl(url)) {
+  const trimmedUrl = url.trim();
+
+  if (!isSafeCmsUrl(trimmedUrl)) {
     return "";
   }
 
-  if (url.startsWith("/")) {
-    return url;
+  try {
+    const parsed = new URL(trimmedUrl);
+    if (parsed.pathname.includes("/wp-content/")) {
+      const idx = parsed.pathname.indexOf("/wp-content/");
+      const pathAfter = parsed.pathname.substring(idx + "/wp-content/".length);
+      return `/_media/${pathAfter}${parsed.search}${parsed.hash}`;
+    }
+    if (parsed.pathname.includes("/wp-includes/")) {
+      const idx = parsed.pathname.indexOf("/wp-includes/");
+      const pathAfter = parsed.pathname.substring(idx + "/wp-includes/".length);
+      return `/wp-includes/${pathAfter}${parsed.search}${parsed.hash}`;
+    }
+  } catch {
+    // Treat as relative URL
   }
 
-  if (!/^https?:\/\//i.test(url)) {
-    return `/${url.replace(/^\/+/, "")}`;
+  if (trimmedUrl.startsWith("/")) {
+    return rewriteCmsMediaPath(trimmedUrl);
+  }
+
+  if (!/^https?:\/\//i.test(trimmedUrl)) {
+    return rewriteCmsMediaPath(`/${trimmedUrl.replace(/^\/+/, "")}`);
   }
 
   try {
-    const parsed = new URL(url);
+    const parsed = new URL(trimmedUrl);
+    if (parsed.pathname.startsWith("/wp-content/") || parsed.pathname.startsWith("/wp-includes/")) {
+      return `${rewriteCmsMediaPath(parsed.pathname)}${parsed.search}${parsed.hash}`;
+    }
     const normalizedWpOrigin = new URL(wpOrigin);
-
     if (parsed.host === normalizedWpOrigin.host) {
       return `${rewriteCmsMediaPath(parsed.pathname)}${parsed.search}${parsed.hash}`;
     }
   } catch {
-    return url;
+    return trimmedUrl;
   }
 
-  return url;
+  return trimmedUrl;
+}
+
+function rewriteHtmlMediaPaths(html: string): string {
+  if (!html) return "";
+  let rewritten = html;
+  // Replace absolute WordPress uploads or wp-content references to /_media/
+  rewritten = rewritten.replace(/https?:\/\/[^\s"'()>]+\/wp-content\//gi, "/_media/");
+  // Replace relative /wp-content/ references
+  rewritten = rewritten.replace(/\/wp-content\//gi, "/_media/");
+  return rewritten;
 }
 
 function sanitizeText(value: string): string {
@@ -194,25 +249,42 @@ function correctPlaceholder(value: string, field: "phone" | "address"): string {
   return value;
 }
 
-function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): HomepageCmsData {
+function normalizeHomepageData(payload: Partial<HomepageCmsData> | null | undefined, wpOrigin: string): HomepageCmsData {
+  const safePayload = payload ?? {};
+  
+  let heroTitle = safePayload.hero?.title ? sanitizeText(safePayload.hero.title) : "";
+  if (!heroTitle || heroTitle === "WordPress Website" || heroTitle === "WordPress Site" || heroTitle.toLowerCase().includes("wordpress")) {
+    heroTitle = "Chhetrapal Secondary School";
+  }
+  let heroEyebrow = safePayload.hero?.eyebrow ? sanitizeText(safePayload.hero.eyebrow) : "";
+  if (!heroEyebrow || heroEyebrow === "WordPress Website" || heroEyebrow === "WordPress Site" || heroEyebrow.toLowerCase().includes("wordpress")) {
+    heroEyebrow = "Chhetrapal Secondary School";
+  }
+
   return {
-    ...payload,
-    notices: payload.notices.map((notice) => ({
+    hero: {
+      title: heroTitle,
+      eyebrow: heroEyebrow,
+      subtitle: safePayload.hero?.subtitle ? sanitizeText(safePayload.hero.subtitle) : "",
+      description: safePayload.hero?.description ? sanitizeText(safePayload.hero.description) : "",
+    },
+    notices: (safePayload.notices ?? []).map((notice) => ({
       ...notice,
       title: sanitizeText(notice.title),
       summary: notice.summary ? sanitizeText(notice.summary) : undefined,
+      content: notice.content ? rewriteHtmlMediaPaths(notice.content) : undefined,
       link: normalizeCmsUrl(notice.link, wpOrigin),
       imageUrl: normalizeCmsUrl(notice.imageUrl, wpOrigin),
     })),
     principal: {
-      ...payload.principal,
-      name: sanitizeText(payload.principal.name),
-      title: sanitizeText(payload.principal.title),
-      designation: sanitizeText(payload.principal.designation),
-      photoUrl: normalizeCmsUrl(payload.principal.photoUrl, wpOrigin),
-      link: normalizeCmsUrl(payload.principal.link, wpOrigin),
+      name: safePayload.principal?.name ? sanitizeText(safePayload.principal.name) : "",
+      title: safePayload.principal?.title ? sanitizeText(safePayload.principal.title) : "",
+      message: safePayload.principal?.message ? sanitizeText(safePayload.principal.message) : "",
+      photoUrl: safePayload.principal?.photoUrl ? normalizeCmsUrl(safePayload.principal.photoUrl, wpOrigin) : "",
+      designation: safePayload.principal?.designation ? sanitizeText(safePayload.principal.designation) : "",
+      link: safePayload.principal?.link ? normalizeCmsUrl(safePayload.principal.link, wpOrigin) : "",
     },
-    programs: payload.programs.map((program) => ({
+    programs: (safePayload.programs ?? []).map((program) => ({
       ...program,
       label: sanitizeText(program.label),
       desc: sanitizeText(program.desc),
@@ -220,7 +292,7 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
       imageUrl: normalizeCmsUrl(program.imageUrl, wpOrigin),
       link: normalizeCmsUrl(program.link, wpOrigin),
     })),
-    facilities: payload.facilities.map((facility) => ({
+    facilities: (safePayload.facilities ?? []).map((facility) => ({
       ...facility,
       label: sanitizeText(facility.label),
       desc: sanitizeText(facility.desc),
@@ -228,7 +300,7 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
       imageUrl: normalizeCmsUrl(facility.imageUrl, wpOrigin),
       link: normalizeCmsUrl(facility.link, wpOrigin),
     })),
-    downloads: payload.downloads.map((download) => ({
+    downloads: (safePayload.downloads ?? []).map((download) => ({
       ...download,
       title: sanitizeText(download.title),
       desc: sanitizeText(download.desc),
@@ -236,7 +308,7 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
       fileUrl: normalizeCmsUrl(download.fileUrl, wpOrigin),
       imageUrl: normalizeCmsUrl(download.imageUrl, wpOrigin),
     })),
-    gallery: payload.gallery
+    gallery: (safePayload.gallery ?? [])
       .filter((photo) => Boolean(photo.src))
       .map((photo) => ({
         ...photo,
@@ -245,7 +317,7 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
         title: sanitizeText(photo.title),
         link: normalizeCmsUrl(photo.link, wpOrigin),
       })),
-    alumni: payload.alumni.map((person) => ({
+    alumni: (safePayload.alumni ?? []).map((person) => ({
       ...person,
       name: sanitizeText(person.name),
       year: sanitizeText(person.year),
@@ -254,7 +326,7 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
       photoUrl: normalizeCmsUrl(person.photoUrl, wpOrigin),
       link: normalizeCmsUrl(person.link, wpOrigin),
     })),
-    scholarships: (payload.scholarships ?? []).map((winner) => ({
+    scholarships: (safePayload.scholarships ?? []).map((winner) => ({
       ...winner,
       studentName: sanitizeText(winner.studentName),
       scholarshipTitle: sanitizeText(winner.scholarshipTitle),
@@ -264,20 +336,39 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
       link: normalizeCmsUrl(winner.link, wpOrigin),
     })),
     contact: {
-      ...payload.contact,
-      address: correctPlaceholder(sanitizeText(payload.contact.address), "address"),
-      phone: correctPlaceholder(sanitizeText(payload.contact.phone), "phone"),
-      email: sanitizeText(payload.contact.email),
-      mapUrl: normalizeCmsUrl(payload.contact.mapUrl, wpOrigin),
-      facebookUrl: normalizeCmsUrl(payload.contact.facebookUrl, wpOrigin),
-      youtubeUrl: normalizeCmsUrl(payload.contact.youtubeUrl, wpOrigin),
-      twitterUrl: normalizeCmsUrl(payload.contact.twitterUrl, wpOrigin),
-      link: normalizeCmsUrl(payload.contact.link, wpOrigin),
+      address: safePayload.contact?.address ? correctPlaceholder(sanitizeText(safePayload.contact.address), "address") : "",
+      phone: safePayload.contact?.phone ? correctPlaceholder(sanitizeText(safePayload.contact.phone), "phone") : "",
+      email: safePayload.contact?.email ? sanitizeText(safePayload.contact.email) : "",
+      mapUrl: safePayload.contact?.mapUrl ? normalizeCmsUrl(safePayload.contact.mapUrl, wpOrigin) : "",
+      facebookUrl: safePayload.contact?.facebookUrl ? normalizeCmsUrl(safePayload.contact.facebookUrl, wpOrigin) : "",
+      youtubeUrl: safePayload.contact?.youtubeUrl ? normalizeCmsUrl(safePayload.contact.youtubeUrl, wpOrigin) : "",
+      twitterUrl: safePayload.contact?.twitterUrl ? normalizeCmsUrl(safePayload.contact.twitterUrl, wpOrigin) : "",
+      link: safePayload.contact?.link ? normalizeCmsUrl(safePayload.contact.link, wpOrigin) : "",
+      privacyPolicy: safePayload.contact?.privacyPolicy ? sanitizeText(safePayload.contact.privacyPolicy) : undefined,
+      emergencyAlert: safePayload.contact?.emergencyAlert ? sanitizeText(safePayload.contact.emergencyAlert) : undefined,
+      feeStructure: safePayload.contact?.feeStructure ? sanitizeText(safePayload.contact.feeStructure) : undefined,
+      scholarshipRules: safePayload.contact?.scholarshipRules ? sanitizeText(safePayload.contact.scholarshipRules) : undefined,
     },
-    stats: payload.stats.map((item) => ({
+    stats: (safePayload.stats ?? []).map((item) => ({
       value: sanitizeText(item.value),
       label: sanitizeText(item.label),
     })),
+    routine: (safePayload.routine ?? []).map((item) => ({
+      day: sanitizeText(item.day),
+      p1: sanitizeText(item.p1),
+      p2: sanitizeText(item.p2),
+      p3: sanitizeText(item.p3),
+      p4: sanitizeText(item.p4),
+      p5: sanitizeText(item.p5),
+    })),
+    admissions: safePayload.admissions ? {
+      status: safePayload.admissions.status === "closed" ? "closed" : "open",
+      classes: sanitizeText(safePayload.admissions.classes),
+      noticeUrl: normalizeCmsUrl(safePayload.admissions.noticeUrl, wpOrigin),
+      title: sanitizeText(safePayload.admissions.title),
+      content: sanitizeText(safePayload.admissions.content),
+    } : undefined,
+    marqueeNotices: (safePayload.marqueeNotices ?? []).map((notice) => sanitizeText(notice)),
   };
 }
 
@@ -324,15 +415,18 @@ async function fetchJson<T>(url: string, timeoutMs = 4000, headers?: HeadersInit
   throw attemptError instanceof Error ? attemptError : new Error("Request failed");
 }
 
-export async function getHomepageCmsData(): Promise<HomepageCmsData | null> {
-  const response = await getHomepageCmsDataWithStatus();
+export async function getHomepageCmsData(lang?: string): Promise<HomepageCmsData | null> {
+  const response = await getHomepageCmsDataWithStatus(lang);
   return response?.data ?? null;
 }
 
-export async function getHomepageCmsDataWithStatus(): Promise<HomepageCmsResponse | null> {
+export async function getHomepageCmsDataWithStatus(lang?: string): Promise<HomepageCmsResponse | null> {
   const wpOrigin = getWordPressOrigin();
   const base = toAbsoluteUrl(process.env.NEXT_PUBLIC_WORDPRESS_API_BASE || DEFAULT_WP_API_BASE, wpOrigin);
-  const homepageUrl = toAbsoluteUrl(process.env.NEXT_PUBLIC_WORDPRESS_HOMEPAGE_API || DEFAULT_HOMEBASE, wpOrigin);
+  let homepageUrl = toAbsoluteUrl(process.env.NEXT_PUBLIC_WORDPRESS_HOMEPAGE_API || DEFAULT_HOMEBASE, wpOrigin);
+  if (lang) {
+    homepageUrl = `${homepageUrl}${homepageUrl.includes("?") ? "&" : "?"}lang=${lang}`;
+  }
   const internalToken = process.env.CHHETRAPAL_INTERNAL_TOKEN || DEFAULT_INTERNAL_TOKEN;
 
   try {
