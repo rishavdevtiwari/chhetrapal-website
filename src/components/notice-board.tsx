@@ -4,12 +4,14 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Bell, Download, Search } from "lucide-react";
+import NoticeDialog from "./notice-dialog";
 
 type NoticeItem = {
   title: string;
   date: string;
   type: string;
   link: string;
+  content?: string;
   imageUrl?: string;
 };
 
@@ -37,9 +39,13 @@ type NoticeBoardProps = {
   downloads: DownloadItem[];
 };
 
+const ITEMS_PER_PAGE = 8;
+
 export default function NoticeBoard({ notices, downloads }: NoticeBoardProps) {
   const [query, setQuery] = useState("");
   const [type, setType] = useState("All Types");
+  const [selectedNotice, setSelectedNotice] = useState<NoticeItem | null>(null);
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
   const filteredNotices = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -55,6 +61,20 @@ export default function NoticeBoard({ notices, downloads }: NoticeBoardProps) {
     });
   }, [notices, query, type]);
 
+  const handleQueryChange = (val: string) => {
+    setQuery(val);
+    setVisibleCount(ITEMS_PER_PAGE);
+  };
+
+  const handleTypeChange = (val: string) => {
+    setType(val);
+    setVisibleCount(ITEMS_PER_PAGE);
+  };
+
+  const paginatedNotices = useMemo(() => {
+    return filteredNotices.slice(0, visibleCount);
+  }, [filteredNotices, visibleCount]);
+
   return (
     <div className="grid lg:grid-cols-[1.55fr_1fr] gap-6">
       <section className="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
@@ -64,14 +84,14 @@ export default function NoticeBoard({ notices, downloads }: NoticeBoardProps) {
             <input
               type="text"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => handleQueryChange(event.target.value)}
               placeholder="Search notices"
               className="w-full h-10 pl-10 pr-3 border border-gray-300 rounded-sm text-sm"
             />
           </div>
           <select
             value={type}
-            onChange={(event) => setType(event.target.value)}
+            onChange={(event) => handleTypeChange(event.target.value)}
             className="h-10 px-3 border border-gray-300 rounded-sm text-sm bg-white"
           >
             <option>All Types</option>
@@ -82,8 +102,8 @@ export default function NoticeBoard({ notices, downloads }: NoticeBoardProps) {
         </div>
 
         <div className="divide-y divide-gray-100">
-          {filteredNotices.length > 0 ? (
-            filteredNotices.map((notice) => (
+          {paginatedNotices.length > 0 ? (
+            paginatedNotices.map((notice) => (
               <article key={`${notice.title}-${notice.date}`} className="px-4 py-4 sm:px-5 sm:py-5 flex items-start gap-3">
                 {(() => {
                   const badge = formatNoticeBadge(notice.date);
@@ -105,15 +125,37 @@ export default function NoticeBoard({ notices, downloads }: NoticeBoardProps) {
                 })()}
                 <div className="min-w-0 flex-1 pt-0.5">
                   <div className="flex flex-wrap items-start gap-x-3 gap-y-1">
-                    <h2 className="text-[0.98rem] font-semibold leading-snug text-[#1a3a6b]">{notice.title}</h2>
+                    <h2
+                      onClick={() => {
+                        const isDownload = notice.link.includes(".pdf") || notice.link.includes(".doc") || notice.link.includes(".zip");
+                        if (isDownload) {
+                          window.open(notice.link, "_blank", "noopener,noreferrer");
+                        } else {
+                          setSelectedNotice(notice);
+                        }
+                      }}
+                      className="text-[0.98rem] font-semibold leading-snug text-[#1a3a6b] hover:text-[#e8841a] cursor-pointer transition-colors"
+                    >
+                      {notice.title}
+                    </h2>
                     <span className="rounded-sm bg-blue-100 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-blue-700">
                       {notice.type}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-gray-500">Published: {notice.date}</p>
-                  <Link href={notice.link} className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-[#e8841a] hover:underline">
+                  <button
+                    onClick={() => {
+                      const isDownload = notice.link.includes(".pdf") || notice.link.includes(".doc") || notice.link.includes(".zip");
+                      if (isDownload) {
+                        window.open(notice.link, "_blank", "noopener,noreferrer");
+                      } else {
+                        setSelectedNotice(notice);
+                      }
+                    }}
+                    className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-[#e8841a] hover:underline cursor-pointer bg-transparent border-none p-0"
+                  >
                     <Download className="h-4 w-4" /> Open notice
-                  </Link>
+                  </button>
                 </div>
               </article>
             ))
@@ -123,6 +165,17 @@ export default function NoticeBoard({ notices, downloads }: NoticeBoardProps) {
             </div>
           )}
         </div>
+
+        {filteredNotices.length > visibleCount && (
+          <div className="p-4 border-t border-gray-100 text-center">
+            <button
+              onClick={() => setVisibleCount((prev) => prev + ITEMS_PER_PAGE)}
+              className="px-4 py-2.5 border border-gray-300 hover:border-[#1a3a6b] rounded-sm text-xs font-semibold text-[#1a3a6b] hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+            >
+              Load More Notices / थप लोड गर्नुहोस्
+            </button>
+          </div>
+        )}
       </section>
 
       <aside className="space-y-6">
@@ -164,14 +217,24 @@ export default function NoticeBoard({ notices, downloads }: NoticeBoardProps) {
           <ul className="space-y-2 text-sm">
             {downloads.map((item) => (
               <li key={item.title}>
-                <Link href={item.href} className="block w-full rounded-sm border border-gray-200 px-3 py-2 text-gray-600 hover:bg-gray-50 hover:text-[#1a3a6b]">
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full rounded-sm border border-gray-200 px-3 py-2 text-gray-600 hover:bg-gray-50 hover:text-[#1a3a6b] transition-colors"
+                >
                   {item.title}
-                </Link>
+                </a>
               </li>
             ))}
           </ul>
         </section>
       </aside>
+      <NoticeDialog
+        isOpen={selectedNotice !== null}
+        onClose={() => setSelectedNotice(null)}
+        notice={selectedNotice}
+      />
     </div>
   );
 }

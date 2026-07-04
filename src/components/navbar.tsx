@@ -3,7 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Phone, Mail, ChevronDown, Menu, X } from "lucide-react";
-import type { CmsContact } from "@/lib/wordpress";
+import type { CmsContact, CmsCard } from "@/lib/wordpress";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Simple inline SVG social icons (lucide-react doesn't include brand icons)
 const FacebookIcon = () => (
@@ -22,50 +23,83 @@ const TwitterIcon = () => (
   </svg>
 );
 
-const navLinks = [
-  { label: "Home", href: "/" },
-  {
-    label: "About Us",
-    href: "/about",
-    children: [
-      { label: "Our History", href: "/about#history" },
-      { label: "Vision & Mission", href: "/about#mission" },
-      { label: "Principal's Message", href: "/about#principal" },
-      { label: "Management Team", href: "/about#management" },
-    ],
-  },
-  {
-    label: "Academics",
-    href: "/academics",
-    children: [
-      { label: "Primary Level", href: "/academics#primary" },
-      { label: "Lower Secondary", href: "/academics#lower-secondary" },
-      { label: "Secondary Level", href: "/academics#secondary" },
-    ],
-  },
-  { label: "Alumni", href: "/alumni" },
-  { label: "Scholarships", href: "/scholarships" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "Notices", href: "/notices" },
-  { label: "Contact", href: "/contact" },
-];
+function toAnchorId(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 type NavbarProps = {
   contact?: CmsContact | null;
+  programs?: CmsCard[] | null;
+  marqueeNotices?: string[] | null;
 };
 
-export default function Navbar({ contact }: NavbarProps) {
+export default function Navbar({ contact, programs, marqueeNotices }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const { language, setLanguage, t } = useLanguage();
+
+  const toggleLanguage = () => {
+    setLanguage(language === "en" ? "ne" : "en");
+  };
 
   const topPhone = contact?.phone || "9851181243";
   const topEmail = contact?.email || "info@chhetrapalschool.edu.np";
-  const facebookUrl = contact?.facebookUrl || "#";
-  const youtubeUrl = contact?.youtubeUrl || "#";
-  const twitterUrl = contact?.twitterUrl || "#";
+  const facebookUrl = contact?.facebookUrl && contact.facebookUrl !== "#" ? contact.facebookUrl : "https://facebook.com";
+  const youtubeUrl = contact?.youtubeUrl && contact.youtubeUrl !== "#" ? contact.youtubeUrl : "https://youtube.com";
+  const twitterUrl = contact?.twitterUrl && contact.twitterUrl !== "#" ? contact.twitterUrl : "https://twitter.com";
+
+  const academicChildren = programs && programs.length > 0
+    ? programs.map((p) => ({
+        label: p.label,
+        href: `/academics#${toAnchorId(p.label)}`,
+      }))
+    : [
+        { label: language === "ne" ? "प्राथमिक तह" : "Primary Level", href: "/academics#primary" },
+        { label: language === "ne" ? "निम्न माध्यमिक तह" : "Lower Secondary", href: "/academics#lower-secondary" },
+        { label: language === "ne" ? "माध्यमिक तह" : "Secondary Level", href: "/academics#secondary" },
+        { label: language === "ne" ? "+२ तह" : "+2 Level", href: "/academics#higher-secondary" },
+      ];
+
+  const navLinks = [
+    { label: t("home"), href: "/" },
+    {
+      label: t("about"),
+      href: "/about",
+      children: [
+        { label: language === "ne" ? "हाम्रो इतिहास" : "Our History", href: "/about#history" },
+        { label: language === "ne" ? "दृष्टि र उद्देश्य" : "Vision & Mission", href: "/about#mission" },
+        { label: language === "ne" ? "प्रधानाध्यापकको सन्देश" : "Principal's Message", href: "/about#principal" },
+        { label: language === "ne" ? "व्यवस्थापन टोली" : "Management Team", href: "/about#management" },
+      ],
+    },
+    {
+      label: t("academics"),
+      href: "/academics",
+      children: academicChildren,
+    },
+    { label: t("alumni"), href: "/alumni" },
+    { label: t("scholarships"), href: "/scholarships" },
+    { label: t("gallery"), href: "/gallery" },
+    { label: t("notices"), href: "/notices" },
+    { label: t("contact"), href: "/contact" },
+  ];
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50 shadow-md">
+      {/* ── Emergency Alert Banner ── */}
+      {contact?.emergencyAlert && (
+        <div className="bg-[#cc2b2b] text-white text-xs font-semibold py-2 px-4 text-center border-b border-red-700 animate-pulse">
+          <div className="max-w-7xl mx-auto flex items-center justify-center gap-2">
+            <span className="bg-white text-[#cc2b2b] px-1.5 py-0.5 rounded-sm font-extrabold text-[10px] uppercase tracking-wider">
+              {language === "ne" ? "महत्त्वपूर्ण" : "ALERT"}
+            </span>
+            <span>{contact.emergencyAlert}</span>
+          </div>
+        </div>
+      )}
       {/* ── Top Utility Bar ── */}
       <div className="bg-[#1a3a6b] text-white text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-2">
@@ -87,8 +121,14 @@ export default function Navbar({ contact }: NavbarProps) {
             <a href={twitterUrl} aria-label="Twitter / X" className="hover:text-orange-300 transition-colors" target="_blank" rel="noreferrer">
               <TwitterIcon />
             </a>
-            <span className="pl-2 border-l border-white/30">
-              <Link href="/admissions" className="hover:text-orange-300 font-medium">Online Admission</Link>
+            <span className="pl-2 border-l border-white/30 flex items-center gap-2">
+              <Link href="/admissions" className="hover:text-orange-300 font-medium">{t("onlineAdmission")}</Link>
+              <button
+                onClick={toggleLanguage}
+                className="hover:text-orange-300 font-bold bg-white/10 px-2 py-0.5 rounded border border-white/20 ml-2 text-[10px] sm:text-xs cursor-pointer flex items-center transition-colors"
+              >
+                {language === "en" ? "नेपाली" : "English"}
+              </button>
             </span>
           </div>
         </div>
@@ -110,13 +150,13 @@ export default function Navbar({ contact }: NavbarProps) {
             </div>
             <div>
               <div className="text-[#1a3a6b] font-extrabold text-lg md:text-2xl leading-tight tracking-tight">
-                Chhetrapal Secondary School
+                {t("schoolName")}
               </div>
               <div className="text-gray-500 text-xs md:text-sm font-medium tracking-wide">
-                छेत्रपाल माध्यमिक विद्यालय
+                {language === "en" ? "छेत्रपाल माध्यमिक विद्यालय" : "Chhetrapal Secondary School"}
               </div>
               <div className="text-gray-400 text-xs hidden md:block tracking-widest uppercase mt-0.5">
-                Likhu Rural Municipality-4, Chaughada, Nuwakot
+                {t("schoolAddress")}
               </div>
             </div>
           </Link>
@@ -241,14 +281,25 @@ export default function Navbar({ contact }: NavbarProps) {
         </div>
         <div className="overflow-hidden flex-1 relative py-2">
           <div className="marquee-track text-sm text-[#1a3a6b] font-medium">
-            ✹ Admissions Open for Class 1 to 12 — AY 2026/2027 &nbsp;&nbsp;&nbsp;
-            ✹ SEE Exam Routine Published — Check Notice Board &nbsp;&nbsp;&nbsp;
-            ✹ Annual Prize Distribution Ceremony on Baisakh 22, 2083 &nbsp;&nbsp;&nbsp;
-            ✹ Parent-Teacher Meeting: Chaitra 5, 2083 &nbsp;&nbsp;&nbsp;
-            ✹ Government Secondary School — Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot &nbsp;&nbsp;&nbsp;
+            {(() => {
+              const items = marqueeNotices && marqueeNotices.length > 0 ? marqueeNotices : [
+                "Admissions Open for Class 1 to 12 — AY 2026/2027",
+                "SEE Exam Routine Published — Check Notice Board",
+                "Annual Prize Distribution Ceremony on Baisakh 22, 2083",
+                "Parent-Teacher Meeting: Chaitra 5, 2083",
+                "Government Secondary School — Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot"
+              ];
+              const duplicated = [...items, ...items];
+              return duplicated.map((title, idx) => (
+                <span key={idx} className="inline-block mr-12 whitespace-nowrap flex-shrink-0">
+                  ✹ {title} &nbsp;&nbsp;&nbsp;
+                </span>
+              ));
+            })()}
           </div>
         </div>
       </div>
+
     </header>
   );
 }

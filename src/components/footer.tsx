@@ -23,9 +23,9 @@ const XIcon = () => (
 export default async function Footer() {
   const cmsData = await getHomepageCmsData();
   const contact = cmsData?.contact;
-  const facebookUrl = contact?.facebookUrl || "#";
-  const youtubeUrl = contact?.youtubeUrl || "#";
-  const twitterUrl = contact?.twitterUrl || "#";
+  const facebookUrl = contact?.facebookUrl && contact.facebookUrl !== "#" ? contact.facebookUrl : "https://facebook.com";
+  const youtubeUrl = contact?.youtubeUrl && contact.youtubeUrl !== "#" ? contact.youtubeUrl : "https://youtube.com";
+  const twitterUrl = contact?.twitterUrl && contact.twitterUrl !== "#" ? contact.twitterUrl : "https://twitter.com";
 
   return (
     <footer className="bg-[#0f2744] text-white">
@@ -151,12 +151,13 @@ export default async function Footer() {
           <div className="flex items-center gap-4">
             <span className="text-gray-300">Powered by Softwarica College</span>
             <span>|</span>
-            <Link href="#" className="hover:text-white">Privacy Policy</Link>
+            <Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
             <span>|</span>
-            <Link href="#" className="hover:text-white">Sitemap</Link>
+            <Link href="/sitemap" className="hover:text-white">Sitemap</Link>
           </div>
         </div>
       </div>
     </footer>
   );
 }
+
