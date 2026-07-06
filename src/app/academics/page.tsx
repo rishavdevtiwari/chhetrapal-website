@@ -1,7 +1,7 @@
 import { BookOpen, FlaskConical, Monitor, PenSquare, FileText } from "lucide-react";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import { cookies } from "next/headers";
-import { translations, Language, TranslationKey } from "@/context/LanguageContext";
+import { translations, Language, TranslationKey, getSafeLanguage } from "@/context/LanguageContext";
 
 const programs = [
   {
@@ -79,7 +79,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AcademicsPage() {
   const cookieStore = await cookies();
-  const lang = (cookieStore.get("chhetrapal_lang")?.value || "en") as Language;
+  const lang = getSafeLanguage(cookieStore.get("chhetrapal_lang")?.value);
   const cmsData = await getHomepageCmsData(lang);
   const t = (key: TranslationKey) => translations[lang][key] || translations["en"][key];
   const isNe = lang === "ne";

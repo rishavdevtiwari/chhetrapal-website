@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BookOpen, Target, Eye, Users, Award, ChevronRight } from "lucide-react";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import { cookies } from "next/headers";
-import { translations, Language, TranslationKey } from "@/context/LanguageContext";
+import { translations, Language, TranslationKey, getSafeLanguage } from "@/context/LanguageContext";
 import { sanitizeHtml } from "@/lib/sanitize";
 
 const team = [
@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AboutPage() {
   const cookieStore = await cookies();
-  const lang = (cookieStore.get("chhetrapal_lang")?.value || "en") as Language;
+  const lang = getSafeLanguage(cookieStore.get("chhetrapal_lang")?.value);
   const cmsData = await getHomepageCmsData(lang);
   const t = (key: TranslationKey) => translations[lang][key] || translations["en"][key];
   

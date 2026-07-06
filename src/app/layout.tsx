@@ -7,7 +7,7 @@ import ScholarshipPopup from "@/components/scholarship-popup";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import Script from "next/script";
 import { cookies } from "next/headers";
-import { LanguageProvider, Language } from "@/context/LanguageContext";
+import { LanguageProvider, Language, getSafeLanguage } from "@/context/LanguageContext";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -26,7 +26,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const cookieStore = await cookies();
-  const lang = (cookieStore.get("chhetrapal_lang")?.value || "en") as Language;
+  const lang = getSafeLanguage(cookieStore.get("chhetrapal_lang")?.value);
   const cmsData = await getHomepageCmsData(lang);
   const contact = cmsData?.contact;
   const scholarships = cmsData?.scholarships ?? [];

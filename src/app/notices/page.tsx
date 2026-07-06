@@ -1,7 +1,7 @@
 import { getHomepageCmsData } from "@/lib/wordpress";
 import NoticeBoard from "@/components/notice-board";
 import { cookies } from "next/headers";
-import { translations, Language, TranslationKey } from "@/context/LanguageContext";
+import { translations, Language, TranslationKey, getSafeLanguage } from "@/context/LanguageContext";
 
 const noticesEn = [
   { title: "Admission Notice for AY 2083", date: "2083-01-10", type: "Notice" },
@@ -34,7 +34,7 @@ const translateMonth = (month: string, isNe: boolean) => {
 
 export default async function NoticesPage() {
   const cookieStore = await cookies();
-  const lang = (cookieStore.get("chhetrapal_lang")?.value || "en") as Language;
+  const lang = getSafeLanguage(cookieStore.get("chhetrapal_lang")?.value);
   const cmsData = await getHomepageCmsData(lang);
   const t = (key: TranslationKey) => translations[lang][key] || translations["en"][key];
   const isNe = lang === "ne";

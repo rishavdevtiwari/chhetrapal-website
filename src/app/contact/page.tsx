@@ -2,7 +2,7 @@ import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import ContactMessageForm from "@/components/contact-message-form";
 import { cookies } from "next/headers";
-import { translations, Language, TranslationKey } from "@/context/LanguageContext";
+import { translations, Language, TranslationKey, getSafeLanguage } from "@/context/LanguageContext";
 
 const fallbackMapUrl =
   "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3525.925360626243!2d85.2387678754744!3d27.904263726070322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eadfa5e05bbc35%3A0x3eb57e2564e36dd4!2sShree%20Kshetrapal%20Uchcha%20Madhyamik%20Bidyalaya!5e0!3m2!1sen!2snp!4v1776366200281!5m2!1sen!2snp";
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ContactPage() {
   const cookieStore = await cookies();
-  const lang = (cookieStore.get("chhetrapal_lang")?.value || "en") as Language;
+  const lang = getSafeLanguage(cookieStore.get("chhetrapal_lang")?.value);
   const cmsData = await getHomepageCmsData(lang);
   const t = (key: TranslationKey) => translations[lang][key] || translations["en"][key];
   const isNe = lang === "ne";

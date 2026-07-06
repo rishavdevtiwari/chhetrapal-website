@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import { cookies } from "next/headers";
-import { translations, Language, TranslationKey } from "@/context/LanguageContext";
+import { translations, Language, TranslationKey, getSafeLanguage } from "@/context/LanguageContext";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ function toAnchorId(value: string): string {
 
 export default async function SitemapPage() {
   const cookieStore = await cookies();
-  const lang = (cookieStore.get("chhetrapal_lang")?.value || "en") as Language;
+  const lang = getSafeLanguage(cookieStore.get("chhetrapal_lang")?.value);
   const cmsData = await getHomepageCmsData(lang);
   const t = (key: TranslationKey) => translations[lang][key] || translations["en"][key];
   const isNe = lang === "ne";
