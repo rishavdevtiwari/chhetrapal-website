@@ -3,7 +3,8 @@ import Link from "next/link";
 import { BookOpen, Target, Eye, Users, Award, ChevronRight } from "lucide-react";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import { cookies } from "next/headers";
-import { translations, Language, TranslationKey, getSafeLanguage } from "@/context/LanguageContext";
+import { translations, TranslationKey } from "@/context/LanguageContext";
+import { Language, getSafeLanguage } from "@/lib/language";
 import { sanitizeHtml } from "@/lib/sanitize";
 
 const team = [

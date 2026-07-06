@@ -7,7 +7,8 @@ import ScholarshipPopup from "@/components/scholarship-popup";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import Script from "next/script";
 import { cookies } from "next/headers";
-import { LanguageProvider, Language, getSafeLanguage } from "@/context/LanguageContext";
+import { LanguageProvider } from "@/context/LanguageContext";
+import { Language, getSafeLanguage } from "@/lib/language";
 
 const inter = Inter({
   variable: "--font-sans",

@@ -1,7 +1,8 @@
 import { getHomepageCmsData } from "@/lib/wordpress";
 import NoticeBoard from "@/components/notice-board";
 import { cookies } from "next/headers";
-import { translations, Language, TranslationKey, getSafeLanguage } from "@/context/LanguageContext";
+import { translations, TranslationKey } from "@/context/LanguageContext";
+import { Language, getSafeLanguage } from "@/lib/language";
 
 const noticesEn = [
   { title: "Admission Notice for AY 2083", date: "2083-01-10", type: "Notice" },

@@ -1,12 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-
-export type Language = "en" | "ne";
-
-export function getSafeLanguage(cookieValue: string | undefined): Language {
-  return cookieValue === "ne" ? "ne" : "en";
-}
+import { Language, getSafeLanguage } from "@/lib/language";
 
 export type TranslationKey =
   | "schoolName"
