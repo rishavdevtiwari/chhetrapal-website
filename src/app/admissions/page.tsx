@@ -2,7 +2,7 @@ import { CheckCircle2, UserPlus2 } from "lucide-react";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import AdmissionsApplicationForm from "@/components/admissions-application-form";
 import { cookies } from "next/headers";
-import { translations, TranslationKey } from "@/context/LanguageContext";
+import { translations, TranslationKey } from "@/lib/translations";
 import { Language, getSafeLanguage } from "@/lib/language";
 
 const stepsEn = [

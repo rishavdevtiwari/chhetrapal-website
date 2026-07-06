@@ -1,7 +1,7 @@
 import { BookOpen, FlaskConical, Monitor, PenSquare, FileText } from "lucide-react";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import { cookies } from "next/headers";
-import { translations, TranslationKey } from "@/context/LanguageContext";
+import { translations, TranslationKey } from "@/lib/translations";
 import { Language, getSafeLanguage } from "@/lib/language";
 
 const programs = [

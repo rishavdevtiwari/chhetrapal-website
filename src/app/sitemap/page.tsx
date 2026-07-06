@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import { cookies } from "next/headers";
-import { translations, TranslationKey } from "@/context/LanguageContext";
+import { translations, TranslationKey } from "@/lib/translations";
 import { Language, getSafeLanguage } from "@/lib/language";
 
 export const dynamic = "force-dynamic";

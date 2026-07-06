@@ -1,7 +1,7 @@
 import { getHomepageCmsData } from "@/lib/wordpress";
 import GalleryGrid from "@/components/gallery-grid";
 import { cookies } from "next/headers";
-import { translations, TranslationKey } from "@/context/LanguageContext";
+import { translations, TranslationKey } from "@/lib/translations";
 import { Language, getSafeLanguage } from "@/lib/language";
 
 const galleryEn = [
