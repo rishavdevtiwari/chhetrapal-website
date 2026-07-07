@@ -268,6 +268,53 @@ final class Chhetrapal_School_CMS {
             'dashicons-welcome-write-blog',
             61
         );
+
+        add_submenu_page(
+            'edit.php?post_type=' . self::CPT_SCHOLARSHIP,
+            'Scholarship Guidelines',
+            'Scholarship Guidelines',
+            'edit_posts',
+            'chhetrapal-scholarship-guidelines',
+            [$this, 'render_scholarship_guidelines_page']
+        );
+    }
+
+    public function render_scholarship_guidelines_page(): void {
+        if (!current_user_can('edit_posts')) {
+            wp_die('You do not have sufficient permissions to access this page.');
+        }
+
+        if (isset($_POST['chhetrapal_save_guidelines']) && check_admin_referer('chhetrapal_guidelines_action', 'chhetrapal_guidelines_nonce')) {
+            $rules_en = isset($_POST['chhetrapal_rules_en']) ? wp_kses_post(wp_unslash($_POST['chhetrapal_rules_en'])) : '';
+            $rules_ne = isset($_POST['chhetrapal_rules_ne']) ? wp_kses_post(wp_unslash($_POST['chhetrapal_rules_ne'])) : '';
+            update_option('chhetrapal_scholarship_rules_en', $rules_en);
+            update_option('chhetrapal_scholarship_rules_ne', $rules_ne);
+            echo '<div class="updated"><p>Guidelines updated successfully.</p></div>';
+        }
+
+        $rules_en = get_option('chhetrapal_scholarship_rules_en', '');
+        $rules_ne = get_option('chhetrapal_scholarship_rules_ne', '');
+
+        echo '<div class="wrap"><h1>Scholarship Guidelines</h1>';
+        echo '<form method="post" action="">';
+        wp_nonce_field('chhetrapal_guidelines_action', 'chhetrapal_guidelines_nonce');
+        
+        echo '<h3>English Guidelines</h3>';
+        wp_editor($rules_en, 'chhetrapal_rules_en', [
+            'textarea_name' => 'chhetrapal_rules_en',
+            'textarea_rows' => 10,
+            'media_buttons' => false,
+        ]);
+
+        echo '<h3>Nepali Guidelines</h3>';
+        wp_editor($rules_ne, 'chhetrapal_rules_ne', [
+            'textarea_name' => 'chhetrapal_rules_ne',
+            'textarea_rows' => 10,
+            'media_buttons' => false,
+        ]);
+
+        echo '<p class="submit"><input type="submit" name="chhetrapal_save_guidelines" class="button button-primary" value="Save Guidelines" /></p>';
+        echo '</form></div>';
     }
 
     public function prune_admin_menu(): void {
@@ -623,7 +670,7 @@ final class Chhetrapal_School_CMS {
                 'content' => apply_filters('the_content', $post->post_content),
                 'tag' => $this->detect_notice_tag($post->ID),
                 'link' => '/notices',
-                'imageUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
+                'imageUrl' => $this->get_post_photo_url($post),
             ];
         }
 
@@ -650,7 +697,7 @@ final class Chhetrapal_School_CMS {
             'name' => get_the_title($post),
             'title' => get_the_title($post),
             'message' => apply_filters('the_content', $post->post_content),
-            'photoUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
+            'photoUrl' => $this->get_post_photo_url($post),
             'designation' => get_post_meta($post->ID, 'chhetrapal_designation', true) ?: 'Principal',
             'link' => '/about#principal',
         ];
@@ -662,7 +709,7 @@ final class Chhetrapal_School_CMS {
                 'label' => get_the_title($post),
                 'desc' => get_the_excerpt($post) ?: 'Program',
                 'sub' => get_post_meta($post->ID, 'chhetrapal_subtitle', true) ?: wp_trim_words(wp_strip_all_tags($post->post_content), 12),
-                'imageUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
+                'imageUrl' => $this->get_post_photo_url($post),
                 'link' => '/academics',
             ];
         }, 20, $lang);
@@ -674,7 +721,7 @@ final class Chhetrapal_School_CMS {
                 'label' => get_the_title($post),
                 'desc' => get_the_excerpt($post) ?: 'Facility',
                 'sub' => get_post_meta($post->ID, 'chhetrapal_subtitle', true) ?: '',
-                'imageUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
+                'imageUrl' => $this->get_post_photo_url($post),
                 'link' => '/about#management',
             ];
         }, 6, $lang);
@@ -689,7 +736,7 @@ final class Chhetrapal_School_CMS {
                 'desc' => get_the_excerpt($post) ?: 'Download document',
                 'buttonLabel' => $label ?: 'Download',
                 'fileUrl' => $file_url ?: '/notices',
-                'imageUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
+                'imageUrl' => $this->get_post_photo_url($post),
             ];
         }, 4, $lang);
     }
@@ -697,7 +744,7 @@ final class Chhetrapal_School_CMS {
     private function build_gallery_items(string $lang = ''): array {
         return $this->build_collection(self::CPT_GALLERY, function (WP_Post $post): array {
             return [
-                'src' => get_the_post_thumbnail_url($post, 'full') ?: '',
+                'src' => $this->get_post_photo_url($post),
                 'alt' => get_the_title($post),
                 'title' => get_the_title($post),
                 'link' => '/gallery',
@@ -712,7 +759,7 @@ final class Chhetrapal_School_CMS {
                 'year' => get_post_meta($post->ID, 'chhetrapal_alumni_year', true) ?: 'Alumni',
                 'achievement' => get_the_excerpt($post) ?: wp_trim_words(wp_strip_all_tags($post->post_content), 14),
                 'bio' => apply_filters('the_content', $post->post_content),
-                'photoUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
+                'photoUrl' => $this->get_post_photo_url($post),
                 'link' => '/alumni',
             ];
         }, 50, $lang);
@@ -725,10 +772,21 @@ final class Chhetrapal_School_CMS {
                 'scholarshipTitle' => get_the_excerpt($post) ?: 'Scholarship Award',
                 'year' => get_post_meta($post->ID, 'chhetrapal_scholarship_year', true) ?: date_i18n('Y'),
                 'details' => apply_filters('the_content', $post->post_content),
-                'photoUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
+                'photoUrl' => $this->get_post_photo_url($post),
                 'link' => '/scholarships',
             ];
         }, 50, $lang);
+    }
+
+    private function get_post_photo_url(WP_Post $post): string {
+        $url = get_the_post_thumbnail_url($post, 'full');
+        if ($url) {
+            return $url;
+        }
+        if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $post->post_content, $matches)) {
+            return $matches[1];
+        }
+        return '';
     }
 
     private function build_routine_items(string $lang = ''): array {
@@ -834,6 +892,11 @@ final class Chhetrapal_School_CMS {
 
     private function build_contact_card(string $lang = ''): array {
         $post = $this->first_post(self::CPT_CONTACT, $lang);
+        
+        $rules_en = get_option('chhetrapal_scholarship_rules_en', '');
+        $rules_ne = get_option('chhetrapal_scholarship_rules_ne', '');
+        $rules = ($lang === 'ne') ? ($rules_ne ?: $rules_en) : ($rules_en ?: $rules_ne);
+
         if (!$post) {
             return [
                 'address' => 'Likhu Rural Municipality Ward no. 4, Chaughada Nuwakot, Bagmati Province, Nepal',
@@ -846,9 +909,13 @@ final class Chhetrapal_School_CMS {
                 'privacyPolicy' => '',
                 'emergencyAlert' => '',
                 'feeStructure' => '',
-                'scholarshipRules' => '',
+                'scholarshipRules' => $rules,
                 'link' => '/contact',
             ];
+        }
+
+        if (empty($rules)) {
+            $rules = get_post_meta($post->ID, 'chhetrapal_scholarship_rules', true) ?: '';
         }
  
         return [
@@ -862,7 +929,7 @@ final class Chhetrapal_School_CMS {
             'privacyPolicy' => get_post_meta($post->ID, 'chhetrapal_privacy_policy', true),
             'emergencyAlert' => get_post_meta($post->ID, 'chhetrapal_emergency_alert', true) ?: '',
             'feeStructure' => get_post_meta($post->ID, 'chhetrapal_fee_structure', true) ?: '',
-            'scholarshipRules' => get_post_meta($post->ID, 'chhetrapal_scholarship_rules', true) ?: '',
+            'scholarshipRules' => $rules,
             'link' => '/contact',
         ];
     }
