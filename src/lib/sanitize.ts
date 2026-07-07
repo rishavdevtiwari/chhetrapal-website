@@ -18,6 +18,8 @@ export function sanitizeHtml(html: string | undefined): string {
       li: ["class", "style"],
       a: ["href", "title", "target", "rel", "class", "style"],
       img: ["src", "alt", "title", "class", "style"],
+      figure: ["class", "style"],
+      figcaption: ["class", "style"],
       h1: ["class", "style"],
       h2: ["class", "style"],
       h3: ["class", "style"],
