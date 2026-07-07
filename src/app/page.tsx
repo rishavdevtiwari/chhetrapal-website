@@ -32,7 +32,7 @@ import { sanitizeHtml } from "@/lib/sanitize";
 export const dynamic = "force-dynamic";
 
 const fallbackHero = {
-  eyebrow: "Government Secondary School • Est. 2046 BS",
+  eyebrow: "Government Secondary School • Est. 2016 BS",
   title: "Chhetrapal Secondary School",
   subtitle: "क्षेत्रपाल माध्यमिक विद्यालय",
   description: "Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot, Bagmati Province, Nepal\nAffiliated to National Examination Board (NEB) | Reg. No: 28018",
@@ -63,13 +63,13 @@ const fallbackStats = [
   { value: "35+", label: "Academic Staff" },
   { value: "850+", label: "Active Students" },
   { value: "100%", label: "SEE Pass Rate" },
-  { value: "30+", label: "Years of History" },
+  { value: "60+", label: "Years of History" },
 ];
 
 const fallbackPrincipal: CmsPrincipal = {
-  name: "Mr. Ram Bahadur Thapa",
+  name: "Hari Prasad Subedi",
   title: "Principal's Welcome Message",
-  message: "Dear students, parents, and community members, I welcome you all to Chhetrapal Secondary School. We are dedicated to nurturing and educating students to achieve their full potential.",
+  message: "Respected parents, teachers, staff and dear students, I warmly welcome you all to the official website of Chhetrapal Secondary School, the oldest and historical educational heritage of Nuwakot district.",
   photoUrl: "/teacher-teaching-students.jpeg",
   designation: "Principal",
 };
@@ -159,7 +159,17 @@ export default async function Home() {
     }));
   const events = eventsFromCms.length > 0 ? eventsFromCms.slice(0, 3) : fallbackEvents;
   const stats = cmsData?.stats?.length ? cmsData.stats : fallbackStats;
-  const principal = cmsData?.principal ?? fallbackPrincipal;
+  const dynamicFallbackPrincipal: CmsPrincipal = {
+    name: isNe ? "हरि प्रसाद सुवेदी" : "Hari Prasad Subedi",
+    title: isNe ? "प्रधानाध्यापकको सन्देश" : "Message from Principal",
+    message: isNe
+      ? "नुवाकोट जिल्लाकै पुरानो र ऐतिहासिक शैक्षिक धरोहर क्षेत्रपाल माध्यमिक विद्यालय को आधिकारिक वेबसाइटमा यहाँहरू सबैलाई हार्दिक स्वागत गर्दछु। वि.सं. २०१६ सालदेखि सुरु भएको यस विद्यालयको शैक्षिक यात्रा आज यो उचाइमा आइपुग्नुमा यस क्षेत्रका बुद्धिजीवी, शिक्षाप्रेमी, आदरणीय अभिभावक र शिक्षक शिक्षिकाहरूको अथक प्रयास, त्याग र समर्पणको परिणाम हो।"
+      : "I warmly welcome you all to the official website of Chhetrapal Secondary School, the oldest and historical educational heritage of Nuwakot district. The educational journey of this school, which began in 2016, is the result of the tireless efforts, sacrifice and dedication of the intellectuals, education lovers, respected parents and teachers of this area.",
+    photoUrl: "/teacher-teaching-students.jpeg",
+    designation: isNe ? "प्रधानाध्यापक" : "Principal",
+    link: "/about#principal",
+  };
+  const principal = cmsData?.principal ?? dynamicFallbackPrincipal;
   const cmsFacilities = cmsData?.facilities ?? [];
   const facilities = fallbackFacilities.map((facility, index) => ({
     ...facility,
@@ -252,13 +262,13 @@ export default async function Home() {
                   <h3 className="mb-3 text-xl font-bold text-[#1a3a6b]">{isNe ? "क्षेत्रपाल माध्यमिक विद्यालयको बारेमा" : "About Chhetrapal Secondary School"}</h3>
                   <p className="mb-3 text-sm leading-relaxed text-gray-600">
                     {isNe
-                      ? "२०४६ सालमा स्थापना भएको क्षेत्रपाल माध्यमिक विद्यालय नुवाकोट जिल्लाको लिखु गाउँपालिका वडा नं. ४, चौघडामा अवस्थित एक सरकारी विद्यालय हो। विगत तीन दशकभन्दा बढी समयदेखि हामीले प्राथमिकदेखि उच्च माध्यमिक तहसम्म गुणस्तरीय शिक्षा प्रदान गर्दै आएका छौं।"
-                      : "Established in 2046 BS (1989 AD), Chhetrapal Secondary School is a government secondary school located in Nuwakot district of Bagmati Province, Nepal. Over the past three decades, we have been serving the educational needs of our community by providing quality education from primary to higher secondary level."}
+                      ? "नुवाकोट जिल्लाको ऐतिहासिक र पुरानो शैक्षिक धरोहर क्षेत्रपाल माध्यमिक विद्यालय स्थापना कालदेखि नै यस क्षेत्रको शिक्षा ज्योति फैलाउने मुख्य केन्द्रको रूपमा स्थापित छ। वि.सं. २०१६ सालमा प्राथमिक विद्यालयको रूपमा यसको जग बसालिएको थियो। शिक्षाको आवश्यकता र स्थानीयवासीको चाहना अनुसार वि.सं. २०२३ मा यो तत्कालीन 'मिडिल स्कुल' र वि.सं. २०३१ साल चैत्र १६ गते औपचारिक रूपमा माध्यमिक विद्यालयको रूपमा रूपान्तरित भयो।"
+                      : "Chhetrapal Secondary School, a historical and old educational heritage of Nuwakot district, has been established as the main center for spreading the light of education in this region since its establishment. BS. 2016 was its foundation as a primary school. According to the needs of education and the wishes of the locals, it was converted into the then 'Middle School' in BS. 2023 and was formally converted into a secondary school on Chaitra 16, BS. 2031."}
                   </p>
                   <p className="mb-4 text-sm leading-relaxed text-gray-600">
                     {isNe
-                      ? "राष्ट्रिय परीक्षा बोर्ड (NEB) सम्बन्धन प्राप्त र पाठ्यक्रम विकास केन्द्र (CDC) द्वारा निर्धारित पाठ्यक्रम अनुसरण गर्दै, हाम्रो विद्यालयले सयौं सफल स्नातकहरू उत्पादन गरिसकेको छ।"
-                      : "Affiliated to the National Examination Board (NEB) and following the curriculum set by the Curriculum Development Centre (CDC), our institution is proud to have contributed hundreds of successful graduates who are now excelling in various fields across Nepal and abroad."}
+                      ? "लामो र गौरवशाली इतिहास बोकेको यस विद्यालयले स्थापना कालदेखि नै गुणस्तरीय, संस्कारयुक्त र प्रविधिमैत्री शिक्षा प्रदान गर्दै आएको छ। जिल्लाकै उत्कृष्ट शैक्षिक नतिजा हासिल गर्न सफल यस विद्यालयले राष्ट्रलाई आवश्यक पर्ने दक्ष, नैतिकवान् र प्रतिस्पर्धी जनशक्ति उत्पादनमा निरन्तर योगदान पुर्याइरहेको छ।"
+                      : "This school, which has a long and glorious history, has been providing quality, cultured and technology-friendly education since its establishment. This school, which has succeeded in achieving the best educational results in the district, is continuously contributing to the production of skilled, ethical and competitive manpower needed by the nation."}
                   </p>
                   <a href="#contact" className="inline-flex items-center gap-1.5 rounded-sm bg-[#1a3a6b] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0f2744]">
                     {t("readMore")} <ChevronRight className="h-4 w-4" />
@@ -295,8 +305,8 @@ export default async function Home() {
                    />
                   <p className="text-sm leading-relaxed text-gray-600">
                     {isNe
-                      ? "विद्यालयको सम्पूर्ण शिक्षक तथा कर्मचारीहरूको तर्फबाट म सबै विद्यार्थी, अभिभावक र सरोकारवालाहरूलाई हार्दिक स्वागत गर्दछु। हामी सबैका लागि सुरक्षित, समावेशी र शैक्षिक रूपमा सबल वातावरण प्रदान गर्न समर्पित छौं।"
-                      : "On behalf of the entire staff and management of the school, I warmly welcome all students, parents, and guardians to our institution. We remain dedicated to providing a safe, inclusive, and academically stimulating environment for all."}
+                      ? "हाम्रो मुख्य उद्देश्य केवल किताबी ज्ञान दिनु मात्र होइन, बरु विद्यार्थीहरूमा लुकेको प्रतिभालाई प्रस्फुटन गराई उनीहरूलाई नैतिकवान्, आत्मनिर्भर र समाजप्रति उत्तरदायी नागरिक बनाउनु हो।"
+                      : "Our main objective is not only to impart bookish knowledge, but also to make the students moral, self-reliant and socially responsible citizens by bringing out the hidden talent in them."}
                   </p>
                   <a href={principal.link || "#"} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#e8841a] hover:underline">
                     {isNe ? "पूरा सन्देश पढ्नुहोस्" : "Read Full Message"} <ChevronRight className="h-4 w-4" />

@@ -153,7 +153,7 @@ export default function Navbar({ contact, programs, marqueeNotices }: NavbarProp
                 {t("schoolName")}
               </div>
               <div className="text-gray-500 text-xs md:text-sm font-medium tracking-wide">
-                {language === "en" ? "छेत्रपाल माध्यमिक विद्यालय" : "Chhetrapal Secondary School"}
+                {language === "en" ? "क्षेत्रपाल माध्यमिक विद्यालय" : "Chhetrapal Secondary School"}
               </div>
               <div className="text-gray-400 text-xs hidden md:block tracking-widest uppercase mt-0.5">
                 {t("schoolAddress")}

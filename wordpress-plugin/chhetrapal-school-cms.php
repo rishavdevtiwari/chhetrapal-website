@@ -632,7 +632,7 @@ final class Chhetrapal_School_CMS {
                 ['value' => '35+', 'label' => 'Academic Staff'],
                 ['value' => '850+', 'label' => 'Active Students'],
                 ['value' => '100%', 'label' => 'SEE Pass Rate'],
-                ['value' => '30+', 'label' => 'Years of History'],
+                ['value' => '60+', 'label' => 'Years of History'],
             ],
         ];
 
@@ -1181,9 +1181,9 @@ final class Chhetrapal_School_CMS {
         $post_id = wp_insert_post([
             'post_type' => self::CPT_STAFF,
             'post_status' => 'publish',
-            'post_title' => 'Mr. Ram Bahadur Thapa',
-            'post_content' => 'Education is the most powerful weapon which you can use to change the world. At Chhetrapal Secondary School, we are committed to delivering knowledge, nurturing talent, and building character in every student who crosses our doors.',
-            'post_excerpt' => 'Principal',
+            'post_title' => 'Hari Prasad Subedi',
+            'post_content' => "Respected parents, teachers, staff and dear students,\n\nI warmly welcome you all to the official website of Chhetrapal Secondary School, the oldest and historical educational heritage of Nuwakot district.\n\nThe educational journey of this school, which began in 2016, is the result of the tireless efforts, sacrifice and dedication of the intellectuals, education lovers, respected parents and teachers of this area. Since its formal establishment as a secondary school on Chaitra 16, 2031, this school has succeeded in creating a distinct identity in the district in the field of quality education.\n\nOur main objective is not only to impart bookish knowledge, but also to make the students moral, self-reliant and socially responsible citizens by bringing out the hidden talent in them. With the changing times, we are modifying the physical and technical infrastructure of the school and adopting a technology-friendly and practical teaching method. As a result, our academic results have been consistently excellent.\n\nWe are always committed to the overall development of the school and the bright future of the students. We expect constructive advice, suggestions and continuous support from here to make the school more sophisticated and excellent.\n\nThank you.\n\nHari Prasad Subedi\nPrincipal\nChhetrapal Secondary School,\nLikhu 4, Chaughada Nuwakot, Nepal.",
+            'post_excerpt' => 'Message from Principal',
             'menu_order' => 0,
         ]);
         if ($post_id) {
