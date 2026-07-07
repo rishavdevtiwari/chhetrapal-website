@@ -185,33 +185,33 @@ function normalizeCmsUrl(url: string | undefined, wpOrigin: string): string {
     if (parsed.pathname.includes("/wp-content/")) {
       const idx = parsed.pathname.indexOf("/wp-content/");
       const pathAfter = parsed.pathname.substring(idx + "/wp-content/".length);
-      return `/_media/${pathAfter}${parsed.search}${parsed.hash}`;
+      return `${wpOrigin}/wp-content/${pathAfter}${parsed.search}${parsed.hash}`;
     }
     if (parsed.pathname.includes("/wp-includes/")) {
       const idx = parsed.pathname.indexOf("/wp-includes/");
       const pathAfter = parsed.pathname.substring(idx + "/wp-includes/".length);
-      return `/wp-includes/${pathAfter}${parsed.search}${parsed.hash}`;
+      return `${wpOrigin}/wp-includes/${pathAfter}${parsed.search}${parsed.hash}`;
     }
   } catch {
     // Treat as relative URL
   }
 
   if (trimmedUrl.startsWith("/")) {
-    return rewriteCmsMediaPath(trimmedUrl);
+    if (trimmedUrl.startsWith("/wp-content/") || trimmedUrl.startsWith("/wp-includes/")) {
+      return `${wpOrigin}${trimmedUrl}`;
+    }
+    return trimmedUrl;
   }
 
   if (!/^https?:\/\//i.test(trimmedUrl)) {
-    return rewriteCmsMediaPath(`/${trimmedUrl.replace(/^\/+/, "")}`);
+    return `${wpOrigin}/${trimmedUrl.replace(/^\/+/, "")}`;
   }
 
   try {
     const parsed = new URL(trimmedUrl);
-    if (parsed.pathname.startsWith("/wp-content/") || parsed.pathname.startsWith("/wp-includes/")) {
-      return `${rewriteCmsMediaPath(parsed.pathname)}${parsed.search}${parsed.hash}`;
-    }
     const normalizedWpOrigin = new URL(wpOrigin);
     if (parsed.host === normalizedWpOrigin.host) {
-      return `${rewriteCmsMediaPath(parsed.pathname)}${parsed.search}${parsed.hash}`;
+      return trimmedUrl;
     }
   } catch {
     return trimmedUrl;
@@ -220,13 +220,13 @@ function normalizeCmsUrl(url: string | undefined, wpOrigin: string): string {
   return trimmedUrl;
 }
 
-function rewriteHtmlMediaPaths(html: string): string {
+function rewriteHtmlMediaPaths(html: string, wpOrigin: string): string {
   if (!html) return "";
   let rewritten = html;
-  // Replace absolute WordPress uploads or wp-content references to /_media/
-  rewritten = rewritten.replace(/https?:\/\/[^\s"'()>]+\/wp-content\//gi, "/_media/");
+  // Replace absolute WordPress uploads or wp-content references to wpOrigin/wp-content
+  rewritten = rewritten.replace(/https?:\/\/[^\s"'()>]+\/wp-content\//gi, `${wpOrigin}/wp-content/`);
   // Replace relative /wp-content/ references
-  rewritten = rewritten.replace(/\/wp-content\//gi, "/_media/");
+  rewritten = rewritten.replace(/\/wp-content\//gi, `${wpOrigin}/wp-content/`);
   return rewritten;
 }
 
@@ -272,7 +272,7 @@ function normalizeHomepageData(payload: Partial<HomepageCmsData> | null | undefi
       ...notice,
       title: sanitizeText(notice.title),
       summary: notice.summary ? sanitizeText(notice.summary) : undefined,
-      content: notice.content ? rewriteHtmlMediaPaths(notice.content) : undefined,
+      content: notice.content ? rewriteHtmlMediaPaths(notice.content, wpOrigin) : undefined,
       link: normalizeCmsUrl(notice.link, wpOrigin),
       imageUrl: normalizeCmsUrl(notice.imageUrl, wpOrigin),
     })),
@@ -322,7 +322,7 @@ function normalizeHomepageData(payload: Partial<HomepageCmsData> | null | undefi
       name: sanitizeText(person.name),
       year: sanitizeText(person.year),
       achievement: sanitizeText(person.achievement),
-      bio: sanitizeText(person.bio),
+      bio: person.bio ? rewriteHtmlMediaPaths(person.bio, wpOrigin) : "",
       photoUrl: normalizeCmsUrl(person.photoUrl, wpOrigin),
       link: normalizeCmsUrl(person.link, wpOrigin),
     })),
@@ -331,7 +331,7 @@ function normalizeHomepageData(payload: Partial<HomepageCmsData> | null | undefi
       studentName: sanitizeText(winner.studentName),
       scholarshipTitle: sanitizeText(winner.scholarshipTitle),
       year: sanitizeText(winner.year),
-      details: sanitizeText(winner.details),
+      details: winner.details ? rewriteHtmlMediaPaths(winner.details, wpOrigin) : "",
       photoUrl: normalizeCmsUrl(winner.photoUrl, wpOrigin),
       link: normalizeCmsUrl(winner.link, wpOrigin),
     })),
