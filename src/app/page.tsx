@@ -251,8 +251,8 @@ export default async function Home() {
               <div className="flex flex-col gap-6 p-5 md:flex-row md:p-6">
                 <div className="relative h-52 w-full flex-shrink-0 overflow-hidden rounded border border-gray-200 bg-gray-100 md:w-52">
                   <Image
-                    src="/entrance-image.jpeg"
-                    alt="School entrance"
+                    src="/school_front_view.jpeg"
+                    alt="School front view"
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 208px"

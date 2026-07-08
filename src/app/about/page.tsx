@@ -64,7 +64,7 @@ export default async function AboutPage() {
               </p>
             </div>
             <div className="relative aspect-[4/3] rounded-sm overflow-hidden border border-gray-200">
-              <Image src="/entrance-image.jpeg" alt="School entrance" fill className="object-cover" sizes="(max-width: 768px) 100vw, 400px" />
+              <Image src="/school_front_view.jpeg" alt="School front view" fill className="object-cover" sizes="(max-width: 768px) 100vw, 400px" />
             </div>
           </div>
         </section>
