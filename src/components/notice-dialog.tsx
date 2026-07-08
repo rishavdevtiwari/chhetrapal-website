@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { X, Calendar } from "lucide-react";
 import Image from "next/image";
+import { useLanguage } from "@/context/LanguageContext";
 
 type NoticeDialogProps = {
   isOpen: boolean;
@@ -16,7 +17,16 @@ type NoticeDialogProps = {
   } | null;
 };
 
+const noticeTypeTranslations: Record<string, string> = {
+  Notice: "सूचना",
+  Event: "कार्यक्रम",
+  Result: "नतिजा",
+};
+
 export default function NoticeDialog({ isOpen, onClose, notice }: NoticeDialogProps) {
+  const { language } = useLanguage();
+  const isNe = language === "ne";
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -38,17 +48,17 @@ export default function NoticeDialog({ isOpen, onClose, notice }: NoticeDialogPr
         <header className="bg-[#1a3a6b] text-white px-6 py-4 flex items-center justify-between flex-shrink-0">
           <div>
             <span className="rounded-sm bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-blue-700">
-              {notice.type}
+              {isNe ? noticeTypeTranslations[notice.type] || notice.type : notice.type}
             </span>
             <div className="flex items-center gap-1.5 mt-1 text-xs text-orange-200 font-semibold">
-              <Calendar className="h-3.5 w-3.5" /> Published: {notice.date}
+              <Calendar className="h-3.5 w-3.5" /> {isNe ? "प्रकाशित मिति: " : "Published: "}{notice.date}
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="rounded-full bg-white/10 p-1.5 text-white transition-colors hover:bg-white/20 cursor-pointer"
-            aria-label="Close dialog"
+            aria-label={isNe ? "बन्द गर्नुहोस्" : "Close dialog"}
           >
             <X className="h-4 w-4" />
           </button>
@@ -85,7 +95,7 @@ export default function NoticeDialog({ isOpen, onClose, notice }: NoticeDialogPr
             onClick={onClose}
             className="rounded-sm bg-[#1a3a6b] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#0f2744] cursor-pointer"
           >
-            Close Notice
+            {isNe ? "सूचना बन्द गर्नुहोस्" : "Close Notice"}
           </button>
         </footer>
 

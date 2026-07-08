@@ -207,7 +207,7 @@ export default function Navbar({ contact, programs, marqueeNotices }: NavbarProp
                 href="/admissions"
                 className="flex items-center px-5 py-3.5 text-sm font-bold bg-[#e8841a] text-white hover:bg-orange-600 transition-colors"
               >
-                Admission Open ›
+                {t("admissionOpen")} ›
               </Link>
             </li>
           </ul>
@@ -277,18 +277,25 @@ export default function Navbar({ contact, programs, marqueeNotices }: NavbarProp
       {/* ── Marquee Notice Strip ── */}
       <div className="bg-amber-50 border-b border-amber-200 overflow-hidden flex items-center">
         <div className="bg-[#e8841a] text-white text-xs font-bold uppercase px-4 py-2 whitespace-nowrap flex-shrink-0 tracking-wider">
-          NOTICE:
+          {language === "ne" ? "सूचना:" : "NOTICE:"}
         </div>
         <div className="overflow-hidden flex-1 relative py-2">
           <div className="marquee-track text-sm text-[#1a3a6b] font-medium">
             {(() => {
-              const items = marqueeNotices && marqueeNotices.length > 0 ? marqueeNotices : [
+              const defaultItems = language === "ne" ? [
+                "कक्षा १ देखि १२ सम्म भर्ना खुल्यो — शैक्षिक सत्र २०८३/२०८४",
+                "एसईई परीक्षा तालिका प्रकाशित — सूचना बोर्ड हेर्नुहोस्",
+                "वार्षिक पुरस्कार वितरण समारोह बैशाख २२, २०८३ मा हुनेछ",
+                "अभिभावक-शिक्षक बैठक: चैत ५, २०८३",
+                "सरकारी माध्यमिक विद्यालय — लिखु गाउँपालिका वडा नं. ४, चौघडा, नुवाकोट"
+              ] : [
                 "Admissions Open for Class 1 to 12 — AY 2026/2027",
                 "SEE Exam Routine Published — Check Notice Board",
                 "Annual Prize Distribution Ceremony on Baisakh 22, 2083",
                 "Parent-Teacher Meeting: Chaitra 5, 2083",
                 "Government Secondary School — Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot"
               ];
+              const items = marqueeNotices && marqueeNotices.length > 0 ? marqueeNotices : defaultItems;
               const duplicated = [...items, ...items];
               return duplicated.map((title, idx) => (
                 <span key={idx} className="inline-block mr-12 whitespace-nowrap flex-shrink-0">

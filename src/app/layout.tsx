@@ -41,7 +41,7 @@ export default async function RootLayout({
           <Navbar contact={contact} programs={programs} marqueeNotices={marqueeNotices} />
           <ScholarshipPopup scholarships={scholarships} />
           <main className="flex-1">{children}</main>
-          <Footer />
+          <Footer contact={contact} lang={lang} />
         </LanguageProvider>
         <div id="google_translate_element" style={{ display: 'none' }} />
         <Script
