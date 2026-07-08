@@ -251,7 +251,7 @@ function correctPlaceholder(value: string, field: "phone" | "address"): string {
 
 function wpautop(text: string): string {
   if (!text) return "";
-  let normalized = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+  const normalized = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
   if (/<p>|<br\s*\/?>/i.test(normalized)) {
     return normalized;
   }
@@ -356,6 +356,10 @@ const DEFAULT_CMS_NEPALI_MAP: Record<string, string> = {
   "850+": "८५०+",
   "100%": "१००%",
   "60+": "६०+",
+  "600+": "६००+",
+  "30+": "३०+",
+  "93%+": "९३%+",
+  "50+": "५०+",
 
   // Admissions
   "Admissions Open!": "भर्ना खुल्यो!",
@@ -431,6 +435,16 @@ function translateText(text: string, lang?: string): string {
   return text;
 }
 
+function cleanNepaliPrincipalMessage(message: string): string {
+  if (!message) return message;
+  // Remove "क्षेत्रपाल माध्यमिक विद्यालय, लिखु ४, चौघडा नुवाकोट, नेपाल।" (with variations in spaces, newlines, and br tags)
+  const regex = /क्षेत्रपाल\s*माध्यमिक\s*विद्यालय,?\s*(?:<br\s*\/?>|\n|\r|\s)*लिखु\s*[४4],?\s*चौघडा\s*नुवाकोट,?\s*नेपाल।?/gi;
+  let cleaned = message.replace(regex, "");
+  // Clean up potential trailing <br/>, commas, or extra newlines/spaces at the end of the message
+  cleaned = cleaned.replace(/(?:<br\s*\/?>|\n|\r|\s|,।)+$/, "");
+  return cleaned;
+}
+
 function normalizeHomepageData(payload: Partial<HomepageCmsData> | null | undefined, wpOrigin: string, lang?: string): HomepageCmsData {
   const safePayload = payload ?? {};
   
@@ -466,7 +480,13 @@ function normalizeHomepageData(payload: Partial<HomepageCmsData> | null | undefi
     principal: {
       name: translateText(safePayload.principal?.name ? sanitizeText(safePayload.principal.name) : "", lang),
       title: translateText(safePayload.principal?.title ? sanitizeText(safePayload.principal.title) : "", lang),
-      message: translateText(safePayload.principal?.message ? wpautop(safePayload.principal.message) : "", lang),
+      message: (() => {
+        let msg = translateText(safePayload.principal?.message ? wpautop(safePayload.principal.message) : "", lang);
+        if (lang === "ne") {
+          msg = cleanNepaliPrincipalMessage(msg);
+        }
+        return msg;
+      })(),
       photoUrl: safePayload.principal?.photoUrl ? normalizeCmsUrl(safePayload.principal.photoUrl, wpOrigin) : "",
       designation: translateText(safePayload.principal?.designation ? sanitizeText(safePayload.principal.designation) : "", lang),
       link: safePayload.principal?.link ? normalizeCmsUrl(safePayload.principal.link, wpOrigin) : "",
@@ -674,10 +694,10 @@ export async function getHomepageCmsDataWithStatus(lang?: string): Promise<Homep
             twitterUrl: "#",
           },
           stats: [
-            { value: "1,200+", label: "Students" },
-            { value: "55+", label: "Expert Staff" },
-            { value: "98%", label: "Pass Rate" },
-            { value: "35+", label: "Years Legacy" },
+            { value: "600+", label: "Students" },
+            { value: "30+", label: "Expert Staff" },
+            { value: "93%+", label: "Pass Rate" },
+            { value: "50+", label: "Years Legacy" },
           ],
         }, wpOrigin, lang),
       };
@@ -715,10 +735,10 @@ export async function getHomepageCmsDataWithStatus(lang?: string): Promise<Homep
             twitterUrl: "#",
           },
           stats: [
-            { value: "1,200+", label: "Students" },
-            { value: "55+", label: "Expert Staff" },
-            { value: "98%", label: "Pass Rate" },
-            { value: "35+", label: "Years Legacy" },
+            { value: "600+", label: "Students" },
+            { value: "30+", label: "Expert Staff" },
+            { value: "93%+", label: "Pass Rate" },
+            { value: "50+", label: "Years Legacy" },
           ],
         }, wpOrigin, lang),
       };

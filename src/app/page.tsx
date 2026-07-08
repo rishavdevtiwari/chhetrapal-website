@@ -60,10 +60,10 @@ const fallbackEvents = [
 ];
 
 const fallbackStats = [
-  { value: "35+", label: "Academic Staff" },
-  { value: "850+", label: "Active Students" },
-  { value: "100%", label: "SEE Pass Rate" },
-  { value: "60+", label: "Years of History" },
+  { value: "600+", label: "Students" },
+  { value: "30+", label: "Expert Staff" },
+  { value: "93%+", label: "Pass Rate" },
+  { value: "50+", label: "Years Legacy" },
 ];
 
 const fallbackPrincipal: CmsPrincipal = {
