@@ -18,14 +18,14 @@ export default async function AboutPage() {
   const hero = cmsData?.hero;
   const principal = cmsData?.principal;
 
-  const principalName = principal?.name || (lang === "ne" ? "हरि प्रसाद सुवेदी" : "Hari Prasad Subedi");
+  const principalName = principal?.name || (lang === "ne" ? "हरिप्रसाद सुवेदी" : "Hari Prasad Subedi");
   const principalDesignation = principal?.designation || (lang === "ne" ? "प्रधानाध्यापक" : "Principal");
 
   const team = [
-    { name: lang === "ne" ? "श्री हरि प्रसाद सुवेदी" : "Mr. Hari Prasad Subedi", role: "Principal" },
-    { name: "Ms. Sita Karki", role: "Vice Principal" },
-    { name: "Mr. Nabin Shrestha", role: "Academic Coordinator" },
-    { name: "Ms. Gita Bhandari", role: "Administrative Head" },
+    { name: lang === "ne" ? "हरिप्रसाद सुवेदी" : "Hari Prasad Subedi", role: "Principal" },
+    { name: lang === "ne" ? "बलराम प्याकुरेल" : "Balram Pyakurel", role: "Assistant Principal" },
+    { name: lang === "ne" ? "शिवराम ढकाल" : "Shivaram Dhakal", role: "Assistant Principal" },
+    { name: lang === "ne" ? "अर्जुनप्रसाद पौडेल" : "Arjun Prasad Paudel", role: "Accountant" },
   ];
 
   return (
@@ -153,7 +153,7 @@ export default async function AboutPage() {
           </div>
           <div className="p-5 md:p-6 grid md:grid-cols-[160px_1fr] gap-6 items-start">
             <div className="relative w-40 h-44 rounded-sm overflow-hidden border border-gray-200 mx-auto md:mx-0">
-              <Image src={principal?.photoUrl || "/teacher-teaching-students.jpeg"} alt={principalName} fill className="object-cover" sizes="160px" />
+              <Image src={principal?.photoUrl || "/hari_sir_chhetrapal.jpeg"} alt={principalName} fill className="object-cover" sizes="160px" />
             </div>
             <div className="text-sm text-gray-600 leading-relaxed space-y-3">
               {principal?.message ? (
@@ -217,11 +217,10 @@ export default async function AboutPage() {
                 </div>
                 <h3 className="text-[#1a3a6b] text-sm font-bold leading-tight">{member.name}</h3>
                 <p className="text-xs text-gray-500 uppercase tracking-wide mt-1">
-                  {member.role === "Principal" && lang === "ne" ? "प्रधानाध्यापक" :
-                   member.role === "Vice Principal" && lang === "ne" ? "सहायक प्रधानाध्यापक" :
-                   member.role === "Academic Coordinator" && lang === "ne" ? "शैक्षिक संयोजक" :
-                   member.role === "Administrative Head" && lang === "ne" ? "प्रशासनिक प्रमुख" :
-                   member.role}
+                   {member.role === "Principal" && lang === "ne" ? "प्रधानाध्यापक" :
+                    member.role === "Assistant Principal" && lang === "ne" ? "सहायक प्रधानाध्यापक" :
+                    member.role === "Accountant" && lang === "ne" ? "लेखापाल" :
+                    member.role}
                 </p>
               </article>
             ))}

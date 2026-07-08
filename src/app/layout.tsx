@@ -19,8 +19,8 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Chhetrapal Secondary School | क्षेत्रपाल माध्यमिक विद्यालय | Nuwakot, Nepal",
   description:
-    "Official website of Chhetrapal Secondary School (क्षेत्रपाल माध्यमिक विद्यालय), Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot, Bagmati Province, Nepal. CDC/NEB Reg. No: 28018. Admissions open. Contact: 9851181243.",
-  keywords: "Chhetrapal Secondary School, Nepal school, Nuwakot school, Likhu Rural Municipality, Chaughada, SEE exam, NEB affiliated, government school, 28018",
+    "Official website of Chhetrapal Secondary School (क्षेत्रपाल माध्यमिक विद्यालय), Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot, Bagmati Province, Nepal. CDC/NEB Reg. No: 28018, EMIS Code: 280130009. Admissions open. Contact: 9851181243.",
+  keywords: "Chhetrapal Secondary School, Nepal school, Nuwakot school, Likhu Rural Municipality, Chaughada, SEE exam, NEB affiliated, government school, 28018, 280130009, EMIS",
 };
 
 export default async function RootLayout({

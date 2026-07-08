@@ -23,8 +23,8 @@ const XIcon = () => (
 export default async function Footer() {
   const cmsData = await getHomepageCmsData();
   const contact = cmsData?.contact;
-  const facebookUrl = contact?.facebookUrl && contact.facebookUrl !== "#" ? contact.facebookUrl : "https://facebook.com";
-  const youtubeUrl = contact?.youtubeUrl && contact.youtubeUrl !== "#" ? contact.youtubeUrl : "https://youtube.com";
+  const facebookUrl = contact?.facebookUrl && contact.facebookUrl !== "#" ? contact.facebookUrl : "https://www.facebook.com/chhetrapal.mavi/";
+  const youtubeUrl = contact?.youtubeUrl && contact.youtubeUrl !== "#" ? contact.youtubeUrl : "https://www.youtube.com/@kshetrapalbasicschool6645";
   const twitterUrl = contact?.twitterUrl && contact.twitterUrl !== "#" ? contact.twitterUrl : "https://twitter.com";
 
   return (

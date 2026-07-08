@@ -482,8 +482,8 @@ export async function getHomepageCmsDataWithStatus(lang?: string): Promise<Homep
             phone: "9851181243",
             email: "info@chhetrapalschool.edu.np",
             mapUrl: "",
-            facebookUrl: "#",
-            youtubeUrl: "#",
+            facebookUrl: "https://www.facebook.com/chhetrapal.mavi/",
+            youtubeUrl: "https://www.youtube.com/@kshetrapalbasicschool6645",
             twitterUrl: "#",
           },
           stats: [
@@ -523,8 +523,8 @@ export async function getHomepageCmsDataWithStatus(lang?: string): Promise<Homep
             phone: "9851181243",
             email: "info@chhetrapalschool.edu.np",
             mapUrl: "",
-            facebookUrl: "#",
-            youtubeUrl: "#",
+            facebookUrl: "https://www.facebook.com/chhetrapal.mavi/",
+            youtubeUrl: "https://www.youtube.com/@kshetrapalbasicschool6645",
             twitterUrl: "#",
           },
           stats: [

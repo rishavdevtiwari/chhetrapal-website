@@ -47,8 +47,8 @@ export default function Navbar({ contact, programs, marqueeNotices }: NavbarProp
 
   const topPhone = contact?.phone || "9851181243";
   const topEmail = contact?.email || "info@chhetrapalschool.edu.np";
-  const facebookUrl = contact?.facebookUrl && contact.facebookUrl !== "#" ? contact.facebookUrl : "https://facebook.com";
-  const youtubeUrl = contact?.youtubeUrl && contact.youtubeUrl !== "#" ? contact.youtubeUrl : "https://youtube.com";
+  const facebookUrl = contact?.facebookUrl && contact.facebookUrl !== "#" ? contact.facebookUrl : "https://www.facebook.com/chhetrapal.mavi/";
+  const youtubeUrl = contact?.youtubeUrl && contact.youtubeUrl !== "#" ? contact.youtubeUrl : "https://www.youtube.com/@kshetrapalbasicschool6645";
   const twitterUrl = contact?.twitterUrl && contact.twitterUrl !== "#" ? contact.twitterUrl : "https://twitter.com";
 
   const academicChildren = programs && programs.length > 0
@@ -166,7 +166,7 @@ export default function Navbar({ contact, programs, marqueeNotices }: NavbarProp
             <div className="text-right">
               <div className="text-xs text-gray-400 uppercase tracking-widest">Affiliated To</div>
               <div className="text-sm font-bold text-[#1a3a6b]">CDC / NEB Nepal</div>
-              <div className="text-xs text-gray-500">Reg. No: 28018</div>
+              <div className="text-xs text-gray-500">Reg. No: 28018 | EMIS Code: 280130009</div>
             </div>
           </div>
         </div>

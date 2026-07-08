@@ -35,7 +35,7 @@ const fallbackHero = {
   eyebrow: "Government Secondary School • Est. 2016 BS",
   title: "Chhetrapal Secondary School",
   subtitle: "क्षेत्रपाल माध्यमिक विद्यालय",
-  description: "Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot, Bagmati Province, Nepal\nAffiliated to National Examination Board (NEB) | Reg. No: 28018",
+  description: "Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot, Bagmati Province, Nepal\nAffiliated to National Examination Board (NEB) | Reg. No: 28018 | EMIS Code: 280130009",
 };
 
 
@@ -70,7 +70,7 @@ const fallbackPrincipal: CmsPrincipal = {
   name: "Hari Prasad Subedi",
   title: "Principal's Welcome Message",
   message: "Respected parents, teachers, staff and dear students, I warmly welcome you all to the official website of Chhetrapal Secondary School, the oldest and historical educational heritage of Nuwakot district.",
-  photoUrl: "/teacher-teaching-students.jpeg",
+  photoUrl: "/hari_sir_chhetrapal.jpeg",
   designation: "Principal",
 };
 
@@ -165,7 +165,7 @@ export default async function Home() {
     message: isNe
       ? "नुवाकोट जिल्लाकै पुरानो र ऐतिहासिक शैक्षिक धरोहर क्षेत्रपाल माध्यमिक विद्यालय को आधिकारिक वेबसाइटमा यहाँहरू सबैलाई हार्दिक स्वागत गर्दछु। वि.सं. २०१६ सालदेखि सुरु भएको यस विद्यालयको शैक्षिक यात्रा आज यो उचाइमा आइपुग्नुमा यस क्षेत्रका बुद्धिजीवी, शिक्षाप्रेमी, आदरणीय अभिभावक र शिक्षक शिक्षिकाहरूको अथक प्रयास, त्याग र समर्पणको परिणाम हो।"
       : "I warmly welcome you all to the official website of Chhetrapal Secondary School, the oldest and historical educational heritage of Nuwakot district. The educational journey of this school, which began in 2016, is the result of the tireless efforts, sacrifice and dedication of the intellectuals, education lovers, respected parents and teachers of this area.",
-    photoUrl: "/teacher-teaching-students.jpeg",
+    photoUrl: "/hari_sir_chhetrapal.jpeg",
     designation: isNe ? "प्रधानाध्यापक" : "Principal",
     link: "/about#principal",
   };
@@ -286,7 +286,7 @@ export default async function Home() {
                 <div className="flex flex-shrink-0 flex-col items-center gap-2">
                   <div className="relative h-36 w-32 overflow-hidden rounded border border-gray-200 bg-gray-100">
                     <Image
-                      src={principal.photoUrl || "/teacher-teaching-students.jpeg"}
+                      src={principal.photoUrl || "/hari_sir_chhetrapal.jpeg"}
                       alt={principal.name}
                       fill
                       className="object-cover"
