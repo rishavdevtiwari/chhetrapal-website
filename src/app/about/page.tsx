@@ -174,8 +174,6 @@ export default async function AboutPage() {
                       <div className="mt-4 pt-2 not-italic text-xs border-t border-gray-100 text-gray-500">
                         <span className="block font-bold">हरि प्रसाद सुवेदी</span>
                         <span className="block">प्रधानाध्यापक</span>
-                        <span className="block">क्षेत्रपाल माध्यमिक विद्यालय,</span>
-                        <span className="block">लिखु ४, चौघडा नुवाकोट, नेपाल।</span>
                       </div>
                     </>
                   ) : (
