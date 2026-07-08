@@ -249,7 +249,25 @@ function correctPlaceholder(value: string, field: "phone" | "address"): string {
   return value;
 }
 
-function normalizeHomepageData(payload: Partial<HomepageCmsData> | null | undefined, wpOrigin: string): HomepageCmsData {
+function wpautop(text: string): string {
+  if (!text) return "";
+  let normalized = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+  if (/<p>|<br\s*\/?>/i.test(normalized)) {
+    return normalized;
+  }
+  return normalized
+    .split(/\n\n+/)
+    .map((paragraph) => {
+      const pText = paragraph.trim();
+      if (!pText) return "";
+      const withBreaks = pText.replace(/\n/g, "<br/>");
+      return `<p>${withBreaks}</p>`;
+    })
+    .filter(Boolean)
+    .join("");
+}
+
+function normalizeHomepageData(payload: Partial<HomepageCmsData> | null | undefined, wpOrigin: string, lang?: string): HomepageCmsData {
   const safePayload = payload ?? {};
   
   let heroTitle = safePayload.hero?.title ? sanitizeText(safePayload.hero.title) : "";
@@ -279,7 +297,7 @@ function normalizeHomepageData(payload: Partial<HomepageCmsData> | null | undefi
     principal: {
       name: safePayload.principal?.name ? sanitizeText(safePayload.principal.name) : "",
       title: safePayload.principal?.title ? sanitizeText(safePayload.principal.title) : "",
-      message: safePayload.principal?.message ? sanitizeText(safePayload.principal.message) : "",
+      message: safePayload.principal?.message ? wpautop(safePayload.principal.message) : "",
       photoUrl: safePayload.principal?.photoUrl ? normalizeCmsUrl(safePayload.principal.photoUrl, wpOrigin) : "",
       designation: safePayload.principal?.designation ? sanitizeText(safePayload.principal.designation) : "",
       link: safePayload.principal?.link ? normalizeCmsUrl(safePayload.principal.link, wpOrigin) : "",
@@ -434,7 +452,7 @@ export async function getHomepageCmsDataWithStatus(lang?: string): Promise<Homep
       "X-Chhetrapal-Internal-Token": internalToken,
     });
     return {
-      data: normalizeHomepageData(payload, wpOrigin),
+      data: normalizeHomepageData(payload, wpOrigin, lang),
       sourceStatus: "cms",
     };
   } catch {

@@ -303,11 +303,6 @@ export default async function Home() {
                     className="mb-3 border-l-4 border-[#e8841a] py-1 pl-4 text-sm leading-relaxed italic text-gray-600 prose prose-sm"
                     dangerouslySetInnerHTML={{ __html: principalMessage }}
                    />
-                  <p className="text-sm leading-relaxed text-gray-600">
-                    {isNe
-                      ? "हाम्रो मुख्य उद्देश्य केवल किताबी ज्ञान दिनु मात्र होइन, बरु विद्यार्थीहरूमा लुकेको प्रतिभालाई प्रस्फुटन गराई उनीहरूलाई नैतिकवान्, आत्मनिर्भर र समाजप्रति उत्तरदायी नागरिक बनाउनु हो।"
-                      : "Our main objective is not only to impart bookish knowledge, but also to make the students moral, self-reliant and socially responsible citizens by bringing out the hidden talent in them."}
-                  </p>
                   <a href={principal.link || "#"} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#e8841a] hover:underline">
                     {isNe ? "पूरा सन्देश पढ्नुहोस्" : "Read Full Message"} <ChevronRight className="h-4 w-4" />
                   </a>
