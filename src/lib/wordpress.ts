@@ -215,6 +215,43 @@ function rewriteHtmlMediaPaths(html: string, wpOrigin: string): string {
   return rewritten;
 }
 
+function stripDuplicateImageFromHtml(html: string, featuredImageUrl: string): string {
+  if (!html) return "";
+  if (!featuredImageUrl) return html;
+
+  let filename = featuredImageUrl;
+  try {
+    const parts = featuredImageUrl.split('/');
+    filename = parts[parts.length - 1];
+  } catch {
+    // Fallback to full comparison
+  }
+
+  if (!filename) return html;
+
+  const escapedFilename = filename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  const figureRegex = new RegExp(
+    `<figure[^>]*>\\s*(?:<a[^>]*>\\s*)?<img[^>]+src=["\'][^"\']*` +
+    escapedFilename +
+    `[^"\']*["\'][^>]*>\\s*(?:<\/a>\\s*)?<\/figure>`,
+    'gi'
+  );
+  let cleaned = html.replace(figureRegex, "");
+
+  const imgRegex = new RegExp(
+    `<img[^>]+src=["\'][^"\']*` +
+    escapedFilename +
+    `[^"\']*["\'][^>]*>`,
+    'gi'
+  );
+  cleaned = cleaned.replace(imgRegex, "");
+
+  cleaned = cleaned.replace(/<p>\s*<\/p>/gi, "");
+
+  return cleaned;
+}
+
 function sanitizeText(value: string): string {
   return value.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
 }
@@ -509,24 +546,30 @@ function normalizeHomepageData(payload: Partial<HomepageCmsData> | null | undefi
         title: translateText(sanitizeText(photo.title), lang),
         link: normalizeCmsUrl(photo.link, wpOrigin),
       })),
-    alumni: (safePayload.alumni ?? []).map((person) => ({
-      ...person,
-      name: translateText(sanitizeText(person.name), lang),
-      year: translateText(sanitizeText(person.year), lang),
-      achievement: translateText(sanitizeText(person.achievement), lang),
-      bio: translateText(person.bio ? rewriteHtmlMediaPaths(person.bio, wpOrigin) : "", lang),
-      photoUrl: normalizeCmsUrl(person.photoUrl, wpOrigin),
-      link: normalizeCmsUrl(person.link, wpOrigin),
-    })),
-    scholarships: (safePayload.scholarships ?? []).map((winner) => ({
-      ...winner,
-      studentName: translateText(sanitizeText(winner.studentName), lang),
-      scholarshipTitle: translateText(sanitizeText(winner.scholarshipTitle), lang),
-      year: translateText(sanitizeText(winner.year), lang),
-      details: translateText(winner.details ? rewriteHtmlMediaPaths(winner.details, wpOrigin) : "", lang),
-      photoUrl: normalizeCmsUrl(winner.photoUrl, wpOrigin),
-      link: normalizeCmsUrl(winner.link, wpOrigin),
-    })),
+    alumni: (safePayload.alumni ?? []).map((person) => {
+      const photoUrl = normalizeCmsUrl(person.photoUrl, wpOrigin);
+      return {
+        ...person,
+        name: translateText(sanitizeText(person.name), lang),
+        year: translateText(sanitizeText(person.year), lang),
+        achievement: translateText(sanitizeText(person.achievement), lang),
+        bio: translateText(person.bio ? stripDuplicateImageFromHtml(rewriteHtmlMediaPaths(person.bio, wpOrigin), photoUrl) : "", lang),
+        photoUrl,
+        link: normalizeCmsUrl(person.link, wpOrigin),
+      };
+    }),
+    scholarships: (safePayload.scholarships ?? []).map((winner) => {
+      const photoUrl = normalizeCmsUrl(winner.photoUrl, wpOrigin);
+      return {
+        ...winner,
+        studentName: translateText(sanitizeText(winner.studentName), lang),
+        scholarshipTitle: translateText(sanitizeText(winner.scholarshipTitle), lang),
+        year: translateText(sanitizeText(winner.year), lang),
+        details: translateText(winner.details ? stripDuplicateImageFromHtml(rewriteHtmlMediaPaths(winner.details, wpOrigin), photoUrl) : "", lang),
+        photoUrl,
+        link: normalizeCmsUrl(winner.link, wpOrigin),
+      };
+    }),
     contact: {
       address: translateText(safePayload.contact?.address ? correctPlaceholder(sanitizeText(safePayload.contact.address), "address") : "", lang),
       phone: safePayload.contact?.phone ? correctPlaceholder(sanitizeText(safePayload.contact.phone), "phone") : "",

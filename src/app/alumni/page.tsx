@@ -38,9 +38,11 @@ export default async function AlumniPage() {
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {alumni.map((person) => (
               <article key={person.name} className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm flex flex-col h-full">
-                <div className="relative aspect-[4/3] bg-gray-100 flex-shrink-0">
-                  <Image src={person.photoUrl || "/teacher-teaching-students.jpeg"} alt={person.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
-                </div>
+                {person.photoUrl && (
+                  <div className="relative aspect-[4/3] bg-gray-100 flex-shrink-0">
+                    <Image src={person.photoUrl} alt={person.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+                  </div>
+                )}
                 <div className="p-5 flex flex-col flex-1">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e8841a]">
                     {person.year ? (isNe ? `${person.year} ब्याज` : `Class of ${person.year}`) : (isNe ? "पूर्व विद्यार्थी" : "Alumni")}

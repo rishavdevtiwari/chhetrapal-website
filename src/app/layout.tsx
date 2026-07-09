@@ -35,7 +35,7 @@ export default async function RootLayout({
   const marqueeNotices = cmsData?.marqueeNotices ?? [];
 
   return (
-    <html lang={lang} className={`${inter.variable}`}>
+    <html lang={lang} className={`${inter.variable}`} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col antialiased">
         <LanguageProvider initialLanguage={lang}>
           <Navbar contact={contact} programs={programs} marqueeNotices={marqueeNotices} />

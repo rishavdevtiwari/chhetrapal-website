@@ -40,15 +40,17 @@ export default async function ScholarshipsPage() {
                 key={`${winner.studentName}-${winner.year}-${winner.scholarshipTitle}`}
                 className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm flex flex-col h-full"
               >
-                <div className="relative aspect-[16/10] bg-gray-100 flex-shrink-0">
-                  <Image
-                    src={winner.photoUrl || "/student-showcasing-project.jpeg"}
-                    alt={winner.studentName}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                </div>
+                {winner.photoUrl && (
+                  <div className="relative aspect-[16/10] bg-gray-100 flex-shrink-0">
+                    <Image
+                      src={winner.photoUrl}
+                      alt={winner.studentName}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                  </div>
+                )}
                 <div className="p-5 flex flex-col flex-1">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e8841a]">
                     {winner.year ? (isNe ? `${winner.year} शैक्षिक वर्ष` : `Academic Year ${winner.year}`) : (isNe ? "छात्रवृत्ति" : "Scholarship")}

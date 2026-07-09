@@ -26,7 +26,7 @@ final class Chhetrapal_School_CMS {
     private const CPT_GALLERY = 'chhetrapal_gallery';
     private const CPT_CONTACT = 'chhetrapal_contact';
     private const CPT_ALUMNI = 'chhetrapal_alumni';
-    private const CPT_SCHOLARSHIP = 'chhetrapal_scholarship';
+    private const CPT_SCHOLARSHIP = 'chhetrapal_scholar';
     private const CPT_ROUTINE = 'chhetrapal_routine';
     private const CPT_ADMISSION = 'chhetrapal_admission';
     private const CPT_INQUIRY = 'chhetrapal_inquiry';
@@ -50,7 +50,10 @@ final class Chhetrapal_School_CMS {
         add_action('wp_dashboard_setup', [$instance, 'register_dashboard_widget']);
         add_action('admin_menu', [$instance, 'register_admin_pages']);
         add_action('admin_menu', [$instance, 'prune_admin_menu'], 999);
+        add_action('admin_enqueue_scripts', [$instance, 'enqueue_admin_assets']);
         add_filter('rest_authentication_errors', [$instance, 'restrict_rest_api_access']);
+        add_filter('manage_chhetrapal_inquiry_posts_columns', [$instance, 'set_inquiry_columns']);
+        add_action('manage_chhetrapal_inquiry_posts_custom_column', [$instance, 'render_inquiry_columns'], 10, 2);
         register_activation_hook(__FILE__, [__CLASS__, 'activate']);
     }
 
@@ -62,6 +65,13 @@ final class Chhetrapal_School_CMS {
         if (defined('REST_REQUEST') && REST_REQUEST) {
             return;
         }
+    }
+
+    public function enqueue_admin_assets(string $hook): void {
+        if (in_array($hook, ['post.php', 'post-new.php'])) {
+            wp_enqueue_media();
+        }
+    }
 
         if (isset($_GET['rest_route'])) {
             return;
@@ -108,7 +118,7 @@ final class Chhetrapal_School_CMS {
         $this->register_post_type(self::CPT_SCHOLARSHIP, 'Scholarships', 'Scholarship Winner', 'dashicons-welcome-learn-more');
         $this->register_post_type(self::CPT_ROUTINE, 'Class Routines', 'Class Routine Day', 'dashicons-calendar-alt');
         $this->register_post_type(self::CPT_ADMISSION, 'Admissions', 'Admission Opening', 'dashicons-welcome-write-blog');
-        $this->register_post_type(self::CPT_INQUIRY, 'Admission Inquiries', 'Admission Inquiry', 'dashicons-feedback');
+        $this->register_post_type(self::CPT_INQUIRY, 'Inquiries & Messages', 'Inquiry', 'dashicons-feedback');
 
         $this->register_taxonomy(self::TAX_NOTICE_TYPE, [self::CPT_NOTICE], 'Notice Types');
         $this->register_taxonomy(self::TAX_STAFF_ROLE, [self::CPT_STAFF], 'Staff Roles');
@@ -171,6 +181,7 @@ final class Chhetrapal_School_CMS {
         register_post_meta(self::CPT_PROGRAM, 'chhetrapal_subtitle', $meta_args);
         register_post_meta(self::CPT_FACILITY, 'chhetrapal_subtitle', $meta_args);
         register_post_meta(self::CPT_ALUMNI, 'chhetrapal_alumni_year', $meta_args);
+        register_post_meta(self::CPT_ALUMNI, 'chhetrapal_alumni_featured', $meta_args);
         register_post_meta(self::CPT_SCHOLARSHIP, 'chhetrapal_scholarship_year', $meta_args);
         register_post_meta(self::CPT_NOTICE, 'chhetrapal_notice_in_marquee', $meta_args);
         register_post_meta(self::CPT_ROUTINE, 'chhetrapal_period_1', $meta_args);
@@ -247,6 +258,24 @@ final class Chhetrapal_School_CMS {
             self::CPT_ADMISSION,
             'normal',
             'default'
+        );
+
+        add_meta_box(
+            'chhetrapal-alumni-details',
+            'Alumni Details',
+            [$this, 'render_alumni_meta_box'],
+            self::CPT_ALUMNI,
+            'normal',
+            'default'
+        );
+
+        add_meta_box(
+            'chhetrapal-notice-guide',
+            'Notice Board Guide & Publishing Tips',
+            [$this, 'render_notice_guide_meta_box'],
+            self::CPT_NOTICE,
+            'normal',
+            'high'
         );
     }
 
@@ -361,11 +390,39 @@ final class Chhetrapal_School_CMS {
         $file_url = get_post_meta($post->ID, 'chhetrapal_file_url', true);
         $file_label = get_post_meta($post->ID, 'chhetrapal_file_label', true);
 
-        echo '<p><label for="chhetrapal_file_label"><strong>Button label</strong></label><br />';
-        echo '<input type="text" id="chhetrapal_file_label" name="chhetrapal_file_label" value="' . esc_attr($file_label) . '" class="widefat" placeholder="Download PDF" /></p>';
-        echo '<p><label for="chhetrapal_file_url"><strong>File URL</strong></label><br />';
-        echo '<input type="url" id="chhetrapal_file_url" name="chhetrapal_file_url" value="' . esc_attr($file_url) . '" class="widefat" placeholder="https://.../file.pdf" /></p>';
-        echo '<p class="description">Upload the PDF or document in Media Library, then paste the file URL here.</p>';
+        echo '<div style="margin-bottom: 15px;">';
+        echo '<label for="chhetrapal_file_label"><strong>Button Label / टाँसको विवरण (उदा: Download Form)</strong></label><br />';
+        echo '<input type="text" id="chhetrapal_file_label" name="chhetrapal_file_label" value="' . esc_attr($file_label) . '" class="widefat" placeholder="e.g. Download Admission Form, View Syllabus" />';
+        echo '<p class="description"><strong>English:</strong> This label will be shown on the download button on the website.<br /><strong>नेपाली:</strong> यो विवरण वेबसाइटको डाउनलोड बटनमा देखिनेछ।</p>';
+        echo '</div>';
+
+        echo '<div style="margin-bottom: 15px;">';
+        echo '<label for="chhetrapal_file_url"><strong>Upload / Choose File (PDF, Docs, Image) / फाइल अपलोड गर्नुहोस वा छान्नुहोस्</strong></label><br />';
+        echo '<div style="display: flex; gap: 10px; margin-top: 5px;">';
+        echo '<input type="text" id="chhetrapal_file_url" name="chhetrapal_file_url" value="' . esc_attr($file_url) . '" style="flex-grow: 1;" placeholder="https://.../file.pdf" />';
+        echo '<button type="button" id="chhetrapal_upload_file_btn" class="button button-secondary">Select / Upload File</button>';
+        echo '</div>';
+        echo '<p class="description"><strong>English:</strong> Upload a document (PDF, Excel, Word, etc.) directly using the button above. The URL will populate automatically, syncing to the downloads page.<br /><strong>नेपाली:</strong> माथिको बटन प्रयोग गरी फाइल (PDF, Excel, Word, आदि) सिधै अपलोड गर्नुहोस्। लिङ्क स्वतः भरिनेछ र वेबसाइटमा देखा पर्नेछ।</p>';
+        echo '</div>';
+        ?>
+        <script type="text/javascript">
+        jQuery(document).ready(function($){
+            $('#chhetrapal_upload_file_btn').click(function(e) {
+                e.preventDefault();
+                var imageFrame = wp.media({
+                    title: 'Select or Upload Download File',
+                    multiple: false,
+                    library: {
+                        type: ['application', 'image', 'text', 'video', 'audio']
+                    }
+                }).on('select', function() {
+                    var attachment = imageFrame.state().get('selection').first().toJSON();
+                    $('#chhetrapal_file_url').val(attachment.url);
+                }).open();
+            });
+        });
+        </script>
+        <?php
     }
 
     public function render_contact_meta_box(WP_Post $post): void {
@@ -420,16 +477,85 @@ final class Chhetrapal_School_CMS {
         wp_nonce_field('chhetrapal_save_scholarship_meta', 'chhetrapal_scholarship_nonce');
         $year = get_post_meta($post->ID, 'chhetrapal_scholarship_year', true);
 
-        echo '<p><label for="chhetrapal_scholarship_year"><strong>Scholarship Year</strong></label><br />';
-        echo '<input type="text" id="chhetrapal_scholarship_year" name="chhetrapal_scholarship_year" value="' . esc_attr($year) . '" class="widefat" placeholder="2026" /></p>';
-        echo '<p class="description">Use the post title as student name and the excerpt as scholarship title.</p>';
+        echo '<p><label for="chhetrapal_scholarship_year"><strong>Scholarship Year / शैक्षिक वर्ष</strong></label><br />';
+        echo '<input type="text" id="chhetrapal_scholarship_year" name="chhetrapal_scholarship_year" value="' . esc_attr($year) . '" class="widefat" placeholder="e.g. 2083, 2026" /></p>';
+        
+        echo '<div style="margin-top: 15px; padding: 12px; background: #f9f9f9; border-left: 4px solid #1a3a6b; border-radius: 2px;">';
+        echo '<div style="margin-bottom: 8px;"><strong>Guidance (English):</strong><br />';
+        echo '<ul style="margin: 3px 0 0 15px; padding: 0; list-style-type: disc; line-height: 1.4;">';
+        echo '<li><strong>Title (Name)</strong>: Enter the recipient student\'s name (e.g. "Sujan Bhandari"). It will show as the card title on the website.</li>';
+        echo '<li><strong>Excerpt (Award Title)</strong>: Enter the name of the scholarship (e.g. "District Merit Scholarship"). Displays below the name.</li>';
+        echo '<li><strong>Main Editor (Details)</strong>: Type the description of the student\'s achievement or eligibility. Links and formatting are supported.</li>';
+        echo '<li><strong>Featured Image (Student Photo)</strong>: Upload a portrait of the student. If no image is set, the card displays as text only.</li>';
+        echo '</ul></div>';
+        echo '<div><strong>निर्देशिका (नेपाली):</strong><br />';
+        echo '<ul style="margin: 3px 0 0 15px; padding: 0; list-style-type: disc; line-height: 1.4;">';
+        echo '<li><strong>शीर्षक (नाम)</strong>: विद्यार्थीको पुरा नाम लेख्नुहोस् (उदा: "सुजन भण्डारी")। यो वेबसाइटको कार्ड शीर्षकमा देखिनेछ।</li>';
+        echo '<li><strong>सारांश (छात्रवृत्तिको नाम)</strong>: छात्रवृत्तिको नाम लेख्नुहोस् (उदा: "जिल्ला योग्यता छात्रवृत्ति")। यो नामको मुनि सुन्तला अक्षरमा देखिनेछ।</li>';
+        echo '<li><strong>मुख्य सम्पादक (विवरण)</strong>: विद्यार्थीको उपलब्धि वा नियमहरू लेख्नुहोस्। लिङ्क र ढाँचाहरू प्रयोग गर्न सकिन्छ।</li>';
+        echo '<li><strong>मुख्य तस्बिर (Featured Image)</strong>: विद्यार्थीको तस्बिर अपलोड गर्नुहोस्। तस्बिर नभएमा कार्ड सफासँग केवल पाठमा मात्र देखिनेछ।</li>';
+        echo '</ul></div>';
+        echo '</div>';
+    }
+
+    public function render_alumni_meta_box(WP_Post $post): void {
+        wp_nonce_field('chhetrapal_save_alumni_meta', 'chhetrapal_alumni_nonce');
+        $year = get_post_meta($post->ID, 'chhetrapal_alumni_year', true);
+        $featured = get_post_meta($post->ID, 'chhetrapal_alumni_featured', true);
+
+        echo '<p><label for="chhetrapal_alumni_year"><strong>Graduation Year / शैक्षिक वर्ष (ब्याज)</strong></label><br />';
+        echo '<input type="text" id="chhetrapal_alumni_year" name="chhetrapal_alumni_year" value="' . esc_attr($year) . '" class="widefat" placeholder="e.g. 2080, 2025" /></p>';
+
+        echo '<p><label><input type="checkbox" id="chhetrapal_alumni_featured" name="chhetrapal_alumni_featured" value="1" ' . checked($featured, '1', false) . ' /> ';
+        echo '<strong>Highlight on Homepage / गृहपृष्ठमा देखाउनुहोस्</strong> (Show this profile in the Homepage Alumni Spotlight)</label></p>';
+        
+        echo '<div style="margin-top: 15px; padding: 12px; background: #f9f9f9; border-left: 4px solid #1a3a6b; border-radius: 2px;">';
+        echo '<div style="margin-bottom: 8px;"><strong>Guidance (English):</strong><br />';
+        echo '<ul style="margin: 3px 0 0 15px; padding: 0; list-style-type: disc; line-height: 1.4;">';
+        echo '<li><strong>Title (Name)</strong>: Enter the graduate\'s name. It will show as the card header on the website.</li>';
+        echo '<li><strong>Excerpt (Current Achievement)</strong>: Enter their current profession or studies (e.g. "Doctor at T.U. Teaching Hospital"). Displays below the name.</li>';
+        echo '<li><strong>Main Editor (Biography)</strong>: Write a brief biography of their journey. Links and inline styling will display properly.</li>';
+        echo '<li><strong>Featured Image (Profile Photo)</strong>: Upload a professional headshot. If no photo is uploaded, the layout will hide the image box and display clean text.</li>';
+        echo '</ul></div>';
+        echo '<div><strong>निर्देशिका (नेपाली):</strong><br />';
+        echo '<ul style="margin: 3px 0 0 15px; padding: 0; list-style-type: disc; line-height: 1.4;">';
+        echo '<li><strong>शीर्षक (नाम)</strong>: भूतपूर्व विद्यार्थीको नाम लेख्नुहोस्। यो वेबसाइटको कार्ड शीर्षकमा देखिनेछ।</li>';
+        echo '<li><strong>सारांश (हालको उपलब्धि)</strong>: हालको पेशा वा अध्ययनको क्षेत्र लेख्नुहोस् (उदा: "त्रिवि शिक्षण अस्पतालमा डाक्टर")। यो नामको मुनि देखिनेछ।</li>';
+        echo '<li><strong>मुख्य सम्पादक (जीवनी)</strong>: उहाँको यात्रा र सफलताको बारेमा जीवनी लेख्नुहोस्। लिङ्क र ढाँचाहरू प्रयोग गर्न सकिन्छ।</li>';
+        echo '<li><strong>मुख्य तस्बिर (Featured Image)</strong>: विद्यार्थीको औपचारिक तस्बिर अपलोड गर्नुहोस्। तस्बिर नभएमा जीवनी मात्र सफासँग देखिनेछ।</li>';
+        echo '</ul></div>';
+        echo '</div>';
     }
 
     public function render_notice_marquee_meta_box(WP_Post $post): void {
         wp_nonce_field('chhetrapal_save_notice_marquee_meta', 'chhetrapal_notice_marquee_nonce');
         $in_marquee = get_post_meta($post->ID, 'chhetrapal_notice_in_marquee', true);
         echo '<p><label><input type="checkbox" name="chhetrapal_notice_in_marquee" value="1" ' . checked($in_marquee, '1', false) . ' /> ';
-        echo 'Show this notice in the moving scrolling notice bar below the navbar.</label></p>';
+        echo 'Show in Scrolling Notice Ticker / स्क्रोलिङ सूचना पट्टीमा देखाउनुहोस्</label></p>';
+        echo '<p class="description"><strong>English:</strong> If checked, this notice title will scroll horizontally in the orange alert bar directly beneath the website header navigation.<br /><strong>नेपाली:</strong> चिन्ह लगाएमा, यो सूचनाको शीर्षक वेबसाइटको मेनु मुनि रहेको सुन्तला रङको स्क्रोलिङ सूचना पट्टीमा तेर्सो रूपमा सर्नेछ।</p>';
+    }
+
+    public function render_notice_guide_meta_box(WP_Post $post): void {
+        echo '<div style="padding: 5px; background: #fff;">';
+        echo '<div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee;">';
+        echo '<strong>English Guidance:</strong>';
+        echo '<ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc; line-height: 1.5;">';
+        echo '<li><strong>Title</strong>: Enter a short, clear heading for the announcement.</li>';
+        echo '<li><strong>Notice Type (Categories)</strong>: In the right sidebar, categorize the notice as Notice (blue badge), Event (green badge), or Result (purple badge).</li>';
+        echo '<li><strong>Main Editor</strong>: Write the detailed description. Any attachments, images, or links inserted inside will display on the details popup.</li>';
+        echo '<li><strong>Featured Image</strong>: Upload an image/banner. If set, this image will show as a flyer preview inside the notice popup.</li>';
+        echo '<li><strong>Scrolling Ticker Notice Bar</strong>: Check the checkbox in the side panel to add this notice to the top ticker.</li>';
+        echo '</ul></div>';
+        echo '<div>';
+        echo '<strong>नेपाली निर्देशिका:</strong>';
+        echo '<ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc; line-height: 1.5;">';
+        echo '<li><strong>शीर्षक (Title)</strong>: सूचनाको छोटो र स्पष्ट शीर्षक लेख्नुहोस्।</li>';
+        echo '<li><strong>सूचनाको प्रकार (Categories)</strong>: दायाँ साइडबारमा सूचनाको प्रकार छनोट गर्नुहोस् (Notice: निलो ब्याज, Event: हरियो ब्याज, वा Result: बैजनी ब्याज)।</li>';
+        echo '<li><strong>मुख्य सम्पादक (Editor)</strong>: विस्तृत विवरण लेख्नुहोस्। कुनै फाइल वा लिङ्कहरू थप गरेमा ती वेबसाइटको पपअपमा देखिनेछन्।</li>';
+        echo '<li><strong>मुख्य तस्बिर (Featured Image)</strong>: सूचनाको ब्यानर वा मुख्य तस्बिर अपलोड गर्नुहोस्। यो पपअपमा ब्यानरको रूपमा देखिनेछ।</li>';
+        echo '<li><strong>स्क्रोलिङ सूचना:</strong> दायाँ पट्टीको बक्समा टिक लगाई सूचनालाई मुख्य स्क्रोलिङ बारमा देखाउन सक्नुहुन्छ।</li>';
+        echo '</ul></div>';
+        echo '</div>';
     }
 
     public function render_routine_meta_box(WP_Post $post): void {
@@ -532,6 +658,17 @@ final class Chhetrapal_School_CMS {
             update_post_meta($post_id, 'chhetrapal_scholarship_year', $year);
         }
 
+        if ($post_type === self::CPT_ALUMNI) {
+            if (isset($_POST['chhetrapal_alumni_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['chhetrapal_alumni_nonce'])), 'chhetrapal_save_alumni_meta')) {
+                if (current_user_can('edit_post', $post_id)) {
+                    $year = isset($_POST['chhetrapal_alumni_year']) ? sanitize_text_field(wp_unslash($_POST['chhetrapal_alumni_year'])) : '';
+                    $featured = isset($_POST['chhetrapal_alumni_featured']) ? '1' : '0';
+                    update_post_meta($post_id, 'chhetrapal_alumni_year', $year);
+                    update_post_meta($post_id, 'chhetrapal_alumni_featured', $featured);
+                }
+            }
+        }
+
         if ($post_type === self::CPT_NOTICE) {
             if (isset($_POST['chhetrapal_notice_marquee_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['chhetrapal_notice_marquee_nonce'])), 'chhetrapal_save_notice_marquee_meta')) {
                 if (current_user_can('edit_post', $post_id)) {
@@ -576,6 +713,12 @@ final class Chhetrapal_School_CMS {
         register_rest_route('chhetrapal/v1', '/submit-admission', [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => [$this, 'handle_admission_submission'],
+            'permission_callback' => '__return_true',
+        ]);
+
+        register_rest_route('chhetrapal/v1', '/submit-contact', [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => [$this, 'handle_contact_submission'],
             'permission_callback' => '__return_true',
         ]);
     }
@@ -761,6 +904,7 @@ final class Chhetrapal_School_CMS {
                 'bio' => apply_filters('the_content', $post->post_content),
                 'photoUrl' => $this->get_post_photo_url($post),
                 'link' => '/alumni',
+                'featured' => get_post_meta($post->ID, 'chhetrapal_alumni_featured', true) === '1',
             ];
         }, 50, $lang);
     }
@@ -1044,6 +1188,87 @@ final class Chhetrapal_School_CMS {
             'success' => true,
             'message' => 'Application submitted and saved successfully.'
         ], 200);
+    }
+
+    public function handle_contact_submission(WP_REST_Request $request): WP_REST_Response {
+        $first_name = sanitize_text_field($request->get_param('firstName'));
+        $last_name = sanitize_text_field($request->get_param('lastName'));
+        $email = sanitize_email($request->get_param('email'));
+        $phone = sanitize_text_field($request->get_param('phone'));
+        $subject = sanitize_text_field($request->get_param('subject'));
+        $message = sanitize_textarea_field($request->get_param('message'));
+
+        if (empty($first_name) || empty($last_name) || empty($email) || empty($message)) {
+            return new WP_REST_Response([
+                'success' => false,
+                'message' => 'Missing required fields (First name, Last name, Email, and Message).'
+            ], 400);
+        }
+
+        $title = sprintf('%s %s - %s Contact Inquiry', $first_name, $last_name, $subject);
+        $content = "<h3>Contact Inquiry Details</h3>\n";
+        $content .= "<table style='border-collapse:collapse;width:100%;'>\n";
+        $content .= "<tr><td style='border:1px solid #ddd;padding:8px;background:#f9f9f9;'><strong>First Name</strong></td><td style='border:1px solid #ddd;padding:8px;'>$first_name</td></tr>\n";
+        $content .= "<tr><td style='border:1px solid #ddd;padding:8px;background:#f9f9f9;'><strong>Last Name</strong></td><td style='border:1px solid #ddd;padding:8px;'>$last_name</td></tr>\n";
+        $content .= "<tr><td style='border:1px solid #ddd;padding:8px;background:#f9f9f9;'><strong>Email</strong></td><td style='border:1px solid #ddd;padding:8px;'>$email</td></tr>\n";
+        $content .= "<tr><td style='border:1px solid #ddd;padding:8px;background:#f9f9f9;'><strong>Phone</strong></td><td style='border:1px solid #ddd;padding:8px;'>$phone</td></tr>\n";
+        $content .= "<tr><td style='border:1px solid #ddd;padding:8px;background:#f9f9f9;'><strong>Subject</strong></td><td style='border:1px solid #ddd;padding:8px;'>$subject</td></tr>\n";
+        $content .= "<tr><td style='border:1px solid #ddd;padding:8px;background:#f9f9f9;'><strong>Message</strong></td><td style='border:1px solid #ddd;padding:8px;'>" . nl2br($message) . "</td></tr>\n";
+        $content .= "</table>\n";
+
+        $post_id = wp_insert_post([
+            'post_type' => self::CPT_INQUIRY,
+            'post_title' => $title,
+            'post_content' => $content,
+            'post_status' => 'publish',
+        ]);
+
+        if (is_wp_error($post_id)) {
+            return new WP_REST_Response([
+                'success' => false,
+                'message' => 'Failed to save contact inquiry: ' . $post_id->get_error_message()
+            ], 500);
+        }
+
+        update_post_meta($post_id, 'inquiry_student_name', "$first_name $last_name");
+        update_post_meta($post_id, 'inquiry_grade', 'Contact Form');
+        update_post_meta($post_id, 'inquiry_guardian_phone', $phone);
+        update_post_meta($post_id, 'inquiry_email', $email);
+
+        return new WP_REST_Response([
+            'success' => true,
+            'message' => 'Contact message submitted and saved successfully.'
+        ], 200);
+    }
+
+    public function set_inquiry_columns(array $columns): array {
+        $new_columns = [];
+        $new_columns['cb'] = $columns['cb'];
+        $new_columns['title'] = 'Name & Subject';
+        $new_columns['inquiry_grade'] = 'Type / Grade';
+        $new_columns['inquiry_email'] = 'Email';
+        $new_columns['inquiry_phone'] = 'Phone';
+        $new_columns['date'] = 'Date';
+        return $new_columns;
+    }
+
+    public function render_inquiry_columns(string $column, int $post_id): void {
+        switch ($column) {
+            case 'inquiry_grade':
+                echo esc_html(get_post_meta($post_id, 'inquiry_grade', true) ?: 'General');
+                break;
+            case 'inquiry_email':
+                $email = get_post_meta($post_id, 'inquiry_email', true);
+                if ($email) {
+                    echo '<a href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a>';
+                } else {
+                    echo '—';
+                }
+                break;
+            case 'inquiry_phone':
+                echo esc_html(get_post_meta($post_id, 'inquiry_phone', true) ?: '—');
+                break;
+        }
     }
 
     private function detect_notice_tag(int $post_id): string {

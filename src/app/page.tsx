@@ -177,7 +177,12 @@ export default async function Home() {
   }));
   const downloads = cmsData?.downloads?.length ? cmsData.downloads : fallbackDownloads;
   const galleryImages = cmsData?.gallery?.some((photo) => Boolean(photo.src)) ? cmsData.gallery : fallbackGalleryImages;
-  const alumni = cmsData?.alumni?.length ? cmsData.alumni : fallbackAlumni;
+  const alumniRaw = cmsData?.alumni ?? [];
+  const alumni = [...alumniRaw].sort((a, b) => {
+    const aFeatured = (a as any).featured ? 1 : 0;
+    const bFeatured = (b as any).featured ? 1 : 0;
+    return bFeatured - aFeatured;
+  });
   const contact = cmsData?.contact ?? fallbackContact;
   const principalMessage = sanitizeHtml(principal.message);
 
@@ -366,55 +371,61 @@ export default async function Home() {
               </div>
             </section>
 
-            <section className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
-              <div className="flex items-center gap-3 bg-[#1a3a6b] px-5 py-3 text-white">
-                <Users className="h-5 w-5 text-[#e8841a]" />
-                <h2 className="text-sm font-bold uppercase tracking-widest">Notable Alumni</h2>
-              </div>
-              <div className="grid gap-4 p-5 md:grid-cols-[1fr_1.05fr]">
-                <article className="overflow-hidden rounded-sm border border-gray-100 bg-[#f8fbff] p-4">
-                  <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
-                    <Image
-                      src={alumni[0]?.photoUrl || "/teacher-teaching-students.jpeg"}
-                      alt={alumni[0]?.name || "Notable alumna"}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 480px"
-                    />
-                  </div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e8841a]">
-                    {alumni[0]?.year || "Alumni"}
-                  </p>
-                  <h3 className="mt-1 text-lg font-bold text-[#1a3a6b]">{alumni[0]?.name || "School Alumna"}</h3>
-                  <p className="mt-1 text-sm font-medium text-gray-600">{alumni[0]?.achievement || "Notable contribution to the community"}</p>
-                  <p className="mt-3 text-sm leading-relaxed text-gray-600">{alumni[0]?.bio || "This section can be connected to alumni profiles later."}</p>
-                  <a href={alumni[0]?.link || "#"} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#e8841a] hover:underline">
-                    Read Profile <ChevronRight className="h-4 w-4" />
-                  </a>
-                </article>
-
-                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
-                  {alumni.slice(1, 4).map((person) => (
-                    <article key={person.name} className="flex items-start gap-4 rounded-sm border border-gray-100 bg-gray-50/70 p-4">
-                      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
+            {alumni.length > 0 && (
+              <section className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
+                <div className="flex items-center gap-3 bg-[#1a3a6b] px-5 py-3 text-white">
+                  <Users className="h-5 w-5 text-[#e8841a]" />
+                  <h2 className="text-sm font-bold uppercase tracking-widest">Notable Alumni</h2>
+                </div>
+                <div className="grid gap-4 p-5 md:grid-cols-[1fr_1.05fr]">
+                  <article className="overflow-hidden rounded-sm border border-gray-100 bg-[#f8fbff] p-4">
+                    {alumni[0]?.photoUrl && (
+                      <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
                         <Image
-                          src={person.photoUrl || "/teacher-teaching-students.jpeg"}
-                          alt={person.name}
+                          src={alumni[0].photoUrl}
+                          alt={alumni[0].name || "Notable alumna"}
                           fill
                           className="object-cover"
-                          sizes="64px"
+                          sizes="(max-width: 768px) 100vw, 480px"
                         />
                       </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e8841a]">{person.year || "Alumni"}</p>
-                        <h3 className="text-sm font-bold text-[#1a3a6b]">{person.name}</h3>
-                        <p className="mt-1 text-xs leading-relaxed text-gray-600">{person.achievement}</p>
-                      </div>
-                    </article>
-                  ))}
+                    )}
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e8841a]">
+                      {alumni[0]?.year || "Alumni"}
+                    </p>
+                    <h3 className="mt-1 text-lg font-bold text-[#1a3a6b]">{alumni[0]?.name || "School Alumna"}</h3>
+                    <p className="mt-1 text-sm font-medium text-gray-600">{alumni[0]?.achievement || "Notable contribution to the community"}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-gray-600">{alumni[0]?.bio || "This section can be connected to alumni profiles later."}</p>
+                    <a href={alumni[0]?.link || "#"} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#e8841a] hover:underline">
+                      Read Profile <ChevronRight className="h-4 w-4" />
+                    </a>
+                  </article>
+
+                  <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
+                    {alumni.slice(1, 4).map((person) => (
+                      <article key={person.name} className="flex items-start gap-4 rounded-sm border border-gray-100 bg-gray-50/70 p-4">
+                        {person.photoUrl && (
+                          <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
+                            <Image
+                              src={person.photoUrl}
+                              alt={person.name}
+                              fill
+                              className="object-cover"
+                              sizes="64px"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e8841a]">{person.year || "Alumni"}</p>
+                          <h3 className="text-sm font-bold text-[#1a3a6b]">{person.name}</h3>
+                          <p className="mt-1 text-xs leading-relaxed text-gray-600">{person.achievement}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            )}
           </div>
 
           <aside className="w-full flex-shrink-0 space-y-6 lg:w-72">
