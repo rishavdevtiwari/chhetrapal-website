@@ -184,37 +184,22 @@ function normalizeCmsUrl(url: string | undefined, wpOrigin: string): string {
     const parsed = new URL(trimmedUrl);
     if (parsed.pathname.includes("/wp-content/")) {
       const idx = parsed.pathname.indexOf("/wp-content/");
-      const pathAfter = parsed.pathname.substring(idx + "/wp-content/".length);
-      return `${wpOrigin}/wp-content/${pathAfter}${parsed.search}${parsed.hash}`;
+      return parsed.pathname.substring(idx) + parsed.search + parsed.hash;
     }
     if (parsed.pathname.includes("/wp-includes/")) {
       const idx = parsed.pathname.indexOf("/wp-includes/");
-      const pathAfter = parsed.pathname.substring(idx + "/wp-includes/".length);
-      return `${wpOrigin}/wp-includes/${pathAfter}${parsed.search}${parsed.hash}`;
+      return parsed.pathname.substring(idx) + parsed.search + parsed.hash;
     }
   } catch {
     // Treat as relative URL
   }
 
   if (trimmedUrl.startsWith("/")) {
-    if (trimmedUrl.startsWith("/wp-content/") || trimmedUrl.startsWith("/wp-includes/")) {
-      return `${wpOrigin}${trimmedUrl}`;
-    }
     return trimmedUrl;
   }
 
   if (!/^https?:\/\//i.test(trimmedUrl)) {
-    return `${wpOrigin}/${trimmedUrl.replace(/^\/+/, "")}`;
-  }
-
-  try {
-    const parsed = new URL(trimmedUrl);
-    const normalizedWpOrigin = new URL(wpOrigin);
-    if (parsed.host === normalizedWpOrigin.host) {
-      return trimmedUrl;
-    }
-  } catch {
-    return trimmedUrl;
+    return `/${trimmedUrl.replace(/^\/+/, "")}`;
   }
 
   return trimmedUrl;
@@ -223,10 +208,10 @@ function normalizeCmsUrl(url: string | undefined, wpOrigin: string): string {
 function rewriteHtmlMediaPaths(html: string, wpOrigin: string): string {
   if (!html) return "";
   let rewritten = html;
-  // Replace absolute WordPress uploads or wp-content references to wpOrigin/wp-content
-  rewritten = rewritten.replace(/https?:\/\/[^\s"'()>]+\/wp-content\//gi, `${wpOrigin}/wp-content/`);
+  // Replace absolute WordPress uploads or wp-content references to relative /wp-content/
+  rewritten = rewritten.replace(/https?:\/\/[^\s"'()>]+\/wp-content\//gi, "/wp-content/");
   // Replace relative /wp-content/ references
-  rewritten = rewritten.replace(/\/wp-content\//gi, `${wpOrigin}/wp-content/`);
+  rewritten = rewritten.replace(/\/wp-content\//gi, "/wp-content/");
   return rewritten;
 }
 
