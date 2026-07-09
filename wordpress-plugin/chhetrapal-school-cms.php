@@ -1266,7 +1266,7 @@ final class Chhetrapal_School_CMS {
                 }
                 break;
             case 'inquiry_phone':
-                echo esc_html(get_post_meta($post_id, 'inquiry_phone', true) ?: '—');
+                echo esc_html(get_post_meta($post_id, 'inquiry_guardian_phone', true) ?: '—');
                 break;
         }
     }
