@@ -72,12 +72,13 @@
 }
 
 @keyframes marquee-scroll {
-  0%   { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 
 .marquee-track {
   display: inline-flex;
+  width: max-content;
   white-space: nowrap;
   animation: marquee-scroll 35s linear infinite;
   will-change: transform;
@@ -170,4 +171,18 @@
   font-size: 0.7rem;
   font-weight: 700;
   line-height: 1.2;
+}
+
+/* Google Translate Widget Override */
+.skiptranslate, .goog-te-banner-frame, #goog-gt-tt, .goog-te-balloon-frame, iframe.goog-te-banner-frame, .goog-te-menu-value {
+  display: none !important;
+  visibility: hidden !important;
+}
+body {
+  top: 0 !important;
+}
+.goog-text-highlight {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }

@@ -23,25 +23,28 @@ import {
   Download,
   Newspaper,
 } from "lucide-react";
-import { getHomepageCmsData } from "@/lib/wordpress";
+import { getHomepageCmsData, CmsPrincipal, CmsAlumni, CmsNotice } from "@/lib/wordpress";
+import { cookies } from "next/headers";
+import { translations, TranslationKey } from "@/lib/translations";
+import { Language, getSafeLanguage } from "@/lib/language";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export const dynamic = "force-dynamic";
 
 const fallbackHero = {
-  eyebrow: "Government Secondary School • Est. 2046 BS",
+  eyebrow: "Government Secondary School • Est. 2016 BS",
   title: "Chhetrapal Secondary School",
-  subtitle: "छेत्रपाल माध्यमिक विद्यालय",
-  description: "Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot, Bagmati Province, Nepal\nAffiliated to National Examination Board (NEB) | Reg. No: 28018",
+  subtitle: "क्षेत्रपाल माध्यमिक विद्यालय",
+  description: "Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot, Bagmati Province, Nepal\nAffiliated to National Examination Board (NEB) | Reg. No: 28018 | EMIS Code: 280130009",
 };
 
-const fallbackNotices = [
+
+const fallbackNotices: CmsNotice[] = [
   { date: { day: "15", month: "Baisakh" }, title: "First Term Examination Routine 2083", tag: "Notice" },
   { date: { day: "10", month: "Chaitra" }, title: "Annual Sports Day Programme - Registration Open", tag: "Event" },
-  { date: { day: "25", month: "Falgun" }, title: "Parent-Teacher Meeting: All Grades", tag: "Notice" },
-  { date: { day: "01", month: "Falgun" }, title: "SEE Practical Examination Schedule Released", tag: "Result" },
-  { date: { day: "15", month: "Magh" }, title: "Scholarship Application Form Available Now", tag: "Notice" },
-  { date: { day: "05", month: "Magh" }, title: "Winter Break Notice & Holiday Calendar 2083", tag: "Notice" },
-] as const;
+  { date: { day: "28", month: "Phalgun" }, title: "Class 11 Final Board Exam Results Released", tag: "Result" },
+  { date: { day: "05", month: "Poush" }, title: "Winter Vacation Holiday Notice for All Classes", tag: "Notice" },
+];
 
 const basePrograms = [
   { icon: BookOpen, label: "Primary Level", desc: "Class 1-5", sub: "Foundation of life-long learning" },
@@ -52,70 +55,79 @@ const basePrograms = [
 
 const fallbackEvents = [
   { month: "Baisakh", day: "22", title: "Annual Prize Distribution", time: "11:00 AM" },
-  { month: "Jestha", day: "05", title: "World Environment Day Programme", time: "10:00 AM" },
-  { month: "Saun", day: "10", title: "Guru Purnima Celebration", time: "9:30 AM" },
+  { month: "Jestha", day: "05", title: "Inter-School Sports Meet", time: "10:00 AM" },
+  { month: "Ashadh", day: "12", title: "Science & Project Exhibition", time: "09:30 AM" },
 ];
 
 const fallbackStats = [
-  { value: "1,200+", label: "Students" },
-  { value: "55+", label: "Expert Staff" },
-  { value: "98%", label: "Pass Rate" },
-  { value: "35+", label: "Years Legacy" },
+  { value: "600+", label: "Students" },
+  { value: "30+", label: "Expert Staff" },
+  { value: "93%+", label: "Pass Rate" },
+  { value: "50+", label: "Years Legacy" },
 ];
 
-const fallbackPrincipal = {
-  name: "Mr. Ram Bahadur Thapa",
-  title: "Principal",
+const fallbackPrincipal: CmsPrincipal = {
+  name: "Hari Prasad Subedi",
+  title: "Principal's Welcome Message",
+  message: "Respected parents, teachers, staff and dear students,<br/><br/>I warmly welcome you all to the official website of Chhetrapal Secondary School, the oldest and historical educational heritage of Nuwakot district.<br/><br/>The educational journey of this school, which began in 2016, is the result of the tireless efforts, sacrifice and dedication of the intellectuals, education lovers, respected parents and teachers of this area. Since its formal establishment as a secondary school on Chaitra 16, 2031, this school has succeeded in creating a distinct identity in the district in the field of quality education.<br/><br/>Our main objective is not only to impart bookish knowledge, but also to make the students moral, self-reliant and socially responsible citizens by bringing out the hidden talent in them. With the changing times, we are modifying the physical and technical infrastructure of the school and adopting a technology-friendly and practical teaching method. As a result, our academic results have been consistently excellent.<br/><br/>We are always committed to the overall development of the school and the bright future of the students. We expect constructive advice, suggestions and continuous support from here to make the school more sophisticated and excellent.<br/><br/>Thank you.<br/><br/>Hari Prasad Subedi<br/>Principal<br/>Chhetrapal Secondary School,<br/>Likhu 4, Chaughada Nuwakot, Nepal.",
+  photoUrl: "/hari_sir_chhetrapal.jpeg",
   designation: "Principal",
-  photoUrl: "/teacher-teaching-students.jpeg",
-  link: "#",
-  message:
-    "Education is the most powerful weapon which you can use to change the world. At Chhetrapal Secondary School, we are committed to delivering knowledge, nurturing talent, and building character in every student who crosses our doors.",
 };
 
 const fallbackFacilities = [
-  { icon: Library, label: "Library" },
-  { icon: FlaskConical, label: "Science Lab" },
-  { icon: Computer, label: "Computer Lab" },
-  { icon: Volleyball, label: "Sports Ground" },
+  { icon: Library, label: "Digital Library" },
+  { icon: FlaskConical, label: "Science Labs" },
+  { icon: Computer, label: "ICT Computer Lab" },
+  { icon: Volleyball, label: "Sports Facility" },
   { icon: Palette, label: "Art Room" },
-  { icon: UtensilsCrossed, label: "Canteen" },
+  { icon: UtensilsCrossed, label: "School Canteen" },
 ];
 
 const fallbackDownloads = [
-  { title: "Admission Form 2083", buttonLabel: "Download", fileUrl: "#" },
-  { title: "School Prospectus", buttonLabel: "Download", fileUrl: "#" },
-  { title: "Academic Calendar 2083", buttonLabel: "Download", fileUrl: "#" },
-  { title: "Fee Structure 2083", buttonLabel: "Download", fileUrl: "#" },
+  { title: "School Prospectus (PDF)", fileUrl: "#" },
+  { title: "Academic Calendar 2083", fileUrl: "#" },
 ];
 
 const fallbackGalleryImages = [
-  { src: "/class-image-1.jpeg", alt: "Students in a classroom session", title: "Photo 1" },
-  { src: "/class-image-2.jpeg", alt: "Classroom learning activity", title: "Photo 2" },
-  { src: "/student-assembled.jpeg", alt: "Students assembled during school activity", title: "Photo 3" },
-  { src: "/student-showcasing-project.jpeg", alt: "Student showcasing a school project", title: "Photo 4" },
-  { src: "/teacher-teaching-students.jpeg", alt: "Teacher teaching students in class", title: "Photo 5" },
-  { src: "/another-part-of-school.jpeg", alt: "Another part of the school campus", title: "Photo 6" },
+  { src: "/class-image-1.jpeg", alt: "Classroom 1", title: "Interactive Classroom Session" },
+  { src: "/class-image-2.jpeg", alt: "Classroom 2", title: "Students Participating in Learning Activity" },
+  { src: "/entrance-image.jpeg", alt: "Entrance", title: "School Entrance Gate View" },
+  { src: "/main-entrance-with-school-board.jpeg", alt: "School Board", title: "Main Gate and School Board" },
+  { src: "/student-assembled.jpeg", alt: "Assembly", title: "Student Assembly Ground" },
+  { src: "/student-showcasing-project.jpeg", alt: "Showcase", title: "Student Showcasing Science Project" },
+  { src: "/teacher-teaching-students.jpeg", alt: "Teaching", title: "Teacher Instructing Students in Lab" },
+  { src: "/another-part-of-school.jpeg", alt: "Campus View", title: "School Campus Secondary Block" },
 ];
 
-const fallbackAlumni = [
+const fallbackAlumni: CmsAlumni[] = [
   {
-    name: "Ms. Sushila Shrestha",
-    year: "Batch 2060",
-    achievement: "Community health leader and public education advocate",
-    bio:
-      "An alumna who now works on rural health and education initiatives across Nuwakot and Bagmati Province.",
-    photoUrl: "/student-showcasing-project.jpeg",
-    link: "#",
+    name: "Dr. Sandesh Adhikari",
+    year: "2062 BS Batch",
+    achievement: "Chief Medical Officer",
+    bio: "Graduated with top marks and completed medical degrees in Kathmandu. Continues to serve rural healthcare programs across central Nepal.",
+    photoUrl: "/entrance-image.jpeg",
   },
-] as const;
+  {
+    name: "Er. Ramesh Shrestha",
+    year: "2065 BS Batch",
+    achievement: "Lead Infrastructure Engineer",
+    bio: "Honored for managing key road-network expansion and school rebuilding projects after regional earthquakes.",
+    photoUrl: "/main-entrance-with-school-board.jpeg",
+  },
+  {
+    name: "Sunita Tamang",
+    year: "2070 BS Batch",
+    achievement: "Chartered Accountant",
+    bio: "Currently supervising financial audits for major corporations and running non-profit accounting mentorship initiatives.",
+    photoUrl: "/another-part-of-school.jpeg",
+  },
+];
 
 const fallbackContact = {
-  address: "Likhu Rural Municipality Ward no. 4\nChaughada Nuwakot, Bagmati Province, Nepal",
+  address: "Likhu Rural Municipality Ward no. 4, Chaughada Nuwakot, Bagmati Province, Nepal",
   phone: "9851181243",
   email: "info@chhetrapalschool.edu.np",
-  mapUrl:
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3525.925360626243!2d85.2387678754744!3d27.904263726070322!2m3!1f0!2f0!3f0!2m3!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eadfa5e05bbc35%3A0x3eb57e2564e36dd4!2sShree%20Kshetrapal%20Uchcha%20Madhyamik%20Bidyalaya!5e0!3m2!1sen!2snp!4v1776366200281!5m2!1sen!2snp",
+  mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3525.925360626243!2d85.2387678754744!3d27.904263726070322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eadfa5e05bbc35%3A0x3eb57e2564e36dd4!2sShree%20Kshetrapal%20Uchcha%20Madhyamik%20Bidyalaya!5e0!3m2!1sen!2snp!4v1776366200281!5m2!1sen!2snp",
 };
 
 function cleanText(value: string): string {
@@ -123,7 +135,11 @@ function cleanText(value: string): string {
 }
 
 export default async function Home() {
-  const cmsData = await getHomepageCmsData();
+  const cookieStore = await cookies();
+  const lang = getSafeLanguage(cookieStore.get("chhetrapal_lang")?.value);
+  const cmsData = await getHomepageCmsData(lang);
+  const t = (key: TranslationKey) => translations[lang][key] || translations["en"][key];
+  const isNe = lang === "ne";
   const hero = cmsData?.hero ?? fallbackHero;
   const notices = cmsData?.notices?.length ? cmsData.notices : [...fallbackNotices];
   const cmsPrograms = cmsData?.programs ?? [];
@@ -143,7 +159,17 @@ export default async function Home() {
     }));
   const events = eventsFromCms.length > 0 ? eventsFromCms.slice(0, 3) : fallbackEvents;
   const stats = cmsData?.stats?.length ? cmsData.stats : fallbackStats;
-  const principal = cmsData?.principal ?? fallbackPrincipal;
+  const dynamicFallbackPrincipal: CmsPrincipal = {
+    name: isNe ? "हरिप्रसाद सुवेदी" : "Hari Prasad Subedi",
+    title: isNe ? "प्रधानाध्यापकको सन्देश" : "Message from Principal",
+    message: isNe
+      ? "आदरणीय अभिभावक, शिक्षक शिक्षिका, कर्मचारी वर्ग तथा प्रिय विद्यार्थी भाइबहिनीहरू,<br/><br/>नुवाकोट जिल्लाकै पुरानो र ऐतिहासिक शैक्षिक धरोहर क्षेत्रपाल माध्यमिक विद्यालय को आधिकारिक वेबसाइटमा यहाँहरू सबैलाई हार्दिक स्वागत गर्दछु।<br/><br/>वि.सं. २०१६ सालदेखि सुरु भएको यस विद्यालयको शैक्षिक यात्रा आज यो उचाइमा आइपुग्नुमा यस क्षेत्रका बुद्धिजीवी, शिक्षाप्रेमी, आदरणीय अभिभावक र शिक्षक शिक्षिकाहरूको अथक प्रयास, त्याग र समर्पणको परिणाम हो। वि.सं. २०३१ साल चैत्र १६ गते माध्यमिक विद्यालयको रूपमा औपचारिक रूपमा स्थापित भएयता यस विद्यालयले गुणस्तरीय शिक्षाको क्षेत्रमा जिल्लामै एक छुट्टै पहिचान बनाउन सफल भएको छ।<br/><br/>हाम्रो मुख्य उद्देश्य केवल किताबी ज्ञान दिनु मात्र होइन, बरु विद्यार्थीहरूमा लुकेको प्रतिभालाई प्रस्फुटन गराई उनीहरूलाई नैतिकवान्, आत्मनिर्भर र समाजप्रति उत्तरदायी नागरिक बनाउनु हो। बदलिँदो समयसँगै हामीले विद्यालयको भौतिक तथा प्राविधिक पूर्वाधार परिमार्जन गर्दै प्रविधिमैत्री र व्यावहारिक शिक्षण पद्धतिलाई आत्मसाथ गरिरहेका छौँ। जसकै फलस्वरूप हाम्रो शैक्षिक नतिजा निरन्तर उत्कृष्ट रहँदै आएको छ।<br/><br/>विद्यालयको सर्वाङ्गीण विकास र विद्यार्थीहरूको उज्ज्वल भविष्यका लागि हामी सधैँ प्रतिबद्ध छौँ। विद्यालयलाई अझ परिष्कृत र उत्कृष्ट बनाउन यहाँहरूबाट रचनात्मक सल्लाह, सुझाव र निरन्तर सहयोगको अपेक्षा गर्दछौँ।<br/><br/>धन्यवाद।<br/><br/>............................<br/>प्रधानाध्यापक"
+      : "Respected parents, teachers, staff and dear students,<br/><br/>I warmly welcome you all to the official website of Chhetrapal Secondary School, the oldest and historical educational heritage of Nuwakot district.<br/><br/>The educational journey of this school, which began in 2016, is the result of the tireless efforts, sacrifice and dedication of the intellectuals, education lovers, respected parents and teachers of this area. Since its formal establishment as a secondary school on Chaitra 16, 2031, this school has succeeded in creating a distinct identity in the district in the field of quality education.<br/><br/>Our main objective is not only to impart bookish knowledge, but also to make the students moral, self-reliant and socially responsible citizens by bringing out the hidden talent in them. With the changing times, we are modifying the physical and technical infrastructure of the school and adopting a technology-friendly and practical teaching method. As a result, our academic results have been consistently excellent.<br/><br/>We are always committed to the overall development of the school and the bright future of the students. We expect constructive advice, suggestions and continuous support from here to make the school more sophisticated and excellent.<br/><br/>Thank you.<br/><br/>Hari Prasad Subedi<br/>Principal<br/>Chhetrapal Secondary School,<br/>Likhu 4, Chaughada Nuwakot, Nepal.",
+    photoUrl: "/hari_sir_chhetrapal.jpeg",
+    designation: isNe ? "प्रधानाध्यापक" : "Principal",
+    link: "/about#principal",
+  };
+  const principal = cmsData?.principal ?? dynamicFallbackPrincipal;
   const cmsFacilities = cmsData?.facilities ?? [];
   const facilities = fallbackFacilities.map((facility, index) => ({
     ...facility,
@@ -151,9 +177,22 @@ export default async function Home() {
   }));
   const downloads = cmsData?.downloads?.length ? cmsData.downloads : fallbackDownloads;
   const galleryImages = cmsData?.gallery?.some((photo) => Boolean(photo.src)) ? cmsData.gallery : fallbackGalleryImages;
-  const alumni = cmsData?.alumni?.length ? cmsData.alumni : fallbackAlumni;
+  const alumniRaw = cmsData?.alumni ?? [];
+  const alumni = [...alumniRaw].sort((a, b) => {
+    const aFeatured = (a as any).featured ? 1 : 0;
+    const bFeatured = (b as any).featured ? 1 : 0;
+    return bFeatured - aFeatured;
+  });
   const contact = cmsData?.contact ?? fallbackContact;
-  const principalMessage = cleanText(principal.message);
+  const principalMessage = sanitizeHtml(principal.message);
+
+  const admissions = cmsData?.admissions ?? {
+    status: "open",
+    classes: "Class 1-5 (Primary), Class 6-8 (Lower Sec.), Class 9-10 (SEE), Class 11-12 (+2)",
+    noticeUrl: "",
+    title: "Admissions Open!",
+    content: "Academic Year 2026/2027",
+  };
 
   return (
     <div className="page-shell">
@@ -184,10 +223,10 @@ export default async function Home() {
           </p>
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/admissions" className="rounded-sm bg-[#e8841a] px-8 py-3 text-sm font-bold text-white transition-colors hover:bg-orange-600 shadow">
-              Online Admission ›
+              {t("onlineAdmission")} ›
             </Link>
             <Link href="/about" className="rounded-sm bg-[#1a3a6b] px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#0f2744] shadow">
-              Learn More
+              {isNe ? "थप जान्नुहोस्" : "Learn More"}
             </Link>
           </div>
         </div>
@@ -212,28 +251,32 @@ export default async function Home() {
             <section id="about" className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
               <div className="flex items-center gap-3 bg-[#1a3a6b] px-5 py-3 text-white">
                 <BookOpen className="h-5 w-5 text-[#e8841a]" />
-                <h2 className="text-sm font-bold uppercase tracking-widest">Welcome to Our School</h2>
+                <h2 className="text-sm font-bold uppercase tracking-widest">{isNe ? "हाम्रो विद्यालयमा स्वागत छ" : "Welcome to Our School"}</h2>
               </div>
               <div className="flex flex-col gap-6 p-5 md:flex-row md:p-6">
                 <div className="relative h-52 w-full flex-shrink-0 overflow-hidden rounded border border-gray-200 bg-gray-100 md:w-52">
                   <Image
-                    src="/entrance-image.jpeg"
-                    alt="School entrance"
+                    src="/school_front_view.jpeg"
+                    alt="School front view"
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 208px"
                   />
                 </div>
                 <div>
-                  <h3 className="mb-3 text-xl font-bold text-[#1a3a6b]">About Chhetrapal Secondary School</h3>
+                  <h3 className="mb-3 text-xl font-bold text-[#1a3a6b]">{isNe ? "क्षेत्रपाल माध्यमिक विद्यालयको बारेमा" : "About Chhetrapal Secondary School"}</h3>
                   <p className="mb-3 text-sm leading-relaxed text-gray-600">
-                    Established in 2046 BS (1989 AD), Chhetrapal Secondary School is a government secondary school located in Nuwakot district of Bagmati Province, Nepal. Over the past three decades, we have been serving the educational needs of our community by providing quality education from primary to higher secondary level.
+                    {isNe
+                      ? "नुवाकोट जिल्लाको ऐतिहासिक र पुरानो शैक्षिक धरोहर क्षेत्रपाल माध्यमिक विद्यालय स्थापना कालदेखि नै यस क्षेत्रको शिक्षा ज्योति फैलाउने मुख्य केन्द्रको रूपमा स्थापित छ। वि.सं. २०१६ सालमा प्राथमिक विद्यालयको रूपमा यसको जग बसालिएको थियो। शिक्षाको आवश्यकता र स्थानीयवासीको चाहना अनुसार वि.सं. २०२३ मा यो तत्कालीन 'मिडिल स्कुल' र वि.सं. २०३१ साल चैत्र १६ गते औपचारिक रूपमा माध्यमिक विद्यालयको रूपमा रूपान्तरित भयो।"
+                      : "Chhetrapal Secondary School, a historical and old educational heritage of Nuwakot district, has been established as the main center for spreading the light of education in this region since its establishment. BS. 2016 was its foundation as a primary school. According to the needs of education and the wishes of the locals, it was converted into the then 'Middle School' in BS. 2023 and was formally converted into a secondary school on Chaitra 16, BS. 2031."}
                   </p>
                   <p className="mb-4 text-sm leading-relaxed text-gray-600">
-                    Affiliated to the National Examination Board (NEB) and following the curriculum set by the Curriculum Development Centre (CDC), our institution is proud to have contributed hundreds of successful graduates who are now excelling in various fields across Nepal and abroad.
+                    {isNe
+                      ? "लामो र गौरवशाली इतिहास बोकेको यस विद्यालयले स्थापना कालदेखि नै गुणस्तरीय, संस्कारयुक्त र प्रविधिमैत्री शिक्षा प्रदान गर्दै आएको छ। जिल्लाकै उत्कृष्ट शैक्षिक नतिजा हासिल गर्न सफल यस विद्यालयले राष्ट्रलाई आवश्यक पर्ने दक्ष, नैतिकवान् र प्रतिस्पर्धी जनशक्ति उत्पादनमा निरन्तर योगदान पुर्याइरहेको छ।"
+                      : "This school, which has a long and glorious history, has been providing quality, cultured and technology-friendly education since its establishment. This school, which has succeeded in achieving the best educational results in the district, is continuously contributing to the production of skilled, ethical and competitive manpower needed by the nation."}
                   </p>
                   <a href="#contact" className="inline-flex items-center gap-1.5 rounded-sm bg-[#1a3a6b] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0f2744]">
-                    Read More <ChevronRight className="h-4 w-4" />
+                    {t("readMore")} <ChevronRight className="h-4 w-4" />
                   </a>
                 </div>
               </div>
@@ -242,13 +285,13 @@ export default async function Home() {
             <section id="principal" className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
               <div className="flex items-center gap-3 bg-[#1a3a6b] px-5 py-3 text-white">
                 <Users className="h-5 w-5 text-[#e8841a]" />
-                <h2 className="text-sm font-bold uppercase tracking-widest">Principal&apos;s Message</h2>
+                <h2 className="text-sm font-bold uppercase tracking-widest">{isNe ? "प्रधानाध्यापकको सन्देश" : "Principal's Message"}</h2>
               </div>
               <div className="flex flex-col gap-6 p-5 sm:flex-row md:p-6">
                 <div className="flex flex-shrink-0 flex-col items-center gap-2">
                   <div className="relative h-36 w-32 overflow-hidden rounded border border-gray-200 bg-gray-100">
                     <Image
-                      src={principal.photoUrl || "/teacher-teaching-students.jpeg"}
+                      src={principal.photoUrl || "/hari_sir_chhetrapal.jpeg"}
                       alt={principal.name}
                       fill
                       className="object-cover"
@@ -261,14 +304,12 @@ export default async function Home() {
                   </div>
                 </div>
                 <div>
-                  <p className="mb-3 border-l-4 border-[#e8841a] py-1 pl-4 text-sm leading-relaxed italic text-gray-600">
-                    {principalMessage}
-                  </p>
-                  <p className="text-sm leading-relaxed text-gray-600">
-                    On behalf of the entire staff and management of the school, I warmly welcome all students, parents, and guardians to our institution. We remain dedicated to providing a safe, inclusive, and academically stimulating environment for all.
-                  </p>
+                   <div
+                    className="mb-3 border-l-4 border-[#e8841a] py-1 pl-4 text-sm leading-relaxed italic text-gray-600 prose prose-sm"
+                    dangerouslySetInnerHTML={{ __html: principalMessage }}
+                   />
                   <a href={principal.link || "#"} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#e8841a] hover:underline">
-                    Read Full Message <ChevronRight className="h-4 w-4" />
+                    {isNe ? "पूरा सन्देश पढ्नुहोस्" : "Read Full Message"} <ChevronRight className="h-4 w-4" />
                   </a>
                 </div>
               </div>
@@ -277,7 +318,7 @@ export default async function Home() {
             <section id="academics" className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
               <div className="flex items-center gap-3 bg-[#1a3a6b] px-5 py-3 text-white">
                 <GraduationCap className="h-5 w-5 text-[#e8841a]" />
-                <h2 className="text-sm font-bold uppercase tracking-widest">Academic Programs</h2>
+                <h2 className="text-sm font-bold uppercase tracking-widest">{t("academics")}</h2>
               </div>
               <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
                 {programs.map((program) => (
@@ -330,80 +371,93 @@ export default async function Home() {
               </div>
             </section>
 
-            <section className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
-              <div className="flex items-center gap-3 bg-[#1a3a6b] px-5 py-3 text-white">
-                <Users className="h-5 w-5 text-[#e8841a]" />
-                <h2 className="text-sm font-bold uppercase tracking-widest">Notable Alumni</h2>
-              </div>
-              <div className="grid gap-4 p-5 md:grid-cols-[1fr_1.05fr]">
-                <article className="overflow-hidden rounded-sm border border-gray-100 bg-[#f8fbff] p-4">
-                  <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
-                    <Image
-                      src={alumni[0]?.photoUrl || "/teacher-teaching-students.jpeg"}
-                      alt={alumni[0]?.name || "Notable alumna"}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 480px"
-                    />
-                  </div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e8841a]">
-                    {alumni[0]?.year || "Alumni"}
-                  </p>
-                  <h3 className="mt-1 text-lg font-bold text-[#1a3a6b]">{alumni[0]?.name || "School Alumna"}</h3>
-                  <p className="mt-1 text-sm font-medium text-gray-600">{alumni[0]?.achievement || "Notable contribution to the community"}</p>
-                  <p className="mt-3 text-sm leading-relaxed text-gray-600">{alumni[0]?.bio || "This section can be connected to alumni profiles later."}</p>
-                  <a href={alumni[0]?.link || "#"} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#e8841a] hover:underline">
-                    Read Profile <ChevronRight className="h-4 w-4" />
-                  </a>
-                </article>
-
-                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
-                  {alumni.slice(1).map((person) => (
-                    <article key={person.name} className="flex items-start gap-4 rounded-sm border border-gray-100 bg-gray-50/70 p-4">
-                      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
+            {alumni.length > 0 && (
+              <section className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
+                <div className="flex items-center gap-3 bg-[#1a3a6b] px-5 py-3 text-white">
+                  <Users className="h-5 w-5 text-[#e8841a]" />
+                  <h2 className="text-sm font-bold uppercase tracking-widest">Notable Alumni</h2>
+                </div>
+                <div className="grid gap-4 p-5 md:grid-cols-[1fr_1.05fr]">
+                  <article className="overflow-hidden rounded-sm border border-gray-100 bg-[#f8fbff] p-4">
+                    {alumni[0]?.photoUrl && (
+                      <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
                         <Image
-                          src={person.photoUrl || "/teacher-teaching-students.jpeg"}
-                          alt={person.name}
+                          src={alumni[0].photoUrl}
+                          alt={alumni[0].name || "Notable alumna"}
                           fill
                           className="object-cover"
-                          sizes="64px"
+                          sizes="(max-width: 768px) 100vw, 480px"
                         />
                       </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e8841a]">{person.year || "Alumni"}</p>
-                        <h3 className="text-sm font-bold text-[#1a3a6b]">{person.name}</h3>
-                        <p className="mt-1 text-xs leading-relaxed text-gray-600">{person.achievement}</p>
-                      </div>
-                    </article>
-                  ))}
+                    )}
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e8841a]">
+                      {alumni[0]?.year || "Alumni"}
+                    </p>
+                    <h3 className="mt-1 text-lg font-bold text-[#1a3a6b]">{alumni[0]?.name || "School Alumna"}</h3>
+                    <p className="mt-1 text-sm font-medium text-gray-600">{alumni[0]?.achievement || "Notable contribution to the community"}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-gray-600">{alumni[0]?.bio || "This section can be connected to alumni profiles later."}</p>
+                    <a href={alumni[0]?.link || "#"} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#e8841a] hover:underline">
+                      Read Profile <ChevronRight className="h-4 w-4" />
+                    </a>
+                  </article>
+
+                  <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
+                    {alumni.slice(1, 4).map((person) => (
+                      <article key={person.name} className="flex items-start gap-4 rounded-sm border border-gray-100 bg-gray-50/70 p-4">
+                        {person.photoUrl && (
+                          <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
+                            <Image
+                              src={person.photoUrl}
+                              alt={person.name}
+                              fill
+                              className="object-cover"
+                              sizes="64px"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e8841a]">{person.year || "Alumni"}</p>
+                          <h3 className="text-sm font-bold text-[#1a3a6b]">{person.name}</h3>
+                          <p className="mt-1 text-xs leading-relaxed text-gray-600">{person.achievement}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            )}
           </div>
 
           <aside className="w-full flex-shrink-0 space-y-6 lg:w-72">
-            <div className="overflow-hidden rounded-sm bg-[#e8841a] text-white shadow-sm">
-              <div className="px-5 py-4 text-center">
-                <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
-                  <GraduationCap className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-extrabold leading-tight">Admissions Open!</h3>
-                <p className="mt-1 text-sm text-orange-100">Academic Year 2026/2027</p>
-              </div>
-              <div className="space-y-2 bg-white/10 px-5 py-4 text-sm">
-                {["Class 1 - 5 (Primary)", "Class 6 - 8 (Lower Sec.)", "Class 9 - 10 (SEE)", "Class 11 - 12 (+2)"].map((cls) => (
-                  <div key={cls} className="flex items-center gap-2">
-                    <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
-                    <span>{cls}</span>
+            {admissions.status === "open" && (
+              <div className="overflow-hidden rounded-sm bg-[#e8841a] text-white shadow-sm">
+                <div className="px-5 py-4 text-center">
+                  <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                    <GraduationCap className="h-5 w-5" />
                   </div>
-                ))}
+                  <h3 className="text-lg font-extrabold leading-tight">{admissions.title}</h3>
+                  <p className="mt-1 text-sm text-orange-100">{admissions.content}</p>
+                </div>
+                <div className="space-y-2 bg-white/10 px-5 py-4 text-sm">
+                  {admissions.classes.split(',').map((cls) => (
+                    <div key={cls} className="flex items-center gap-2">
+                      <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span>{cls.trim()}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="px-5 py-4 flex flex-col gap-2">
+                  <Link href="/admissions" className="block rounded-sm bg-white py-2.5 text-center text-sm font-bold text-[#e8841a] transition-colors hover:bg-gray-100 animate-pulse">
+                    Apply Online ›
+                  </Link>
+                  {admissions.noticeUrl && (
+                    <a href={admissions.noticeUrl} target="_blank" rel="noopener noreferrer" className="block rounded-sm border border-white/40 py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-white/10">
+                      View Admission Notice
+                    </a>
+                  )}
+                </div>
               </div>
-              <div className="px-5 py-4">
-                <a href="#contact" className="block rounded-sm bg-white py-2.5 text-center text-sm font-bold text-[#e8841a] transition-colors hover:bg-gray-100">
-                  Apply Online ›
-                </a>
-              </div>
-            </div>
+            )}
 
             <div id="notices" className="overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
               <div className="flex items-center justify-between bg-[#1a3a6b] px-4 py-3 text-white">
@@ -414,7 +468,7 @@ export default async function Home() {
                 <Link href="/notices" className="text-xs text-orange-300 hover:underline">View All</Link>
               </div>
               <div className="divide-y divide-gray-100">
-                {notices.map((notice, index) => {
+                {notices.slice(0, 6).map((notice, index) => {
                   const noticeHref = (notice as { link?: string }).link || "#";
                   const noticeSummary = "summary" in notice ? notice.summary : undefined;
                   const noticeImage = "imageUrl" in notice ? notice.imageUrl : undefined;
@@ -535,7 +589,7 @@ export default async function Home() {
           <h2 className="section-title section-title-center text-center">Photo Gallery</h2>
           <p className="mb-8 text-center text-sm text-gray-500">Capturing memories from our school&apos;s academic and co-curricular activities.</p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {galleryImages.map((photo, index) => (
+            {galleryImages.slice(0, 6).map((photo, index) => (
               <div key={`${photo.title}-${index}`} className="group relative aspect-square cursor-pointer overflow-hidden rounded-sm border border-gray-200 bg-gray-200 transition-all hover:border-[#1a3a6b]/40">
                 <Image
                   src={photo.src}

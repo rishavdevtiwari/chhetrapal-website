@@ -1,36 +1,97 @@
-import { CheckCircle2, UserPlus2, BadgeHelp } from "lucide-react";
+import { CheckCircle2, UserPlus2 } from "lucide-react";
 import { getHomepageCmsData } from "@/lib/wordpress";
 import AdmissionsApplicationForm from "@/components/admissions-application-form";
+import { cookies } from "next/headers";
+import { translations, TranslationKey } from "@/lib/translations";
+import { Language, getSafeLanguage } from "@/lib/language";
 
-const steps = [
+const stepsEn = [
   { title: "Fill Application Form", desc: "Submit student details and guardian information." },
   { title: "Document Verification", desc: "Provide required academic and identity documents." },
   { title: "Entrance / Interview", desc: "Complete the school entrance process for selected grades." },
   { title: "Admission Confirmation", desc: "Receive admission confirmation and class schedule." },
 ];
 
+const stepsNe = [
+  { title: "आवेदन फारम भर्नुहोस्", desc: "विद्यार्थीको विवरण र अभिभावकको जानकारी पेश गर्नुहोस्।" },
+  { title: "कागजात प्रमाणीकरण", desc: "आवश्यक शैक्षिक र पहिचान कागजातहरू प्रदान गर्नुहोस्।" },
+  { title: "प्रवेश परीक्षा / अन्तर्वार्ता", desc: "चयन गरिएका कक्षाहरूको लागि प्रवेश प्रक्रिया पूरा गर्नुहोस्।" },
+  { title: "भर्ना निश्चितता", desc: "भर्ना स्वीकृतिको जानकारी र कक्षा तालिका प्राप्त गर्नुहोस्।" },
+];
+
+const docsEn = [
+  "Birth Certificate / Citizenship Copy",
+  "Previous School Character Certificate",
+  "Latest Marksheet / Transcript",
+  "Passport Size Photos (4 copies)",
+  "Guardian ID Proof",
+  "Transfer Certificate (if applicable)",
+];
+
+const docsNe = [
+  "जन्म दर्ता प्रमाणपत्र / नागरिकताको प्रतिलिपि",
+  "अघिल्लो विद्यालयको चारित्रिक प्रमाणपत्र",
+  "भर्खरको लब्धांक पत्र (Marksheet) / ट्रान्सक्रिप्ट",
+  "राहदानी आकारको फोटो (४ प्रति)",
+  "अभिभावकको परिचय पत्र",
+  "स्थानान्तरण प्रमाणपत्र (लागु हुने भएमा)",
+];
+
+const feesEn = [
+  ["Admission Fee", "NPR 2,500"],
+  ["Monthly Tuition", "NPR 1,800"],
+  ["Lab / Activity", "NPR 900"],
+  ["Annual Exam Fee", "NPR 1,200"],
+];
+
+const feesNe = [
+  ["भर्ना शुल्क", "रु २,५००"],
+  ["मासिक शिक्षण शुल्क", "रु १,८००"],
+  ["प्रयोगशाला / गतिविधि", "रु ९००"],
+  ["वार्षिक परीक्षा शुल्क", "रु १,२०0"],
+];
+
 export const dynamic = "force-dynamic";
 
 export default async function AdmissionsPage() {
-  const cmsData = await getHomepageCmsData();
+  const cookieStore = await cookies();
+  const lang = getSafeLanguage(cookieStore.get("chhetrapal_lang")?.value);
+  const cmsData = await getHomepageCmsData(lang);
+  const t = (key: TranslationKey) => translations[lang][key] || translations["en"][key];
+  const isNe = lang === "ne";
+
+  const steps = isNe ? stepsNe : stepsEn;
+  const docs = isNe ? docsNe : docsEn;
+  const fees = isNe ? feesNe : feesEn;
+
   const programChips = cmsData?.programs?.length
     ? cmsData.programs.map((program) => `${program.label}${program.desc ? ` (${program.desc})` : ""}`)
-    : ["Class 1 - 5 (Primary)", "Class 6 - 8 (Lower Sec.)", "Class 9 - 10 (SEE)", "Class 11 - 12 (+2)"];
+    : [
+        isNe ? "कक्षा १ - ५ (प्राथमिक तह)" : "Class 1 - 5 (Primary)",
+        isNe ? "कक्षा ६ - ८ (निम्न माध्यमिक तह)" : "Class 6 - 8 (Lower Sec.)",
+        isNe ? "कक्षा ९ - १० (एस.ई.ई. तह)" : "Class 9 - 10 (SEE)",
+        isNe ? "कक्षा ११ - १२ (+२ तह)" : "Class 11 - 12 (+2)",
+      ];
+
   const downloadForms = cmsData?.downloads?.length
     ? cmsData.downloads.map((download) => ({
         title: download.title,
         href: download.fileUrl || "#",
       }))
-    : [{ title: "Download Blank Form", href: "#" }];
+    : [{ title: isNe ? "रिक्त फारम डाउनलोड गर्नुहोस्" : "Download Blank Form", href: "#" }];
 
   return (
     <div className="page-shell">
       <section className="bg-[#1a3a6b] text-white py-14 md:py-20">
         <div className="page-container">
-          <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">Admissions</p>
-          <h1 className="text-4xl md:text-5xl font-extrabold mt-2">Online Admission UI</h1>
+          <p className="text-orange-200 uppercase tracking-[0.2em] text-xs">{t("onlineAdmission")}</p>
+          <h1 className="text-4xl md:text-5xl font-extrabold mt-2">
+            {isNe ? "अनलाइन भर्ना पोर्टल" : "Online Admission Portal"}
+          </h1>
           <p className="max-w-3xl text-white/80 mt-4 text-sm md:text-base">
-            Admission-related classes and downloadable forms are updated centrally for non-technical edits.
+            {isNe
+              ? "क्षेत्रपाल माध्यमिक विद्यालयमा आफ्नो बच्चालाई भर्ना गर्नुहोस्। सोधपुछ फारम भर्नुहोस् वा भर्ना निर्देशिका डाउनलोड गर्नुहोस्।"
+              : "Enroll your child in Chhetrapal Secondary School. Submit an application inquiry online or download our admission guidelines below."}
           </p>
         </div>
       </section>
@@ -48,16 +109,9 @@ export default async function AdmissionsPage() {
 
         <section className="grid lg:grid-cols-[1.3fr_1fr] gap-6">
           <article className="bg-white border border-gray-200 rounded-sm shadow-sm p-5">
-            <h2 className="section-title">Required Documents</h2>
+            <h2 className="section-title">{isNe ? "आवश्यक कागजातहरू" : "Required Documents"}</h2>
             <ul className="space-y-2 text-sm text-gray-600">
-              {[
-                "Birth Certificate / Citizenship Copy",
-                "Previous School Character Certificate",
-                "Latest Marksheet / Transcript",
-                "Passport Size Photos (4 copies)",
-                "Guardian ID Proof",
-                "Transfer Certificate (if applicable)",
-              ].map((item) => (
+              {docs.map((item) => (
                 <li key={item} className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[#e8841a]" /> {item}
                 </li>
@@ -66,55 +120,42 @@ export default async function AdmissionsPage() {
           </article>
 
           <article className="bg-white border border-gray-200 rounded-sm shadow-sm p-5">
-            <h2 className="section-title">Fee Snapshot (Dummy)</h2>
-            <div className="space-y-2 text-sm">
-              {[
-                ["Admission Fee", "NPR 2,500"],
-                ["Monthly Tuition", "NPR 1,800"],
-                ["Lab / Activity", "NPR 900"],
-                ["Annual Exam Fee", "NPR 1,200"],
-              ].map((row) => (
-                <div key={row[0]} className="flex items-center justify-between border border-gray-200 rounded-sm px-3 py-2 text-gray-600">
-                  <span>{row[0]}</span>
-                  <span className="font-semibold text-[#1a3a6b]">{row[1]}</span>
-                </div>
-              ))}
-            </div>
+            <h2 className="section-title">{isNe ? "शुल्क विवरण (Fee Snapshot)" : "Fee Snapshot"}</h2>
+            {cmsData?.contact?.feeStructure ? (
+              <div className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
+                {cmsData.contact.feeStructure}
+              </div>
+            ) : (
+              <div className="space-y-2 text-sm">
+                {fees.map((row) => (
+                  <div key={row[0]} className="flex items-center justify-between border border-gray-200 rounded-sm px-3 py-2 text-gray-600">
+                    <span>{row[0]}</span>
+                    <span className="font-semibold text-[#1a3a6b]">{row[1]}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </article>
         </section>
 
         <section className="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
           <div className="bg-[#1a3a6b] text-white px-5 py-3 flex items-center gap-2">
             <UserPlus2 className="h-5 w-5 text-[#e8841a]" />
-            <h2 className="text-sm uppercase tracking-widest">Admission Form (UI Only)</h2>
+            <h2 className="text-sm uppercase tracking-widest">{t("admissionForm")}</h2>
           </div>
-          <AdmissionsApplicationForm downloadHref={downloadForms[0]?.href || "#"} downloadTitle={downloadForms[0]?.title || "Download Blank Form"} />
+          <AdmissionsApplicationForm
+            downloadHref={downloadForms[0]?.href || "#"}
+            downloadTitle={downloadForms[0]?.title || (isNe ? "रिक्त फारम डाउनलोड" : "Download Blank Form")}
+          />
         </section>
 
         <section className="bg-white border border-gray-200 rounded-sm shadow-sm p-5">
-          <h2 className="section-title">Available Classes</h2>
+          <h2 className="section-title">{isNe ? "उपलब्ध कक्षाहरू" : "Available Classes"}</h2>
           <div className="flex flex-wrap gap-2">
             {programChips.map((program) => (
               <span key={program} className="rounded-sm bg-blue-50 px-3 py-1.5 text-xs font-semibold text-[#1a3a6b] border border-blue-100">
                 {program}
               </span>
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-white border border-gray-200 rounded-sm shadow-sm p-5">
-          <h2 className="section-title flex items-center gap-2"><BadgeHelp className="h-4 w-4 text-[#e8841a]" />Admission FAQ (Dummy)</h2>
-          <div className="space-y-2">
-            {[
-              "When does admission open each year?",
-              "Do you provide scholarship options?",
-              "Is transportation available?",
-              "How can I track my application status?",
-            ].map((q) => (
-              <details key={q} className="border border-gray-200 rounded-sm px-3 py-2 bg-gray-50">
-                <summary className="cursor-pointer text-sm font-semibold text-[#1a3a6b]">{q}</summary>
-                <p className="text-sm text-gray-600 mt-2">This is placeholder answer text. Replace with official response later.</p>
-              </details>
             ))}
           </div>
         </section>
