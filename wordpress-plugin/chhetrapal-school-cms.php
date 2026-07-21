@@ -46,6 +46,8 @@ final class Chhetrapal_School_CMS {
         add_action('rest_api_init', [$instance, 'register_rest_routes']);
         add_action('wp_dashboard_setup', [$instance, 'register_dashboard_widget']);
         add_action('admin_menu', [$instance, 'register_admin_pages']);
+        add_filter('manage_' . self::CPT_NOTICE . '_posts_columns', [$instance, 'add_notice_columns']);
+        add_action('manage_' . self::CPT_NOTICE . '_posts_custom_column', [$instance, 'render_notice_columns'], 10, 2);
         register_activation_hook(__FILE__, [__CLASS__, 'activate']);
     }
 
@@ -134,6 +136,7 @@ final class Chhetrapal_School_CMS {
             },
         ];
 
+        register_post_meta(self::CPT_NOTICE, 'chhetrapal_show_in_scroller', $meta_args);
         register_post_meta(self::CPT_DOWNLOAD, 'chhetrapal_file_url', $meta_args + [
             'sanitize_callback' => 'esc_url_raw',
         ]);
@@ -191,6 +194,15 @@ final class Chhetrapal_School_CMS {
         );
 
         add_meta_box(
+            'chhetrapal-notice-scroller',
+            'Scroller / Marquee Option',
+            [$this, 'render_notice_scroller_meta_box'],
+            self::CPT_NOTICE,
+            'side',
+            'high'
+        );
+
+        add_meta_box(
             'chhetrapal-scholarship-details',
             'Scholarship Details',
             [$this, 'render_scholarship_meta_box'],
@@ -198,6 +210,40 @@ final class Chhetrapal_School_CMS {
             'normal',
             'default'
         );
+    }
+
+    public function render_notice_scroller_meta_box(WP_Post $post): void {
+        wp_nonce_field('chhetrapal_save_notice_scroller_meta', 'chhetrapal_notice_scroller_nonce');
+        $show_in_scroller = get_post_meta($post->ID, 'chhetrapal_show_in_scroller', true);
+        $checked = ($show_in_scroller === '1' || $show_in_scroller === 'true') ? 'checked' : '';
+
+        echo '<p><label for="chhetrapal_show_in_scroller">';
+        echo '<input type="checkbox" id="chhetrapal_show_in_scroller" name="chhetrapal_show_in_scroller" value="1" ' . $checked . ' /> ';
+        echo '<strong>Show in Marquee Scroller</strong>';
+        echo '</label></p>';
+        echo '<p class="description">Check this box to display this notice in the horizontal marquee scroll bar at the top of pages.</p>';
+    }
+
+    public function add_notice_columns(array $columns): array {
+        $new_columns = [];
+        foreach ($columns as $key => $title) {
+            $new_columns[$key] = $title;
+            if ($key === 'title') {
+                $new_columns['chhetrapal_scroller'] = 'In Scroller';
+            }
+        }
+        return $new_columns;
+    }
+
+    public function render_notice_columns(string $column, int $post_id): void {
+        if ($column === 'chhetrapal_scroller') {
+            $show_in_scroller = get_post_meta($post_id, 'chhetrapal_show_in_scroller', true);
+            if ($show_in_scroller === '1' || $show_in_scroller === 'true') {
+                echo '<span style="color:#22c55e;font-weight:bold;">✓ Active</span>';
+            } else {
+                echo '<span style="color:#9ca3af;">—</span>';
+            }
+        }
     }
 
     public function register_dashboard_widget(): void {
@@ -346,6 +392,15 @@ final class Chhetrapal_School_CMS {
             update_post_meta($post_id, 'chhetrapal_twitter_url', $twitter_url);
         }
 
+        if ($post_type === self::CPT_NOTICE) {
+            if (isset($_POST['chhetrapal_notice_scroller_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['chhetrapal_notice_scroller_nonce'])), 'chhetrapal_save_notice_scroller_meta')) {
+                if (current_user_can('edit_post', $post_id)) {
+                    $show_in_scroller = (isset($_POST['chhetrapal_show_in_scroller']) && $_POST['chhetrapal_show_in_scroller'] === '1') ? '1' : '0';
+                    update_post_meta($post_id, 'chhetrapal_show_in_scroller', $show_in_scroller);
+                }
+            }
+        }
+
         if ($post_type === self::CPT_SCHOLARSHIP) {
             if (!isset($_POST['chhetrapal_scholarship_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['chhetrapal_scholarship_nonce'])), 'chhetrapal_save_scholarship_meta')) {
                 return;
@@ -417,7 +472,7 @@ final class Chhetrapal_School_CMS {
         $posts = get_posts([
             'post_type' => self::CPT_NOTICE,
             'post_status' => 'publish',
-            'numberposts' => 6,
+            'numberposts' => 20,
             'orderby' => 'date',
             'order' => 'DESC',
         ]);
@@ -429,11 +484,16 @@ final class Chhetrapal_School_CMS {
             if (!$summary) {
                 $summary = wp_trim_words(wp_strip_all_tags($post->post_content), 20);
             }
+            $show_in_scroller = get_post_meta($post->ID, 'chhetrapal_show_in_scroller', true);
+
             $items[] = [
+                'id' => $post->ID,
                 'date' => $month_day,
                 'title' => get_the_title($post),
                 'summary' => $summary,
+                'content' => apply_filters('the_content', $post->post_content),
                 'tag' => $this->detect_notice_tag($post->ID),
+                'showInScroller' => ($show_in_scroller === '1' || $show_in_scroller === 'true'),
                 'link' => '/notices',
                 'imageUrl' => get_the_post_thumbnail_url($post, 'full') ?: '',
             ];
@@ -730,6 +790,7 @@ final class Chhetrapal_School_CMS {
             ]);
             if ($post_id) {
                 wp_set_object_terms($post_id, $item['type'], self::TAX_NOTICE_TYPE, false);
+                update_post_meta($post_id, 'chhetrapal_show_in_scroller', '1');
             }
         }
     }

@@ -2,8 +2,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Phone, Mail, ChevronDown, Menu, X } from "lucide-react";
-import type { CmsContact } from "@/lib/wordpress";
+import { Phone, Mail, ChevronDown, Menu, X, Megaphone } from "lucide-react";
+import type { CmsContact, CmsNotice } from "@/lib/wordpress";
+import NoticeModal from "@/components/notice-modal";
+
+const fallbackNotices: CmsNotice[] = [
+  { id: 1, date: { day: "15", month: "Baisakh" }, title: "First Term Examination Routine 2083", tag: "Notice", showInScroller: true, link: "/notices", summary: "First Term examination routine for all grades has been published." },
+  { id: 2, date: { day: "10", month: "Chaitra" }, title: "Annual Sports Day Programme - Registration Open", tag: "Event", showInScroller: true, link: "/notices", summary: "Students can register for track and field events with their class teachers." },
+  { id: 3, date: { day: "25", month: "Falgun" }, title: "Parent-Teacher Meeting: All Grades", tag: "Notice", showInScroller: true, link: "/notices", summary: "Parents are invited to attend the term review meeting with class teachers." },
+  { id: 4, date: { day: "01", month: "Falgun" }, title: "SEE Practical Examination Schedule Released", tag: "Result", showInScroller: true, link: "/notices", summary: "Class 10 students should check their practical exam schedules." },
+];
 
 // Simple inline SVG social icons (lucide-react doesn't include brand icons)
 const FacebookIcon = () => (
@@ -52,11 +60,27 @@ const navLinks = [
 
 type NavbarProps = {
   contact?: CmsContact | null;
+  notices?: CmsNotice[];
 };
 
-export default function Navbar({ contact }: NavbarProps) {
+export default function Navbar({ contact, notices }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedNotice, setSelectedNotice] = useState<CmsNotice | null>(null);
+
+  const allNotices = notices && notices.length > 0 ? notices : fallbackNotices;
+  const scrollerNotices = allNotices.filter((n) => n.showInScroller);
+  const marqueeNotices = scrollerNotices.length > 0 ? scrollerNotices : allNotices;
+
+  const handleOpenNoticeModal = (notice?: CmsNotice) => {
+    if (notice) {
+      setSelectedNotice(notice);
+    } else if (allNotices.length > 0) {
+      setSelectedNotice(allNotices[0]);
+    }
+    setModalOpen(true);
+  };
 
   const topPhone = contact?.phone || "9851181243";
   const topEmail = contact?.email || "info@chhetrapalschool.edu.np";
@@ -235,20 +259,48 @@ export default function Navbar({ contact }: NavbarProps) {
       )}
 
       {/* ── Marquee Notice Strip ── */}
-      <div className="bg-amber-50 border-b border-amber-200 overflow-hidden flex items-center">
-        <div className="bg-[#e8841a] text-white text-xs font-bold uppercase px-4 py-2 whitespace-nowrap flex-shrink-0 tracking-wider">
-          NOTICE:
-        </div>
-        <div className="overflow-hidden flex-1 relative py-2">
-          <div className="marquee-track text-sm text-[#1a3a6b] font-medium">
-            ✹ Admissions Open for Class 1 to 12 — AY 2026/2027 &nbsp;&nbsp;&nbsp;
-            ✹ SEE Exam Routine Published — Check Notice Board &nbsp;&nbsp;&nbsp;
-            ✹ Annual Prize Distribution Ceremony on Baisakh 22, 2083 &nbsp;&nbsp;&nbsp;
-            ✹ Parent-Teacher Meeting: Chaitra 5, 2083 &nbsp;&nbsp;&nbsp;
-            ✹ Government Secondary School — Likhu Rural Municipality Ward No. 4, Chaughada, Nuwakot &nbsp;&nbsp;&nbsp;
+      <div className="bg-amber-50 border-b border-amber-200 overflow-hidden flex items-center group">
+        <button
+          onClick={() => handleOpenNoticeModal()}
+          className="bg-[#e8841a] hover:bg-orange-600 transition-colors text-white text-xs font-bold uppercase px-4 py-2.5 whitespace-nowrap flex-shrink-0 tracking-wider flex items-center gap-1.5 cursor-pointer shadow-xs z-10"
+          title="Click to view all notices"
+        >
+          <Megaphone className="h-3.5 w-3.5" />
+          <span>NOTICE:</span>
+        </button>
+        <div className="overflow-hidden flex-1 relative py-2 bg-amber-50/80">
+          <div className="marquee-track text-sm text-[#1a3a6b] font-medium flex items-center gap-6 cursor-pointer">
+            {/* Duplicated list to ensure continuous scrolling marquee loop */}
+            {[...marqueeNotices, ...marqueeNotices].map((notice, index) => (
+              <button
+                key={`${notice.title}-${index}`}
+                onClick={() => handleOpenNoticeModal(notice)}
+                className="inline-flex items-center gap-2 hover:text-[#e8841a] hover:underline focus:outline-hidden whitespace-nowrap px-1 transition-colors group/item"
+                title="Click to view notice details"
+              >
+                <span className="text-amber-500 font-bold text-base">✹</span>
+                <span className="font-semibold text-xs uppercase px-1.5 py-0.5 rounded bg-blue-100/80 text-blue-800 border border-blue-200">
+                  {notice.tag}
+                </span>
+                <span className="font-medium text-sm text-gray-800 group-hover/item:text-[#e8841a]">
+                  {notice.title}
+                </span>
+                <span className="text-xs text-gray-500 font-normal">
+                  ({notice.date.month} {notice.date.day})
+                </span>
+                <span className="text-gray-300 ml-4">•</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
+
+      <NoticeModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        initialNotice={selectedNotice}
+        allNotices={allNotices}
+      />
     </header>
   );
 }

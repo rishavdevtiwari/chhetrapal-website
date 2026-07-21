@@ -6,10 +6,13 @@ export type CmsHero = {
 };
 
 export type CmsNotice = {
+  id?: number;
   date: { day: string; month: string };
   title: string;
   summary?: string;
+  content?: string;
   tag: "Notice" | "Event" | "Result";
+  showInScroller?: boolean;
   link?: string;
   imageUrl?: string;
 };
@@ -201,6 +204,8 @@ function normalizeHomepageData(payload: HomepageCmsData, wpOrigin: string): Home
       ...notice,
       title: sanitizeText(notice.title),
       summary: notice.summary ? sanitizeText(notice.summary) : undefined,
+      content: notice.content ? notice.content : undefined,
+      showInScroller: Boolean(notice.showInScroller),
       link: normalizeCmsUrl(notice.link, wpOrigin),
       imageUrl: normalizeCmsUrl(notice.imageUrl, wpOrigin),
     })),
@@ -368,6 +373,7 @@ export async function getHomepageCmsDataWithStatus(): Promise<HomepageCmsRespons
               },
               title: post.title.rendered.replace(/<[^>]+>/g, ""),
               tag: index === 1 ? "Event" : index === 2 ? "Result" : "Notice",
+              showInScroller: true,
             };
           }),
           principal: {

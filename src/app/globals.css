@@ -72,14 +72,20 @@
 }
 
 @keyframes marquee-scroll {
-  0%   { transform: translateX(100vw); }
-  100% { transform: translateX(-100%); }
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
 }
 
 .marquee-track {
-  display: inline-block;
+  display: inline-flex;
   white-space: nowrap;
-  animation: marquee-scroll 40s linear infinite;
+  animation: marquee-scroll 35s linear infinite;
+  will-change: transform;
+}
+
+.marquee-track:hover,
+.group:hover .marquee-track {
+  animation-play-state: paused;
 }
 
 @layer base {

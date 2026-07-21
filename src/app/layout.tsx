@@ -29,7 +29,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${inter.variable}`}>
       <body className="min-h-screen flex flex-col antialiased">
-        <Navbar contact={contact} />
+        <Navbar contact={contact} notices={cmsData?.notices} />
         <ScholarshipPopup scholarships={scholarships} />
         <main className="flex-1">{children}</main>
         <Footer />
